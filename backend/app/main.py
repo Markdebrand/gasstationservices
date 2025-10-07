@@ -28,3 +28,22 @@ async def health():
 @app.on_event("startup")
 async def on_startup():
     await init_db()
+    # Crear usuario estático si no existe
+    from .db.session import AsyncSessionLocal
+    from .models.user import User
+    from .core.security.passwords import get_password_hash
+    async with AsyncSessionLocal() as session:
+        from sqlalchemy import select
+        result = await session.execute(select(User).where(User.email == "user"))
+        user = result.scalar_one_or_none()
+        if not user:
+            new_user = User(
+                email="user",
+                full_name="Usuario Estático",
+                hashed_password=get_password_hash("12345678"),
+                is_active=True,
+                is_admin=False,
+                role="user"
+            )
+            session.add(new_user)
+            await session.commit()
