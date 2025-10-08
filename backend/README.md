@@ -28,7 +28,7 @@ uvicorn app.main:app --reload --port 8000
 4. First-time setup: create an admin user directly via the register endpoint then toggle admin in DB if needed.
 
 Env vars (.env):
-- DATABASE_URL (default sqlite+aiosqlite:///./app.db)
+- DATABASE_URL
 - JWT_SECRET_KEY
 - ACCESS_TOKEN_EXPIRE_MINUTES
 
