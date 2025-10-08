@@ -9,9 +9,22 @@ from .deps.auth import get_current_user, get_current_admin
 
 router = APIRouter()
 
+
+from fastapi import Query
+
 @router.get("/", response_model=list[OrderRead])
-async def list_orders(session: AsyncSession = Depends(get_session), _admin = Depends(get_current_admin)):
-    result = await session.execute(select(Order))
+async def list_orders(
+    session: AsyncSession = Depends(get_session),
+    _admin = Depends(get_current_admin),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
+    status: str | None = Query(None)
+):
+    stmt = select(Order)
+    if status:
+        stmt = stmt.where(Order.status == status)
+    stmt = stmt.offset(skip).limit(limit)
+    result = await session.execute(stmt)
     return result.scalars().all()
 
 @router.post("/", response_model=OrderRead)

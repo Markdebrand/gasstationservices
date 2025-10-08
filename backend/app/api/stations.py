@@ -9,9 +9,21 @@ from .deps.auth import get_current_admin
 
 router = APIRouter()
 
+
+from fastapi import Query
+
 @router.get("/", response_model=list[StationRead])
-async def list_stations(session: AsyncSession = Depends(get_session)):
-    result = await session.execute(select(Station))
+async def list_stations(
+    session: AsyncSession = Depends(get_session),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
+    name: str | None = Query(None)
+):
+    stmt = select(Station)
+    if name:
+        stmt = stmt.where(Station.name.ilike(f"%{name}%"))
+    stmt = stmt.offset(skip).limit(limit)
+    result = await session.execute(stmt)
     stations = result.scalars().all()
     return stations
 
