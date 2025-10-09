@@ -14,9 +14,22 @@ router = APIRouter()
 async def read_me(current_user: User = Depends(get_current_user)):
     return current_user
 
+
+from fastapi import Query
+
 @router.get("/", response_model=list[UserRead])
-async def list_users(session: AsyncSession = Depends(get_session), _: User = Depends(get_current_admin)):
-    result = await session.execute(select(User))
+async def list_users(
+    session: AsyncSession = Depends(get_session),
+    _: User = Depends(get_current_admin),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
+    email: str | None = Query(None)
+):
+    stmt = select(User)
+    if email:
+        stmt = stmt.where(User.email.ilike(f"%{email}%"))
+    stmt = stmt.offset(skip).limit(limit)
+    result = await session.execute(stmt)
     users = result.scalars().all()
     return users
 

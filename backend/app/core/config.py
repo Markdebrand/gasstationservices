@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     app_name: str = "HSO Fuel Delivery"
     environment: str = Field(default="dev")
     db_profile: str = Field(default="local", alias="DB_PROFILE")
-    root_path: str = Field(default="/api", alias="ROOT_PATH")
+    root_path: str = Field(default="", alias="ROOT_PATH")
 
     # Remote MySQL
     mysql_host: str = Field(default="127.0.0.1", alias="MYSQL_HOST")
@@ -31,19 +31,39 @@ class Settings(BaseSettings):
     jwt_algorithm: str = Field(default="HS256")
     access_token_expire_minutes: int = 60 * 24
 
+    # CORS
+    allowed_origins: str = Field(default="*", alias="ALLOWED_ORIGINS")
+
     class Config:
         env_file = ".env"
 
     @property
     def database_url(self) -> str:
+        # Usar driver async para la app
+        driver = "mysql+aiomysql"
         if self.db_profile == "local":
             return (
-                f"mysql+aiomysql://{self.local_mysql_user}:{self.local_mysql_password}" 
+                f"{driver}://{self.local_mysql_user}:{self.local_mysql_password}" 
                 f"@{self.local_mysql_host}:{self.local_mysql_port}/{self.local_mysql_db}"
             )
         else:
             return (
-                f"mysql+aiomysql://{self.mysql_user}:{self.mysql_password}" 
+                f"{driver}://{self.mysql_user}:{self.mysql_password}" 
+                f"@{self.mysql_host}:{self.mysql_port}/{self.mysql_db}"
+            )
+
+    @property
+    def alembic_database_url(self) -> str:
+        # Usar driver sync para Alembic
+        driver = "mysql+pymysql"
+        if self.db_profile == "local":
+            return (
+                f"{driver}://{self.local_mysql_user}:{self.local_mysql_password}" 
+                f"@{self.local_mysql_host}:{self.local_mysql_port}/{self.local_mysql_db}"
+            )
+        else:
+            return (
+                f"{driver}://{self.mysql_user}:{self.mysql_password}" 
                 f"@{self.mysql_host}:{self.mysql_port}/{self.mysql_db}"
             )
 

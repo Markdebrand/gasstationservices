@@ -1,15 +1,23 @@
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from .api import auth, stations, orders, users
 from .db.session import init_db
+from .core.config import settings
 
-app = FastAPI(title="HSO Fuel Delivery - MVP", version="0.1.0")
+app = FastAPI(title="HSO Fuel Delivery - MVP", version="0.1.0", root_path=settings.root_path)
 
 # CORS for local dev
+
+# CORS según entorno
+if settings.environment == "prod":
+    allowed_origins = settings.allowed_origins.split(",")
+else:
+    allowed_origins = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
