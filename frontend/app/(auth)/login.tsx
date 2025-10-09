@@ -59,6 +59,7 @@ export default function LoginScreen() {
         <TextInput
           style={styles.input}
           placeholder="tú@correo.com"
+          placeholderTextColor="#64748B"
           autoCapitalize="none"
           keyboardType="email-address"
           value={email}
@@ -67,8 +68,9 @@ export default function LoginScreen() {
 
         <Text style={[styles.label, { marginTop: 12 }]}>Contraseña</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { color: '#0f172a' }]}
           placeholder="••••••••"
+          placeholderTextColor="#64748B"
           secureTextEntry
           value={password}
           onChangeText={setPassword}
