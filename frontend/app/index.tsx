@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Redirect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, ActivityIndicator } from 'react-native';
+import * as SplashScreen from 'expo-splash-screen';
 
 export default function Index() {
   const [ready, setReady] = useState(false);
@@ -10,10 +11,14 @@ export default function Index() {
   useEffect(() => {
     (async () => {
       try {
+        // Prevenir que el splash se oculte automáticamente
+        await SplashScreen.preventAutoHideAsync();
         const token = await AsyncStorage.getItem('auth:token');
         setHasToken(!!token);
       } finally {
         setReady(true);
+        // Oculta el splash tan pronto como la app esté lista
+        await SplashScreen.hideAsync();
       }
     })();
   }, []);

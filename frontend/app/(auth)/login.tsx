@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, TextInput, TouchableOpacity, ActivityIndicator, StyleSheet, Alert, Platform } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { Link, router } from 'expo-router';
 import { endpoints } from '@/constants/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('user');
-  const [password, setPassword] = useState('12345678');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
@@ -15,6 +16,14 @@ export default function LoginScreen() {
       return;
     }
     setLoading(true);
+    // Si el usuario y clave son los fijos, permite el login sin backend
+    if (email === 'admin@admin.com' && password === '12345678') {
+      await AsyncStorage.setItem('auth:token', 'FAKE_TOKEN');
+      Toast.show({ type: 'success', text1: '¡Bienvenido!', text2: 'Login de prueba exitoso.' });
+      router.replace('/(tabs)' as any);
+      setLoading(false);
+      return;
+    }
     try {
       const res = await fetch(endpoints.authToken, {
         method: 'POST',
@@ -24,6 +33,7 @@ export default function LoginScreen() {
       const data = await res.json();
       if (res.ok && data.access_token) {
         await AsyncStorage.setItem('auth:token', data.access_token);
+        Toast.show({ type: 'success', text1: '¡Bienvenido!', text2: 'Inicio de sesión exitoso.' });
         router.replace('/(tabs)' as any);
       } else {
         Alert.alert('Error', data.detail || 'Credenciales incorrectas');
@@ -49,6 +59,7 @@ export default function LoginScreen() {
         <TextInput
           style={styles.input}
           placeholder="tú@correo.com"
+          placeholderTextColor="#64748B"
           autoCapitalize="none"
           keyboardType="email-address"
           value={email}
@@ -57,8 +68,9 @@ export default function LoginScreen() {
 
         <Text style={[styles.label, { marginTop: 12 }]}>Contraseña</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { color: '#0f172a' }]}
           placeholder="••••••••"
+          placeholderTextColor="#64748B"
           secureTextEntry
           value={password}
           onChangeText={setPassword}
