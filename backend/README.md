@@ -14,13 +14,13 @@ Features:
 1. Create a virtualenv and install deps
 
 ```powershell
-python -m venv .venv; .\.venv\Scripts\Activate.ps1; pip install -r backend/requirements.txt
+pip install -r backend/requirements.txt
 ```
 
 2. Run the API
 
 ```powershell
-uvicorn app.main:app --reload --port 8000 --app-dir backend
+uvicorn app.main:app --reload --port 8000
 ```
 
 3. Open docs at http://127.0.0.1:8000/docs
