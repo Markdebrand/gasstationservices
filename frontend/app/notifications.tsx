@@ -3,9 +3,9 @@ import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import Header from './components/Header';
 
 const sample = [
-  { id: 1, title: 'Orden completada', body: 'Tu última orden fue completada correctamente.', time: '2h' , read: false},
-  { id: 2, title: 'Promoción HSO10', body: 'Usa HSO10 y obtén 10% de descuento en tu primera carga.', time: '1d', read: false },
-  { id: 3, title: 'Recordatorio', body: 'Verifica tu método de pago para evitar contratiempos.', time: '3d', read: true },
+  { id: 1, title: 'Order completed', body: 'Your last order was completed successfully.', time: '2h' , read: false},
+  { id: 2, title: 'HSO10 Promotion', body: 'Use HSO10 and get 10% off your first fill.', time: '1d', read: false },
+  { id: 3, title: 'Reminder', body: 'Verify your payment method to avoid issues.', time: '3d', read: true },
 ];
 
 export default function Notifications() {
@@ -17,9 +17,9 @@ export default function Notifications() {
 
   return (
     <ScrollView style={styles.root} contentContainerStyle={{ paddingBottom: 120 }}>
-      <Header />
-      <Text style={styles.title}>Notificaciones</Text>
-      <Text style={styles.subtitle}>Últimas alertas y promociones</Text>
+      <Header showBack />
+  <Text style={styles.title}>Notifications</Text>
+  <Text style={styles.subtitle}>Latest alerts and promotions</Text>
 
       <View style={{ marginTop: 12 }}>
         {items.map((it) => (
@@ -32,7 +32,7 @@ export default function Notifications() {
               <View style={{ alignItems: 'flex-end' }}>
                 <Text style={styles.time}>{it.time}</Text>
                 <Pressable onPress={() => toggleRead(it.id)} style={{ marginTop: 8 }}>
-                  <Text style={{ color: '#14617B' }}>{it.read ? 'Marcar como no leído' : 'Marcar como leído'}</Text>
+                  <Text style={{ color: '#14617B' }}>{it.read ? 'Mark as unread' : 'Mark as read'}</Text>
                 </Pressable>
               </View>
             </View>

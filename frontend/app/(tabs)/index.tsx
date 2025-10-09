@@ -17,31 +17,31 @@ export default function HomeScreen() {
 
       <View style={styles.grid3}>
         <PriceBadge title="Gasolina" price="$1.18" unit="/L" trend="+1.2%" colorBg="#E0F2FE" icon={<MaterialCommunityIcons name="gas-station" size={16} color="#475569" />} />
-        <PriceBadge title="Diésel" price="$1.06" unit="/L" trend="-0.4%" colorBg="#F1F5F9" negative icon={<Ionicons name="flame-outline" size={16} color="#475569" />} />
+  <PriceBadge title="Diesel" price="$1.06" unit="/L" trend="-0.4%" colorBg="#F1F5F9" negative icon={<Ionicons name="flame-outline" size={16} color="#475569" />} />
         <PriceBadge title="Premium" price="$1.34" unit="/L" trend="+0.6%" colorBg="#FEF3C7" icon={<Ionicons name="speedometer-outline" size={16} color="#475569" />} />
       </View>
 
   <View style={[styles.card, { marginTop: 8 }] }>
         <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle}>Resumen de precios</Text>
+          <Text style={styles.cardTitle}>Price summary</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <Ionicons name="trending-up-outline" color="#64748B" size={16} />
-            <Text style={styles.cardMeta}>Promedio</Text>
+            <Text style={styles.cardMeta}>Average</Text>
           </View>
         </View>
         <View style={{ height: 120, justifyContent: 'center' }}>
           <PolylineChart data={chartData} />
         </View>
-        <Text style={styles.cardNote}>Últimos 6 meses • promedio general</Text>
+  <Text style={styles.cardNote}>Last 6 months • overall average</Text>
       </View>
 
       <View style={[styles.grid2, { marginTop: 16 }]}>
         <View style={styles.promoCard}>
           <Text style={styles.muted}>Promo</Text>
-          <Text style={styles.bold}>HSO10: -10% en tu primera carga</Text>
+          <Text style={styles.bold}>HSO10: -10% on your first fill</Text>
         </View>
         <View style={styles.smallCard}>
-          <Text style={styles.muted}>Última orden</Text>
+          <Text style={styles.muted}>Last order</Text>
           <Text style={styles.bold}>Premium • 20L • $26.80</Text>
         </View>
       </View>
@@ -49,7 +49,7 @@ export default function HomeScreen() {
   <TouchableOpacity style={[styles.cta, { marginTop: 20 }]}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <Ionicons name="water-outline" size={18} color="#F7FBFE" />
-          <Text style={styles.ctaText}>Solicitar Servicio</Text>
+          <Text style={styles.ctaText}>Request service</Text>
         </View>
       </TouchableOpacity>
     </ScrollView>
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
   grid3: { flexDirection: 'row', marginTop: 12, marginBottom: 16, justifyContent: 'space-between', paddingHorizontal: 4 },
   grid2: { flexDirection: 'row', gap: 12, marginTop: 18 },
   
-  card: { flex: 1, backgroundColor: '#fff', borderRadius: 16, padding: 12, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 6, shadowOffset: { width: 0, height: 4 }, elevation: 2, marginTop: 16 },
+  card: { flex: 1, backgroundColor: '#fff', borderRadius: 12, padding: 12, marginTop: 12, shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 1, borderWidth: 1, borderColor: '#E6EDF0' },
   promoCard: { flex: 1, backgroundColor: 'rgba(20,97,123,0.06)', borderRadius: 12, padding: 12, shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 0, justifyContent: 'center' },
   smallCard: { flex: 1, backgroundColor: '#fff', borderRadius: 12, padding: 12, shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 0, justifyContent: 'center' },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },

@@ -12,7 +12,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Campos requeridos', 'Ingresa correo y contraseña');
+  Alert.alert('Required fields', 'Enter email and password');
       return;
     }
     setLoading(true);
@@ -52,21 +52,20 @@ export default function LoginScreen() {
         <Text style={styles.logo}>💧</Text>
       </View>
       <Text style={styles.title}>Iniciar sesión</Text>
-      <Text style={styles.subtitle}>Accede con tu correo y contraseña</Text>
+  <Text style={styles.subtitle}>Sign in with your email and password</Text>
 
       <View style={styles.form}>
-        <Text style={styles.label}>Correo</Text>
+  <Text style={styles.label}>Email</Text>
         <TextInput
           style={styles.input}
-          placeholder="tú@correo.com"
-          placeholderTextColor="#64748B"
+          placeholder="you@email.com"
           autoCapitalize="none"
           keyboardType="email-address"
           value={email}
           onChangeText={setEmail}
         />
 
-        <Text style={[styles.label, { marginTop: 12 }]}>Contraseña</Text>
+  <Text style={[styles.label, { marginTop: 12 }]}>Password</Text>
         <TextInput
           style={[styles.input, { color: '#0f172a' }]}
           placeholder="••••••••"
@@ -77,7 +76,7 @@ export default function LoginScreen() {
         />
 
         <View style={styles.linksRow}>
-          <Text style={styles.link}>¿Olvidaste tu contraseña?</Text>
+          <Text style={styles.link}>Forgot your password?</Text>
           <Link href="/(auth)/register" style={styles.mutedLink}>Crear cuenta</Link>
         </View>
 

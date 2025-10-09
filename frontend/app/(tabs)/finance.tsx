@@ -31,7 +31,7 @@ const trend = [
 const transactions = [
   { id: 1, title: 'Gasolina Premium', date: '15 Jun, 2025', amount: -65 },
   { id: 2, title: 'Reembolso HSO', date: '12 Jun, 2025', amount: 10 },
-  { id: 3, title: 'Diésel', date: '08 Jun, 2025', amount: -42 },
+  { id: 3, title: 'Diesel', date: '08 Jun, 2025', amount: -42 },
 ];
 
 export default function Finance() {
@@ -54,16 +54,16 @@ export default function Finance() {
     <ScrollView style={styles.root} contentContainerStyle={{ paddingBottom: contentPadBottom }} scrollEnabled={!isInteracting}>
       <Header />
 
-      <Text style={styles.title}>Financiación</Text>
-      <Text style={styles.subtitle}>Resumen de gastos y balance</Text>
+  <Text style={styles.title}>Finance</Text>
+  <Text style={styles.subtitle}>Spending summary and balance</Text>
 
       {/* Balance card */}
       <LinearGradient colors={["#10b981", "#059669"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.balanceCard}>
         <View style={styles.balanceRow}>
           <View>
-            <Text style={styles.balanceOverline}>Balance Total</Text>
+            <Text style={styles.balanceOverline}>Total Balance</Text>
             <Text style={styles.balanceValue}>$1,245.80</Text>
-            <Text style={styles.balanceDelta}>+12.5% este mes</Text>
+            <Text style={styles.balanceDelta}>+12.5% this month</Text>
           </View>
           <MaterialIcons name="account-balance-wallet" size={24} color="#fff" />
         </View>
@@ -71,14 +71,14 @@ export default function Finance() {
 
       {/* Monthly spend (bars) */}
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Gasto Mensual</Text>
+        <Text style={styles.cardTitle}>Monthly Spend</Text>
   <ChartBars data={monthly} height={160} barColor="#10b981" onInteractionChange={setIsInteracting} animateTrigger={animateTrigger} />
       </View>
 
       {/* Trend (line) */}
       <View style={styles.card}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-          <Text style={styles.cardTitle}>Tendencia de Consumo</Text>
+          <Text style={styles.cardTitle}>Consumption Trend</Text>
           <MaterialIcons name="trending-up" size={16} color="#6B7280" />
         </View>
   <ChartLine data={trend.map(t => t.v)} height={140} color="#10b981" onInteractionChange={setIsInteracting} animateTrigger={animateTrigger} />
@@ -86,7 +86,7 @@ export default function Finance() {
 
       {/* Transactions */}
       <View style={[styles.card, { paddingVertical: 8 }] }>
-        <Text style={[styles.cardTitle, { paddingHorizontal: 8, paddingTop: 6 }]}>Transacciones Recientes</Text>
+        <Text style={[styles.cardTitle, { paddingHorizontal: 8, paddingTop: 6 }]}>Recent Transactions</Text>
         {transactions.map((t) => (
           <View key={t.id} style={styles.txRow}>
             <View>
@@ -170,7 +170,7 @@ function ChartBars({ data, height = 160, barColor = '#10b981', onInteractionChan
           const finalH = Math.max(4, height - padBottom - y);
           const animH = anims[i].interpolate({ inputRange: [0, 1], outputRange: [0, finalH] });
           return (
-            <Animated.View key={`bar-${i}`} style={{ position: 'absolute', left: x, bottom: padBottom, width: barW, height: animH, borderRadius: 6, backgroundColor: i === activeIndex ? '#10b981' : barColor, opacity: i === activeIndex ? 1 : 0.95 }} />
+            <Animated.View key={`bar-${i}`} style={{ position: 'absolute', left: x, bottom: 0, width: barW, height: animH, borderRadius: 6, backgroundColor: i === activeIndex ? '#10b981' : barColor, opacity: i === activeIndex ? 1 : 0.95 }} />
           );
         })}
       </View>
@@ -352,12 +352,12 @@ const styles = StyleSheet.create({
   title: { fontSize: 18, fontWeight: '700', color: '#0F172A' },
   subtitle: { fontSize: 12, color: '#64748B', marginTop: 2 },
   
-  balanceCard: { marginTop: 12, borderRadius: 16, padding: 16 },
+  balanceCard: { marginTop: 12, borderRadius: 12, padding: 12, shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 1, borderWidth: 1, borderColor: '#E6EDF0' },
   balanceRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   balanceOverline: { color: '#ECFDF5', opacity: 0.9, fontSize: 12 },
   balanceValue: { color: '#fff', fontSize: 28, fontWeight: '700', marginTop: 4 },
   balanceDelta: { color: '#E6FFFA', fontSize: 12, marginTop: 2 },
-  card: { backgroundColor: '#fff', borderRadius: 16, padding: 12, marginTop: 14, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 6, shadowOffset: { width: 0, height: 4 }, elevation: 2 },
+  card: { backgroundColor: '#fff', borderRadius: 12, padding: 12, marginTop: 12, shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 1, borderWidth: 1, borderColor: '#E6EDF0' },
   cardTitle: { fontSize: 14, fontWeight: '600', color: '#0F172A', marginBottom: 6 },
   tickLabel: { color: '#64748B', fontSize: 12 },
   txRow: { paddingHorizontal: 12, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
