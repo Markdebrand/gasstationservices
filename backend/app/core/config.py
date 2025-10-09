@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     jwt_algorithm: str = Field(default="HS256")
     access_token_expire_minutes: int = 60 * 24
 
+    # CORS
+    allowed_origins: list[str] = Field(default=["*"], alias="ALLOWED_ORIGINS")
+
     class Config:
         env_file = ".env"
 
