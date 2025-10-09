@@ -18,18 +18,16 @@ export default function RegisterScreen() {
   }
 
   const handleRegister = async () => {
-    if (!name || !email || !password || !confirm) {
-      Alert.alert('Campos requeridos', 'Completa todos los campos');
-      return;
-    }
-    if (password.length < 8) {
-      Alert.alert('Contraseña débil', 'Mínimo 8 caracteres');
-      return;
-    }
-    if (password !== confirm) {
-      Alert.alert('Error', 'Las contraseñas no coinciden');
-      return;
-    }
+    let newErrors: { email?: string; password?: string; confirm?: string; name?: string } = {};
+    if (!name) newErrors.name = 'El nombre es requerido';
+    if (!email) newErrors.email = 'El correo es requerido';
+    else if (!validateEmail(email)) newErrors.email = 'Ingresa un correo válido';
+    if (!password) newErrors.password = 'La contraseña es requerida';
+    else if (password.length < 8) newErrors.password = 'Mínimo 8 caracteres';
+    if (!confirm) newErrors.confirm = 'Confirma tu contraseña';
+    else if (password !== confirm) newErrors.confirm = 'Las contraseñas no coinciden';
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
     setLoading(true);
     try {
       // Verificar si el usuario ya existe
@@ -53,7 +51,7 @@ export default function RegisterScreen() {
         router.replace('/(auth)/login' as any);
       } else {
         const data = await res.json().catch(() => ({} as any));
-        setErrors({ email: data.detail || 'No se pudo crear la cuenta' });
+  setErrors({ email: data.detail || 'No se pudo crear la cuenta' });
       }
     } catch (e) {
       Alert.alert('Error', 'No se pudo conectar al backend');
@@ -69,17 +67,21 @@ export default function RegisterScreen() {
   <Text style={styles.subtitle}>Sign up to request service</Text>
 
       <View style={styles.form}>
-        <Text style={styles.label}>Nombre</Text>
-        <TextInput style={styles.input} placeholder="Tu nombre" value={name} onChangeText={setName} />
+  <Text style={styles.label}>Nombre</Text>
+  <TextInput style={styles.input} placeholder="Tu nombre" value={name} onChangeText={setName} />
+  {errors.name ? <Text style={styles.error}>{errors.name}</Text> : null}
 
-        <Text style={[styles.label, { marginTop: 12 }]}>Correo</Text>
-        <TextInput style={styles.input} placeholder="tú@correo.com" autoCapitalize="none" keyboardType="email-address" value={email} onChangeText={setEmail} />
+  <Text style={[styles.label, { marginTop: 12 }]}>Correo</Text>
+  <TextInput style={styles.input} placeholder="tú@correo.com" autoCapitalize="none" keyboardType="email-address" value={email} onChangeText={setEmail} />
+  {errors.email ? <Text style={styles.error}>{errors.email}</Text> : null}
 
-        <Text style={[styles.label, { marginTop: 12 }]}>Contraseña</Text>
-        <TextInput style={styles.input} placeholder="Mínimo 8 caracteres" secureTextEntry value={password} onChangeText={setPassword} />
+  <Text style={[styles.label, { marginTop: 12 }]}>Contraseña</Text>
+  <TextInput style={styles.input} placeholder="Mínimo 8 caracteres" secureTextEntry value={password} onChangeText={setPassword} />
+  {errors.password ? <Text style={styles.error}>{errors.password}</Text> : null}
 
-        <Text style={[styles.label, { marginTop: 12 }]}>Confirmar contraseña</Text>
-        <TextInput style={styles.input} placeholder="Repite tu contraseña" secureTextEntry value={confirm} onChangeText={setConfirm} />
+  <Text style={[styles.label, { marginTop: 12 }]}>Confirmar contraseña</Text>
+  <TextInput style={styles.input} placeholder="Repite tu contraseña" secureTextEntry value={confirm} onChangeText={setConfirm} />
+  {errors.confirm ? <Text style={styles.error}>{errors.confirm}</Text> : null}
 
         <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
           {loading ? <ActivityIndicator color="#F7FBFE" /> : <Text style={styles.buttonText}>Crear cuenta</Text>}
