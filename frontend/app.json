@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "HSO Gas Station Services",
-    "slug": "hso gasstationservices",
+    "slug": "hso-gasstationservices",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -44,6 +44,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "fe8e89e0-de41-49a2-b87a-f8c9091754a3"
+      }
     }
   }
 }
