@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, TextInput, TouchableOpacity, ActivityIndicator, StyleSheet, Alert, Platform } from 'react-native';
 import { Link, router } from 'expo-router';
+import Toast from 'react-native-toast-message';
 import { endpoints } from '@/constants/api';
 
 export default function RegisterScreen() {
@@ -9,6 +10,12 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; password?: string; confirm?: string; name?: string }>({});
+
+  function validateEmail(email: string) {
+    // Simple email regex
+    return /^\S+@\S+\.\S+$/.test(email);
+  }
 
   const handleRegister = async () => {
     if (!name || !email || !password || !confirm) {
@@ -16,26 +23,37 @@ export default function RegisterScreen() {
       return;
     }
     if (password.length < 8) {
-  Alert.alert('Weak password', 'Minimum 8 characters');
+      Alert.alert('Contraseña débil', 'Mínimo 8 caracteres');
       return;
     }
     if (password !== confirm) {
-  Alert.alert('Error', 'Passwords do not match');
+      Alert.alert('Error', 'Las contraseñas no coinciden');
       return;
     }
     setLoading(true);
     try {
+      // Verificar si el usuario ya existe
+      const checkRes = await fetch(`${endpoints.authRegister.replace('/register','/users')}?email=${encodeURIComponent(email)}`);
+      if (checkRes.ok) {
+        const users = await checkRes.json();
+        if (Array.isArray(users) && users.length > 0) {
+          setErrors({ email: 'El correo ya está registrado' });
+          setLoading(false);
+          return;
+        }
+      }
+      // Registrar usuario
       const res = await fetch(endpoints.authRegister, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ full_name: name, email, password: password.slice(0,72) }),
       });
       if (res.ok) {
-        Alert.alert('¡Cuenta creada!', 'Ahora puedes iniciar sesión');
+        Toast.show({ type: 'success', text1: '¡Cuenta creada!', text2: 'Ahora puedes iniciar sesión.' });
         router.replace('/(auth)/login' as any);
       } else {
         const data = await res.json().catch(() => ({} as any));
-        Alert.alert('Error', data.detail || 'No se pudo crear la cuenta');
+        setErrors({ email: data.detail || 'No se pudo crear la cuenta' });
       }
     } catch (e) {
       Alert.alert('Error', 'No se pudo conectar al backend');
@@ -51,17 +69,17 @@ export default function RegisterScreen() {
   <Text style={styles.subtitle}>Sign up to request service</Text>
 
       <View style={styles.form}>
-  <Text style={styles.label}>Name</Text>
-  <TextInput style={styles.input} placeholder="Your name" value={name} onChangeText={setName} />
+        <Text style={styles.label}>Nombre</Text>
+        <TextInput style={styles.input} placeholder="Tu nombre" value={name} onChangeText={setName} />
 
-  <Text style={[styles.label, { marginTop: 12 }]}>Email</Text>
-  <TextInput style={styles.input} placeholder="you@email.com" autoCapitalize="none" keyboardType="email-address" value={email} onChangeText={setEmail} />
+        <Text style={[styles.label, { marginTop: 12 }]}>Correo</Text>
+        <TextInput style={styles.input} placeholder="tú@correo.com" autoCapitalize="none" keyboardType="email-address" value={email} onChangeText={setEmail} />
 
-  <Text style={[styles.label, { marginTop: 12 }]}>Password</Text>
+        <Text style={[styles.label, { marginTop: 12 }]}>Contraseña</Text>
         <TextInput style={styles.input} placeholder="Mínimo 8 caracteres" secureTextEntry value={password} onChangeText={setPassword} />
 
-  <Text style={[styles.label, { marginTop: 12 }]}>Confirm password</Text>
-  <TextInput style={styles.input} placeholder="Repeat your password" secureTextEntry value={confirm} onChangeText={setConfirm} />
+        <Text style={[styles.label, { marginTop: 12 }]}>Confirmar contraseña</Text>
+        <TextInput style={styles.input} placeholder="Repite tu contraseña" secureTextEntry value={confirm} onChangeText={setConfirm} />
 
         <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
           {loading ? <ActivityIndicator color="#F7FBFE" /> : <Text style={styles.buttonText}>Crear cuenta</Text>}
@@ -85,5 +103,6 @@ const styles = StyleSheet.create({
   button: { height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: '#14617B', marginTop: 16, ...Platform.select({ ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 6 }, android: { elevation: 4 } }) },
   buttonText: { color: '#F7FBFE', fontSize: 16, fontWeight: '600' },
   link: { color: '#14617B' },
+  error: { color: '#e11d48', fontSize: 12, marginTop: 2 },
   smallText: { marginTop: 8, textAlign: 'center', fontSize: 12, color: '#64748B' },
 });
