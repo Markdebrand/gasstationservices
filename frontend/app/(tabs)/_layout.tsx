@@ -57,7 +57,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
             );
           }
 
-          const label = route.name === 'index' ? 'Inicio' : route.name === 'finance' ? 'Finanzas' : route.name === 'locations' ? 'Ubicación' : 'Perfil';
+          const label = route.name === 'index' ? 'Home' : route.name === 'finance' ? 'Finance' : route.name === 'locations' ? 'Locations' : 'Profile';
 
           // Icon choices:
           if (route.name === 'index') {
@@ -103,11 +103,11 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
 export default function TabsLayout() {
   return (
     <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: '#14617B', tabBarStyle: { display: 'none' } }} tabBar={(props) => <CustomTabBar {...props} />}>
-      <Tabs.Screen name="index" options={{ title: 'Inicio' }} />
-      <Tabs.Screen name="finance" options={{ title: 'Finanzas' }} />
+  <Tabs.Screen name="index" options={{ title: 'Home' }} />
+  <Tabs.Screen name="finance" options={{ title: 'Finance' }} />
       <Tabs.Screen name="order" options={{ title: 'Orden' }} />
-      <Tabs.Screen name="locations" options={{ title: 'Ubicación' }} />
-      <Tabs.Screen name="profile" options={{ title: 'Perfil' }} />
+  <Tabs.Screen name="locations" options={{ title: 'Locations' }} />
+  <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
     </Tabs>
   );
 }

@@ -28,14 +28,14 @@ export default function LocationsScreen() {
     <ScrollView style={styles.root} contentContainerStyle={{ paddingBottom: contentPadBottom }}>
       <Header />
 
-      <Text style={styles.title}>Ubicaciones</Text>
-      <Text style={styles.subtitle}>Gasolineras afiliadas cercanas</Text>
+  <Text style={styles.title}>Locations</Text>
+  <Text style={styles.subtitle}>Nearby affiliated gas stations</Text>
 
       <View style={{ marginTop: 12 }}>
         <View style={styles.searchRow}>
           <Ionicons name="search" size={18} color="#64748B" />
           <TextInput
-            placeholder="Buscar ubicación..."
+            placeholder="Search location..."
             placeholderTextColor="#94A3B8"
             value={query}
             onChangeText={setQuery}
@@ -47,16 +47,16 @@ export default function LocationsScreen() {
           <View style={{ position: 'absolute', right: 12, top: 12 }}>
             <Pressable style={styles.locButton} onPress={() => { /* TODO: wire geolocation */ }}>
               <Ionicons name="navigate" size={14} color="#FFFFFF" />
-              <Text style={styles.locButtonText}>Mi ubicación</Text>
+              <Text style={styles.locButtonText}>My location</Text>
             </Pressable>
           </View>
           <View style={{ alignItems: 'center', justifyContent: 'center' }}>
             <Feather name="map-pin" size={28} color="#0F172A" />
-            <Text style={{ marginTop: 8, fontSize: 13, color: '#334155' }}>Mapa de ubicaciones</Text>
+            <Text style={{ marginTop: 8, fontSize: 13, color: '#334155' }}>Locations map</Text>
           </View>
         </View>
 
-        <Text style={styles.countText}>{filtered.length} estaciones cercanas</Text>
+  <Text style={styles.countText}>{filtered.length} nearby stations</Text>
         <View style={{ marginTop: 8 }}>
           {filtered.map((s) => (
             <View key={s.name} style={styles.card}>

@@ -5,21 +5,42 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export default function Header() {
+type Props = {
+  showBack?: boolean;
+  onBack?: () => void;
+};
+
+export default function Header({ showBack, onBack }: Props) {
   const insets = useSafeAreaInsets();
   const paddingTop = Math.max(insets.top, 12);
   const router = useRouter();
+
+  const handleBack = () => {
+    if (onBack) return onBack();
+    try {
+      router.back();
+    } catch (e) {
+      // fallback: go to root
+      router.push('/');
+    }
+  };
 
   return (
     <View style={[styles.container, { paddingTop }]}> 
       <View style={styles.headerCard}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          <View style={styles.brandBadge}>
-            <Ionicons name="water" size={20} color="#14617B" />
-          </View>
+          {showBack ? (
+            <Pressable onPress={handleBack} style={styles.backButton}>
+              <Ionicons name="chevron-back" size={20} color="#14617B" />
+            </Pressable>
+          ) : (
+            <View style={styles.brandBadge}>
+              <Ionicons name="water" size={20} color="#14617B" />
+            </View>
+          )}
           <View>
             <Text style={styles.headerOverline}>HSO FUEL DELIVERY</Text>
-            <Text style={styles.headerTitle}>Tu combustible, a domicilio</Text>
+            <Text style={styles.headerTitle}>Your fuel, delivered</Text>
           </View>
         </View>
         <View style={{ position: 'relative' }}>
@@ -66,5 +87,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  backButton: { height: 36, width: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(20,97,123,0.06)', marginRight: 6 },
   bellDot: { position: 'absolute', top: -6, right: -6, width: 10, height: 10, backgroundColor: '#EF4444', borderRadius: 5, borderWidth: 2, borderColor: '#fff' },
 });

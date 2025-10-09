@@ -2,29 +2,30 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Header from '../components/Header';
+import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function Profile() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   const coupons = [
-    { title: '10% OFF en Premium', code: 'HSO10' },
-    { title: '2x puntos esta semana', code: 'DOUBLE' },
+    { title: '10% OFF on Premium', code: 'HSO10' },
+    { title: '2x points this week', code: 'DOUBLE' },
   ];
 
-  const options = ['Métodos de pago', 'Historial de pedidos', 'Notificaciones', 'Cerrar sesión'];
+  const options = ['Payment methods', 'Order history', 'Notifications', 'Sign out'];
 
   return (
-    <View style={[styles.container, { paddingTop: Math.max(insets.top, 12) }]}> 
+    <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Header />
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.sectionCard}>
           <View style={styles.rowCenter}>
             <View style={styles.avatar}><Ionicons name="person" size={28} color="#14617B" /></View>
             <View style={{ marginLeft: 12 }}>
-              <Text style={styles.name}>Nombre de usuario</Text>
-              <Text style={styles.subtitle}>Usuario • @usuario</Text>
+              <Text style={styles.name}>User name</Text>
+              <Text style={styles.subtitle}>User • @username</Text>
             </View>
           </View>
         </View>
@@ -33,32 +34,35 @@ export default function Profile() {
           <View style={styles.rowCenter}>
             <View style={styles.iconCircle}><Ionicons name="trophy" size={20} color="#0F172A" /></View>
             <View style={{ marginLeft: 12 }}>
-              <Text style={styles.pointsTitle}>Puntos HSO</Text>
-              <Text style={styles.pointsValue}><Text style={{ fontWeight: '800' }}>1,240</Text> pts • Nivel Plata</Text>
+              <Text style={styles.pointsTitle}>HSO Points</Text>
+              <Text style={styles.pointsValue}><Text style={{ fontWeight: '800' }}>1,240</Text> pts • Silver level</Text>
             </View>
           </View>
           <View style={styles.progressBarBackground}>
             <View style={[styles.progressBarFill, { width: '66%' }]} />
           </View>
-          <Text style={styles.progressNote}>A 360 pts del siguiente nivel</Text>
+          <Text style={styles.progressNote}>360 pts to the next level</Text>
         </LinearGradient>
 
         <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>Recompensas y cupones</Text>
+          <Text style={styles.sectionTitle}>Rewards and coupons</Text>
           {coupons.map(c => (
             <View key={c.code} style={styles.couponRow}>
               <View style={styles.couponInfo}>
                 <View style={styles.couponIcon}><Ionicons name="gift" size={16} color="#374151" /></View>
                 <View>
                   <Text style={styles.couponTitle}>{c.title}</Text>
-                  <Text style={styles.couponCode}>Código: {c.code}</Text>
+                  <Text style={styles.couponCode}>Code: {c.code}</Text>
                 </View>
               </View>
               <Pressable style={styles.redeemButton} onPress={() => {}}>
-                <Text style={styles.redeemText}>Canjear</Text>
+                <Text style={styles.redeemText}>Redeem</Text>
               </Pressable>
             </View>
           ))}
+          <Pressable style={{ marginTop: 8 }} onPress={() => router.push('/points')}>
+            <Text style={{ color: '#14617B', fontWeight: '700' }}>See more points and promotions</Text>
+          </Pressable>
         </View>
 
         <View style={styles.sectionCard}>
@@ -71,16 +75,15 @@ export default function Profile() {
         </View>
 
         <Pressable style={styles.editButton} onPress={() => {}}>
-          <Text style={styles.editText}>Editar perfil</Text>
+          <Text style={styles.editText}>Edit profile</Text>
         </Pressable>
-      </ScrollView>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFB' },
-  content: { paddingHorizontal: 16, paddingBottom: 40 },
+  root: { flex: 1, backgroundColor: '#FAFAFB', padding: 16 },
+  content: { paddingBottom: 40 },
   sectionCard: { marginTop: 12, backgroundColor: '#fff', borderRadius: 12, padding: 12, shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 8, elevation: 1 },
   rowCenter: { flexDirection: 'row', alignItems: 'center' },
   avatar: { height: 56, width: 56, borderRadius: 14, backgroundColor: 'rgba(20,97,123,0.06)', alignItems: 'center', justifyContent: 'center' },

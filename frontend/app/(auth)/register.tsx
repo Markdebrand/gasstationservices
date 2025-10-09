@@ -16,11 +16,11 @@ export default function RegisterScreen() {
       return;
     }
     if (password.length < 8) {
-      Alert.alert('Contraseña débil', 'Mínimo 8 caracteres');
+  Alert.alert('Weak password', 'Minimum 8 characters');
       return;
     }
     if (password !== confirm) {
-      Alert.alert('Error', 'Las contraseñas no coinciden');
+  Alert.alert('Error', 'Passwords do not match');
       return;
     }
     setLoading(true);
@@ -48,20 +48,20 @@ export default function RegisterScreen() {
     <SafeAreaView style={styles.root}>
       <View style={styles.logoCircle}><Text style={styles.logo}>💧</Text></View>
       <Text style={styles.title}>Crear cuenta</Text>
-      <Text style={styles.subtitle}>Regístrate para solicitar servicio</Text>
+  <Text style={styles.subtitle}>Sign up to request service</Text>
 
       <View style={styles.form}>
-        <Text style={styles.label}>Nombre</Text>
-        <TextInput style={styles.input} placeholder="Tu nombre" value={name} onChangeText={setName} />
+  <Text style={styles.label}>Name</Text>
+  <TextInput style={styles.input} placeholder="Your name" value={name} onChangeText={setName} />
 
-        <Text style={[styles.label, { marginTop: 12 }]}>Correo</Text>
-        <TextInput style={styles.input} placeholder="tú@correo.com" autoCapitalize="none" keyboardType="email-address" value={email} onChangeText={setEmail} />
+  <Text style={[styles.label, { marginTop: 12 }]}>Email</Text>
+  <TextInput style={styles.input} placeholder="you@email.com" autoCapitalize="none" keyboardType="email-address" value={email} onChangeText={setEmail} />
 
-        <Text style={[styles.label, { marginTop: 12 }]}>Contraseña</Text>
+  <Text style={[styles.label, { marginTop: 12 }]}>Password</Text>
         <TextInput style={styles.input} placeholder="Mínimo 8 caracteres" secureTextEntry value={password} onChangeText={setPassword} />
 
-        <Text style={[styles.label, { marginTop: 12 }]}>Confirmar contraseña</Text>
-        <TextInput style={styles.input} placeholder="Repite tu contraseña" secureTextEntry value={confirm} onChangeText={setConfirm} />
+  <Text style={[styles.label, { marginTop: 12 }]}>Confirm password</Text>
+  <TextInput style={styles.input} placeholder="Repeat your password" secureTextEntry value={confirm} onChangeText={setConfirm} />
 
         <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
           {loading ? <ActivityIndicator color="#F7FBFE" /> : <Text style={styles.buttonText}>Crear cuenta</Text>}
