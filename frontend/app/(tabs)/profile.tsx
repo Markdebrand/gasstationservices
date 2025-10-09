@@ -1,9 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Header from '../components/Header';
 import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { clearToken } from '@/utils/auth';
+import { router } from 'expo-router';
 
 export default function Profile() {
   const insets = useSafeAreaInsets();
@@ -15,6 +17,15 @@ export default function Profile() {
 
   const options = ['Métodos de pago', 'Historial de pedidos', 'Notificaciones', 'Cerrar sesión'];
 
+  const handleOptionPress = async (option: string) => {
+    if (option === 'Cerrar sesión') {
+      await clearToken();
+      router.replace('/(auth)/login' as any);
+    } else {
+      // Aquí puedes manejar otras opciones si lo deseas
+      Alert.alert(option);
+    }
+  };
   return (
     <View style={[styles.container, { paddingTop: Math.max(insets.top, 12) }]}> 
       <Header />
@@ -63,7 +74,7 @@ export default function Profile() {
 
         <View style={styles.sectionCard}>
           {options.map((o) => (
-            <Pressable key={o} style={styles.optionRow} onPress={() => {}}>
+            <Pressable key={o} style={styles.optionRow} onPress={() => handleOptionPress(o)}>
               <Text style={styles.optionText}>{o}</Text>
               <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
             </Pressable>
