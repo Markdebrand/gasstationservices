@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View, Text, TextInput, TouchableOpacity, ActivityIndicator, StyleSheet, Alert, Platform } from 'react-native';
+import { SafeAreaView, View, Text, TextInput, TouchableOpacity, ActivityIndicator, StyleSheet, Alert, Platform, Image } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { Link, router } from 'expo-router';
 import { endpoints } from '@/constants/api';
@@ -11,35 +11,18 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    // Bypass backend for local testing: accept any non-empty inputs
     if (!email || !password) {
-  Alert.alert('Required fields', 'Enter email and password');
+      Alert.alert('Required fields', 'Enter email and password');
       return;
     }
     setLoading(true);
-    // Si el usuario y clave son los fijos, permite el login sin backend
-    if (email === 'admin@admin.com' && password === '12345678') {
-      await AsyncStorage.setItem('auth:token', 'FAKE_TOKEN');
-      Toast.show({ type: 'success', text1: '¡Bienvenido!', text2: 'Login de prueba exitoso.' });
-      router.replace('/(tabs)' as any);
-      setLoading(false);
-      return;
-    }
     try {
-      const res = await fetch(endpoints.authToken, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `username=${encodeURIComponent(email)}&password=${encodeURIComponent(password.slice(0,72))}`,
-      });
-      const data = await res.json();
-      if (res.ok && data.access_token) {
-        await AsyncStorage.setItem('auth:token', data.access_token);
-        Toast.show({ type: 'success', text1: '¡Bienvenido!', text2: 'Inicio de sesión exitoso.' });
-        router.replace('/(tabs)' as any);
-      } else {
-        Alert.alert('Error', data.detail || 'Credenciales incorrectas');
-      }
-    } catch (err) {
-      Alert.alert('Error', 'No se pudo conectar al backend');
+      // store a fake token and navigate into the app
+      await AsyncStorage.setItem('auth:token', 'LOCAL_FAKE_TOKEN');
+      Toast.show({ type: 'success', text1: 'Welcome!', text2: 'Local login successful.' });
+      // replace navigation to main tabs
+      router.replace('/(tabs)' as any);
     } finally {
       setLoading(false);
     }
@@ -48,10 +31,12 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.headerSpacer} />
-      <View style={styles.logoCircle}>
-        <Text style={styles.logo}>💧</Text>
-      </View>
-      <Text style={styles.title}>Iniciar sesión</Text>
+      <Image
+        source={require('../../assets/images/LogoAPP.webp')}
+        style={styles.logoImage}
+        resizeMode="contain"
+      />
+  <Text style={styles.title}>Sign in</Text>
   <Text style={styles.subtitle}>Sign in with your email and password</Text>
 
       <View style={styles.form}>
@@ -77,14 +62,14 @@ export default function LoginScreen() {
 
         <View style={styles.linksRow}>
           <Text style={styles.link}>Forgot your password?</Text>
-          <Link href="/(auth)/register" style={styles.mutedLink}>Crear cuenta</Link>
+          <Link href="/(auth)/register" style={styles.mutedLink}>Create account</Link>
         </View>
 
         <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
           {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.buttonText}>Entrar</Text>
+            <Text style={styles.buttonText}>Sign in</Text>
           )}
         </TouchableOpacity>
       </View>
@@ -105,19 +90,10 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: 'transparent',
   },
-  logoCircle: {
-    height: 56,
-    width: 56,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
+  logoImage: {
+    height: 96,
+    width: 96,
     alignSelf: 'center',
-    // primary/10 ~ rgba(20,97,123,0.08)
-    backgroundColor: 'rgba(20,97,123,0.08)',
-  },
-  logo: {
-    fontSize: 28,
-    color: '#14617B', // primary (approx HSL 195 72% 28%)
   },
   title: {
     marginTop: 12,

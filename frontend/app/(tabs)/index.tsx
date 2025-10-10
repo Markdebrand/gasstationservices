@@ -1,9 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated, Pressable } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Svg, { Polyline, Path } from 'react-native-svg';
 import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path as any);
 import Header from '../components/Header';
@@ -11,9 +13,61 @@ import Header from '../components/Header';
 const chartData = [1.08, 1.12, 1.14, 1.1, 1.16, 1.18];
 
 export default function HomeScreen() {
+  const router = useRouter();
+  const [pending, setPending] = React.useState<any | null>(null);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      let active = true;
+      (async () => {
+        try {
+          const raw = await AsyncStorage.getItem('order:pendingPayment');
+          if (!active) return;
+          if (raw) {
+            const rec = JSON.parse(raw);
+            setPending(rec && rec.paid === false ? rec : null);
+          } else {
+            setPending(null);
+          }
+        } catch {
+          setPending(null);
+        }
+      })();
+      return () => {
+        active = false;
+      };
+    }, [])
+  );
+
   return (
     <ScrollView style={styles.root} contentContainerStyle={{ paddingBottom: 80 }}>
       <Header />
+
+      {pending && (
+        <View style={[styles.card, { backgroundColor: '#F0FBF6', borderColor: '#CBE9DC' }] }>
+          <Text style={styles.cardTitle}>Pago pendiente</Text>
+          <Text style={styles.cardMeta}>
+            {pending.summary || 'Pedido'} • Total ${pending.total}
+          </Text>
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
+            <Pressable
+              style={{ flex: 1, height: 44, borderRadius: 12, backgroundColor: '#14617B', alignItems: 'center', justifyContent: 'center' }}
+              onPress={() => {
+                const q = new URLSearchParams({ resumePayment: '1', address: 'tu ubicación', vehicleId: String(pending.vehicleId || ''), fuel: String(pending.fuel || ''), liters: String(pending.liters || '') }).toString();
+                router.push(`/tracking?${q}` as any);
+              }}
+            >
+              <Text style={{ color: '#fff', fontWeight: '800' }}>Reanudar pago</Text>
+            </Pressable>
+            <Pressable
+              style={{ width: 44, height: 44, borderRadius: 10, borderWidth: 1, borderColor: '#E6EDF0', backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}
+              onPress={async () => { try { await AsyncStorage.removeItem('order:pendingPayment'); } catch {}; setPending(null); }}
+            >
+              <Ionicons name="close" size={20} color="#0F172A" />
+            </Pressable>
+          </View>
+        </View>
+      )}
 
       <View style={styles.grid3}>
         <PriceBadge title="Gasolina" price="$1.18" unit="/L" trend="+1.2%" colorBg="#E0F2FE" icon={<MaterialCommunityIcons name="gas-station" size={16} color="#475569" />} />
