@@ -1,6 +1,13 @@
 # Backend Dockerfile for FastAPI
 FROM python:3.12-slim
 
+# Install system dependencies for MySQL and build tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    default-libmysqlclient-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
