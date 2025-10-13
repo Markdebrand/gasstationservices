@@ -12,7 +12,7 @@ AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False, class_=As
 
 async def init_db() -> None:
     async with engine.begin() as conn:
-        await conn.run_sync(lambda sync_conn: Base.metadata.create_all(sync_conn, schema=settings.mysql_db))
+        await conn.run_sync(Base.metadata.create_all)
 
 async def get_session() -> AsyncSession:
     async with AsyncSessionLocal() as session:
