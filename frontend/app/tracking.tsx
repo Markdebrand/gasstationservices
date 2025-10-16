@@ -17,6 +17,11 @@ type ClientVehicle = {
 export default function TrackingScreen() {
   const params = useLocalSearchParams();
   const { address, fuel, liters, vehicleId } = params as any;
+  const passedTotal: string | undefined = (params as any)?.total as any;
+  const passedTip: string | undefined = (params as any)?.tip as any;
+  const scheduleType: string | undefined = (params as any)?.scheduleType as any;
+  const scheduleDate: string | undefined = (params as any)?.scheduleDate as any;
+  const scheduleTime: string | undefined = (params as any)?.scheduleTime as any;
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const [dispatcher, setDispatcher] = React.useState<any | null>(null);
@@ -126,7 +131,7 @@ export default function TrackingScreen() {
 
   React.useEffect(() => {
     if (!showPayment) return;
-    const total = computeTotal(fuel, liters);
+    const total = passedTotal || computeTotal(fuel, liters);
     const record = { fuel, liters, vehicleId, total, summary: paymentSummary, paid: false, ts: Date.now() };
     AsyncStorage.setItem('order:pendingPayment', JSON.stringify(record)).catch(() => {});
   }, [showPayment]);
@@ -293,7 +298,7 @@ export default function TrackingScreen() {
             </View>
             <View style={{ marginTop: 12 }}>
               <Text style={{ color: '#64748B' }}>Total</Text>
-              <Text style={{ fontWeight: '800', color: '#0F172A', marginTop: 4 }}>${computeTotal(fuel, liters)}</Text>
+              <Text style={{ fontWeight: '800', color: '#0F172A', marginTop: 4 }}>${passedTotal || computeTotal(fuel, liters)}</Text>
             </View>
 
             <View style={{ flexDirection: 'row', gap: 12, marginTop: 18 }}>
