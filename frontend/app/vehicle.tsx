@@ -1,9 +1,11 @@
 import React from 'react';
 import { ScrollView, View, Text, StyleSheet, TextInput, Pressable, Image, Alert, Platform } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Header from './components/Header';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Vehicle = {
   id: string;
@@ -125,8 +127,11 @@ export default function VehicleScreen() {
     }
   };
 
+  const scrollRef = React.useRef<any>(null);
+  const insets = useSafeAreaInsets();
+
   return (
-    <ScrollView style={styles.root} contentContainerStyle={{ paddingBottom: 40 }}>
+  <KeyboardAwareScrollView innerRef={(r: any) => { scrollRef.current = r; }} style={styles.root} contentContainerStyle={{ paddingBottom: 40 + (insets.bottom || 0) }} enableOnAndroid extraScrollHeight={140} keyboardShouldPersistTaps="handled">
       <Header showBack />
 
       <Text style={styles.title}>Add Vehicle</Text>
@@ -195,13 +200,15 @@ export default function VehicleScreen() {
         </View>
 
         <Text style={styles.label}>VIN (optional)</Text>
-        <TextInput value={vin} onChangeText={setVin} placeholder="XXXXXXXXXXXXXXX" autoCapitalize="characters" style={styles.input} />
+        <TextInput value={vin} onChangeText={setVin} placeholder="XXXXXXXXXXXXXXX" autoCapitalize="characters" style={styles.input}
+          onFocus={() => { try { (scrollRef.current as any)?.scrollToEnd(true); } catch {} }}
+        />
       </View>
 
-      <Pressable onPress={saveVehicle} style={styles.cta}>
+      <Pressable onPress={saveVehicle} style={[styles.cta, { marginBottom: Math.max(12, insets.bottom || 12) }]}>
         <Text style={styles.ctaText}>{saving ? 'Saving...' : 'Save vehicle'}</Text>
       </Pressable>
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 }
 

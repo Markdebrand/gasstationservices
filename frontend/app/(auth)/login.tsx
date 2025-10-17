@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, TextInput, TouchableOpacity, ActivityIndicator, StyleSheet, Alert, Platform, Image } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Toast from 'react-native-toast-message';
 import { Link, router } from 'expo-router';
 import { endpoints } from '@/constants/api';
@@ -30,16 +31,17 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.root}>
-      <View style={styles.headerSpacer} />
-      <Image
-        source={require('../../assets/images/LogoAPP.webp')}
-        style={styles.logoImage}
-        resizeMode="contain"
-      />
-  <Text style={styles.title}>Sign in</Text>
-  <Text style={styles.subtitle}>Sign in with your email and password</Text>
+      <KeyboardAwareScrollView contentContainerStyle={{ alignItems: 'center' }} enableOnAndroid extraScrollHeight={20} keyboardShouldPersistTaps="handled">
+        <View style={styles.headerSpacer} />
+        <Image
+          source={require('../../assets/images/LogoAPP.webp')}
+          style={styles.logoImage}
+          resizeMode="contain"
+        />
+        <Text style={styles.title}>Sign in</Text>
+        <Text style={styles.subtitle}>Sign in with your email and password</Text>
 
-      <View style={styles.form}>
+        <View style={styles.form}>
   <Text style={styles.label}>Email</Text>
         <TextInput
           style={styles.input}
@@ -72,7 +74,8 @@ export default function LoginScreen() {
             <Text style={styles.buttonText}>Sign in</Text>
           )}
         </TouchableOpacity>
-      </View>
+        </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
