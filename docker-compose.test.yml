@@ -45,6 +45,19 @@ services:
     networks:
       - app
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+      args:
+        NGINX_CONF: nginx.conf.frontend.test
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+    networks:
+      - app
 
 networks:
   app: {}

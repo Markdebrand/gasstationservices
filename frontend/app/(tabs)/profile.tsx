@@ -1,61 +1,53 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Header from '../components/Header';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { clearToken, authFetch } from '@/utils/auth';
-import { API_BASE_URL } from '../../constants/api';
+import { clearToken } from '@/utils/auth';
+import { router } from 'expo-router';
 
 export default function Profile() {
-  // const insets = useSafeAreaInsets();
+  const insets = useSafeAreaInsets();
   const router = useRouter();
-
-  const [user, setUser] = useState<{ full_name?: string; email?: string; role?: string; } | null>(null);
-  const [loading, setLoading] = useState(true);
 
   const coupons = [
     { title: '10% OFF on Premium', code: 'HSO10' },
     { title: '2x points this week', code: 'DOUBLE' },
   ];
 
-  const options = ['Payment methods', 'Order history', 'Notifications'];
-
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const res = await authFetch(`${API_BASE_URL}/api/users/me`);
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data);
-        }
-      } catch {
-        // handle error (optional)
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchUser();
-  }, []);
+  const options = ['Payment methods', 'Order history', 'Notifications', 'My vehicles', 'Add vehicle', 'Sign out'];
 
   const handleOptionPress = async (option: string) => {
-    // Aquí puedes manejar otras opciones si lo deseas
-    Alert.alert(option);
+    if (option === 'Sign out') {
+      await clearToken();
+      router.replace('/(auth)/login' as any);
+    } else {
+      if (option === 'My vehicles') {
+        router.push('/vehicles');
+        return;
+      }
+      if (option === 'Add vehicle') {
+        router.push('/vehicle');
+        return;
+      }
+      Alert.alert(option);
+    }
   };
   return (
-    <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.root}
+      contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom + 24, 80) }]}
+      showsVerticalScrollIndicator={false}
+    >
       <Header />
         <View style={styles.sectionCard}>
           <View style={styles.rowCenter}>
             <View style={styles.avatar}><Ionicons name="person" size={28} color="#14617B" /></View>
             <View style={{ marginLeft: 12 }}>
-              <Text style={styles.name}>
-                {loading ? 'Cargando...' : user?.full_name || 'User name'}
-              </Text>
-              <Text style={styles.subtitle}>
-                {user ? `${user.role === 'admin' ? 'Admin' : 'User'} • ${user.email}` : 'User • @username'}
-              </Text>
+              <Text style={styles.name}>User name</Text>
+              <Text style={styles.subtitle}>User • @username</Text>
             </View>
           </View>
         </View>
@@ -107,17 +99,13 @@ export default function Profile() {
         <Pressable style={styles.editButton} onPress={() => {}}>
           <Text style={styles.editText}>Edit profile</Text>
         </Pressable>
-
-        <Pressable style={styles.signOutButton} onPress={async () => { await clearToken(); router.replace('/(auth)/login' as any); }}>
-          <Text style={styles.signOutText}>Sign out</Text>
-        </Pressable>
+        {/* spacer so the last button isn't covered by the bottom tab bar */}
+        <View style={{ height: Math.max(insets.bottom + 28, 96) }} />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  signOutButton: { marginTop: 14, borderRadius: 12, borderWidth: 1, borderColor: '#E11D48', paddingVertical: 12, alignItems: 'center', backgroundColor: '#fff' },
-  signOutText: { color: '#E11D48', fontWeight: '700' },
   root: { flex: 1, backgroundColor: '#FAFAFB', padding: 16 },
   content: { paddingBottom: 40 },
   sectionCard: { marginTop: 12, backgroundColor: '#fff', borderRadius: 12, padding: 12, shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 8, elevation: 1 },

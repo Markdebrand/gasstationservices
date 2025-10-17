@@ -44,9 +44,16 @@ services:
       - db
     networks:
       - app
-    ports:
-      - "8001:8000"
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - app
 
 networks:
   app: {}

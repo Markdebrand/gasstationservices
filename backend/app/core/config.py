@@ -39,18 +39,18 @@ class Settings(BaseSettings):
 
     @property
     def database_url(self) -> str:
-            # Usar driver asyncmy para la app (mejor compatibilidad)
-            driver = "mysql+asyncmy"
-            if self.db_profile == "local":
-                return (
-                    f"{driver}://{self.local_mysql_user}:{self.local_mysql_password}" 
-                    f"@{self.local_mysql_host}:{self.local_mysql_port}/{self.local_mysql_db}"
-                )
-            else:
-                return (
-                    f"{driver}://{self.mysql_user}:{self.mysql_password}" 
-                    f"@{self.mysql_host}:{self.mysql_port}/{self.mysql_db}"
-                )
+        # Usar driver async para la app
+        driver = "mysql+aiomysql"
+        if self.db_profile == "local":
+            return (
+                f"{driver}://{self.local_mysql_user}:{self.local_mysql_password}" 
+                f"@{self.local_mysql_host}:{self.local_mysql_port}/{self.local_mysql_db}"
+            )
+        else:
+            return (
+                f"{driver}://{self.mysql_user}:{self.mysql_password}" 
+                f"@{self.mysql_host}:{self.mysql_port}/{self.mysql_db}"
+            )
 
     @property
     def alembic_database_url(self) -> str:

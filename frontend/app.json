@@ -4,7 +4,7 @@
     "slug": "hso-gasstationservices",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+  "icon": "./assets/images/icon.png",
     "scheme": "frontend",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -31,8 +31,6 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/react-logo.png",
-          "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#E6F4FE",
           "dark": {
