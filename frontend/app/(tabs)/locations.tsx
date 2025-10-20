@@ -96,6 +96,45 @@ export default function LocationsScreen() {
     }
   };
 
+  // Buscador OSM solo en el modal
+  const handleModalSearch = async (text: string) => {
+    setSearch(text);
+    if (!text) {
+      setMarker(null);
+      setRegion({
+        latitude: 4.60971,
+        longitude: -74.08175,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05,
+      });
+      return;
+    }
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(text)}&format=json&limit=1`
+      );
+      const results = await response.json();
+      if (results && results.length > 0) {
+        const loc = results[0];
+        setRegion({
+          latitude: parseFloat(loc.lat),
+          longitude: parseFloat(loc.lon),
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        });
+        setMarker({
+          latitude: parseFloat(loc.lat),
+          longitude: parseFloat(loc.lon),
+          title: loc.display_name,
+        });
+      } else {
+        setMarker(null);
+      }
+    } catch {
+      setMarker(null);
+    }
+  };
+
   return (
     <KeyboardAwareScrollView style={styles.root} contentContainerStyle={{ paddingBottom: contentPadBottom }} enableOnAndroid extraScrollHeight={10} keyboardShouldPersistTaps="handled">
       <Header />
@@ -120,30 +159,41 @@ export default function LocationsScreen() {
             </Pressable>
           </View>
         </View>
-        <Modal visible={showMap} animationType="slide" transparent={true} onRequestClose={() => setShowMap(false)}>
-          <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.25)', justifyContent: 'center', alignItems: 'center' }}>
-            <View style={{ width: '90%', height: 400, backgroundColor: '#fff', borderRadius: 20, overflow: 'hidden', elevation: 5 }}>
-              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', padding: 10 }}>
-                <Pressable onPress={() => setShowMap(false)} style={{ padding: 6 }}>
-                  <Ionicons name="close" size={24} color="#64748B" />
-                </Pressable>
-              </View>
-              <MapView
-                style={{ flex: 1 }}
-                provider={Platform.OS === 'android' ? PROVIDER_DEFAULT : undefined}
-                region={region}
-                mapType="standard"
-                showsUserLocation={true}
-                showsMyLocationButton={true}
-              >
-                {marker && (
-                  <Marker
-                    coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
-                    title={marker.title}
-                  />
-                )}
-              </MapView>
+        <Modal visible={showMap} animationType="slide" transparent={false} onRequestClose={() => setShowMap(false)}>
+          <View style={{ flex: 1, backgroundColor: '#fff', justifyContent: 'flex-start', alignItems: 'stretch' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', padding: 18 }}>
+              <Pressable onPress={() => setShowMap(false)} style={{ padding: 6 }}>
+                <Ionicons name="close" size={32} color="#64748B" />
+              </Pressable>
             </View>
+            <Text style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 12, marginLeft: 24 }}>Mapa de ubicaciones</Text>
+            <View style={{ flexDirection: 'row', paddingHorizontal: 24, paddingBottom: 12 }}>
+              <TextInput
+                style={{ flex: 1, borderWidth: 1, borderColor: '#ccc', borderRadius: 10, padding: 12, fontSize: 16 }}
+                placeholder="Buscar localización..."
+                value={search}
+                onChangeText={setSearch}
+                placeholderTextColor="#94A3B8"
+              />
+              <Pressable onPress={() => handleModalSearch(search)} style={{ marginLeft: 12, backgroundColor: '#10B981', borderRadius: 10, paddingHorizontal: 16, justifyContent: 'center', height: 48 }}>
+                <Ionicons name="search" size={24} color="#fff" />
+              </Pressable>
+            </View>
+            <MapView
+              style={{ flex: 1, borderRadius: 0 }}
+              provider={Platform.OS === 'android' ? PROVIDER_DEFAULT : undefined}
+              region={region}
+              mapType="standard"
+              showsUserLocation={true}
+              showsMyLocationButton={true}
+            >
+              {marker && (
+                <Marker
+                  coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
+                  title={marker.title}
+                />
+              )}
+            </MapView>
           </View>
         </Modal>
         {/* Lista de estaciones locales */}
