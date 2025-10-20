@@ -10,10 +10,7 @@ app = FastAPI(title="HSO Fuel Delivery - MVP", version="0.1.0", root_path=settin
 # CORS for local dev
 
 # CORS según entorno
-if settings.environment == "prod":
-    allowed_origins = settings.allowed_origins.split(",")
-else:
-    allowed_origins = ["*"]
+allowed_origins = settings.allowed_origins
 
 app.add_middleware(
     CORSMiddleware,
