@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, Pressable } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Pressable } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Feather from '@expo/vector-icons/Feather';
@@ -25,7 +26,7 @@ export default function LocationsScreen() {
   }, [query]);
 
   return (
-    <ScrollView style={styles.root} contentContainerStyle={{ paddingBottom: contentPadBottom }}>
+    <KeyboardAwareScrollView style={styles.root} contentContainerStyle={{ paddingBottom: contentPadBottom }} enableOnAndroid extraScrollHeight={10} keyboardShouldPersistTaps="handled">
       <Header />
 
   <Text style={styles.title}>Locations</Text>
@@ -76,7 +77,7 @@ export default function LocationsScreen() {
           ))}
         </View>
       </View>
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 }
 

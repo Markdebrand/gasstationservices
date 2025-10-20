@@ -30,7 +30,7 @@ const trend = [
 
 const transactions = [
   { id: 1, title: 'Gasolina Premium', date: '15 Jun, 2025', amount: -65 },
-  { id: 2, title: 'Reembolso HSO', date: '12 Jun, 2025', amount: 10 },
+  { id: 2, title: 'HSO Refund', date: '12 Jun, 2025', amount: 10 },
   { id: 3, title: 'Diesel', date: '08 Jun, 2025', amount: -42 },
 ];
 

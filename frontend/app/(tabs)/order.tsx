@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, Image } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Header from '../components/Header';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -106,7 +107,14 @@ export default function Order() {
   const removePromo = () => setAppliedPromo(null);
 
   return (
-    <ScrollView style={styles.root} contentContainerStyle={{ paddingBottom: 80 + (insets.bottom || 0) }}>
+    <KeyboardAwareScrollView
+      style={styles.root}
+      contentContainerStyle={{ paddingBottom: 80 + (insets.bottom || 0) }}
+      enableOnAndroid={true}
+      extraScrollHeight={20}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+    >
       <Header />
 
   <Text style={styles.title}>Solicitar Servicio</Text>
@@ -313,7 +321,7 @@ export default function Order() {
       >
   <Text style={styles.ctaText}>Solicitar Servicio</Text>
       </Pressable>
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 }
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, TextInput, TouchableOpacity, ActivityIndicator, StyleSheet, Alert, Platform } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Link, router } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { endpoints } from '@/constants/api';
@@ -64,11 +65,12 @@ export default function RegisterScreen() {
 
   return (
     <SafeAreaView style={styles.root}>
-      <View style={styles.logoCircle}><Text style={styles.logo}>💧</Text></View>
-      <Text style={styles.title}>Crear cuenta</Text>
-  <Text style={styles.subtitle}>Sign up to request service</Text>
+      <KeyboardAwareScrollView contentContainerStyle={{ alignItems: 'center' }} enableOnAndroid extraScrollHeight={20} keyboardShouldPersistTaps="handled">
+        <View style={styles.logoCircle}><Text style={styles.logo}>💧</Text></View>
+        <Text style={styles.title}>Crear cuenta</Text>
+        <Text style={styles.subtitle}>Sign up to request service</Text>
 
-      <View style={styles.form}>
+        <View style={styles.form}>
         <Text style={styles.label}>Nombre</Text>
         <TextInput style={styles.input} placeholder="Tu nombre" value={name} onChangeText={setName} />
 
@@ -86,7 +88,8 @@ export default function RegisterScreen() {
         </TouchableOpacity>
 
         <Text style={styles.smallText}>¿Ya tienes cuenta? <Link href="/(auth)/login" style={styles.link}>Inicia sesión</Link></Text>
-      </View>
+        </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
