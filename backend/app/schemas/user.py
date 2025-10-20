@@ -1,5 +1,8 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from typing import Optional, Literal
+
+
+Role = Literal["user", "admin", "driver"]
 
 
 class UserBase(BaseModel):
@@ -7,14 +10,14 @@ class UserBase(BaseModel):
     full_name: Optional[str] = None
     is_active: bool = True
     is_admin: bool = False
-    role: str = "user"
+    role: Role = "user"
 
 
 class UserCreate(BaseModel):
     email: EmailStr
     full_name: Optional[str] = None
     password: str
-    role: str = "user"
+    role: Role = "user"
 
 
 class UserRead(UserBase):

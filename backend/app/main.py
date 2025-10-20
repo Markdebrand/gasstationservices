@@ -42,16 +42,22 @@ async def on_startup():
     from .core.security.passwords import get_password_hash
     async with AsyncSessionLocal() as session:
         from sqlalchemy import select
-        result = await session.execute(select(User).where(User.email == "user"))
-        user = result.scalar_one_or_none()
-        if not user:
-            new_user = User(
-                email="user",
-                full_name="Usuario Estático",
-                hashed_password=get_password_hash("12345678"),
-                is_active=True,
-                is_admin=False,
-                role="user"
-            )
-            session.add(new_user)
-            await session.commit()
+        # Seed default accounts for testing: admin, user, driver
+        async def ensure_user(email: str, password: str, role: str, full_name: str, is_admin: bool = False):
+            res = await session.execute(select(User).where(User.email == email))
+            existing = res.scalar_one_or_none()
+            if not existing:
+                new_user = User(
+                    email=email,
+                    full_name=full_name,
+                    hashed_password=get_password_hash(password),
+                    is_active=True,
+                    is_admin=is_admin,
+                    role=role,
+                )
+                session.add(new_user)
+                await session.commit()
+
+    await ensure_user("admin@example.com", "12345678", "admin", "Administrador", is_admin=True)
+    await ensure_user("user@example.com", "12345678", "user", "Usuario Estático", is_admin=False)
+    await ensure_user("driver@example.com", "12345678", "driver", "Conductor", is_admin=False)
