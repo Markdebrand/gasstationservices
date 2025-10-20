@@ -38,7 +38,13 @@ async def create_user(user_in: UserCreate, session: AsyncSession = Depends(get_s
     exists = await session.execute(select(User).where(User.email == user_in.email))
     if exists.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Email already exists")
-    user = User(email=user_in.email, full_name=user_in.full_name, hashed_password=get_password_hash(user_in.password))
+    user = User(
+        email=user_in.email,
+        full_name=user_in.full_name,
+        hashed_password=get_password_hash(user_in.password),
+        role=user_in.role or "user",
+        is_admin=True if user_in.role == "admin" else False,
+    )
     session.add(user)
     await session.commit()
     await session.refresh(user)
