@@ -37,11 +37,13 @@ services:
       MYSQL_DB: ${MYSQL_DB}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-*}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-["*"]}
       ROOT_PATH: ${ROOT_PATH:-}
       ENVIRONMENT: prod
     depends_on:
       - db
+    ports:
+      - "8001:8000"
     networks:
       - app
 
