@@ -11,11 +11,11 @@ services:
     ]
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_DB: ${MYSQL_DB}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
-      - mysql_data_test:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
@@ -34,28 +34,16 @@ services:
       DB_PROFILE: prod
       MYSQL_HOST: db
       MYSQL_PORT: 3306
-      MYSQL_DB: ${MYSQL_DATABASE}
+      MYSQL_DB: ${MYSQL_DB}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-*}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-["*"]}
       ROOT_PATH: ${ROOT_PATH:-}
       ENVIRONMENT: test
     depends_on:
       - db
-    networks:
-      - app
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.frontend
-      args:
-        NGINX_CONF: nginx.conf.frontend.test
-    restart: unless-stopped
-    depends_on:
-      - backend
     ports:
-      - "8080:80"
+      - "8002:8000"
     networks:
       - app
 
@@ -63,4 +51,4 @@ networks:
   app: {}
 
 volumes:
-  mysql_data_test: {}
+  mysql_data: {}

@@ -12,18 +12,39 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    // Bypass backend for local testing: accept any non-empty inputs
+  console.log('Login: endpoint', endpoints.authToken);
+  console.log('Login: email', email.trim());
     if (!email || !password) {
       Alert.alert('Required fields', 'Enter email and password');
       return;
     }
     setLoading(true);
     try {
-      // store a fake token and navigate into the app
-      await AsyncStorage.setItem('auth:token', 'LOCAL_FAKE_TOKEN');
+      // OAuth2PasswordRequestForm expects x-www-form-urlencoded with username and password
+      const body = new URLSearchParams();
+      body.append('username', email.trim());
+      body.append('password', password);
+      const res = await fetch(endpoints.authToken, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString(),
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        Toast.show({ type: 'error', text1: 'Login failed', text2: txt.slice(0, 120) });
+        return;
+      }
+      const data: any = await res.json();
+      const token = data?.access_token;
+      if (!token) {
+        Toast.show({ type: 'error', text1: 'Login failed', text2: 'Missing token in response' });
+        return;
+      }
+      await AsyncStorage.setItem('auth:token', token);
       Toast.show({ type: 'success', text1: 'Welcome!', text2: 'Login successful.' });
-      // replace navigation to main tabs
       router.replace('/(tabs)' as any);
+    } catch (e: any) {
+      Toast.show({ type: 'error', text1: 'Network error', text2: e?.message || 'Unable to connect' });
     } finally {
       setLoading(false);
     }
