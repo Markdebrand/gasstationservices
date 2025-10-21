@@ -10,18 +10,11 @@ ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
 class TokenError(Exception):
     pass
 
-def create_access_token(
-    subject: str | int,
-    extra: Optional[dict[str, Any]] = None,
-    expires_delta: Optional[timedelta] = None,
-) -> str:
+def create_access_token(subject: str | int, expires_delta: Optional[timedelta] = None) -> str:
     if expires_delta is None:
         expires_delta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     expire = datetime.now(timezone.utc) + expires_delta
-    to_encode: dict[str, Any] = {"exp": expire, "sub": str(subject)}
-    if extra:
-        # Only include simple JSON-serializable claims
-        to_encode.update(extra)
+    to_encode = {"exp": expire, "sub": str(subject)}
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, Image } from 
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Header from '../components/Header';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -40,7 +41,6 @@ export default function Order() {
   const [tokensExpanded, setTokensExpanded] = React.useState<boolean>(false);
   const [tokensTemp, setTokensTemp] = React.useState<string>('');
   const [availableTokens, setAvailableTokens] = React.useState<number>(10);
-  // ...existing code...
 
   const subtotal = React.useMemo(() => round2(FUEL_PRICES[fuel] * (liters || 0)), [fuel, liters]);
   const serviceFee = 0.8;
@@ -93,9 +93,6 @@ export default function Order() {
     })();
   }, []);
 
-  // Cargar ubicaciones guardadas
-  // ...existing code...
-
   const applyPromo = () => {
     const code = (promoInput || '').trim().toUpperCase();
     if (!code) return;
@@ -132,6 +129,7 @@ export default function Order() {
   <FuelCard label="Diesel" price={FUEL_PRICES.diesel} selected={fuel === 'diesel'} onPress={() => setFuel('diesel')} />
       </View>
 
+      {/* Tu Vehículo (para identificar) */}
       <Text style={[styles.overline, { marginTop: 14 }]}>Tu Vehículo (para identificar)</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 8 }}>
         {vehicles.map(v => (
@@ -144,8 +142,8 @@ export default function Order() {
               </View>
             )}
             <View style={{ marginLeft: 8 }}>
-              <Text style={styles.vehicleTitle}>{v.plate}</Text>
-              <Text style={styles.vehicleSub}>{v.brand || ''} {v.model || ''}</Text>
+              <Text style={styles.vehicleTitle}>{[v.brand, v.model].filter(Boolean).join(' ') || v.plate}</Text>
+              <Text style={styles.vehicleSub}>{v.plate}</Text>
             </View>
           </Pressable>
         ))}
@@ -186,9 +184,14 @@ export default function Order() {
           <View style={{ flex: 1 }}>
             <Text style={styles.cardTitle}>Ubicación de Entrega</Text>
             <Text style={styles.cardSub}>{address}</Text>
+            <Pressable onPress={() => { /* TODO: open location selector */ }}>
+              <Text style={styles.link}>Cambiar ubicación</Text>
+            </Pressable>
           </View>
         </View>
       </View>
+
+      {/* Cuándo lo quieres */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>¿Cuándo lo quieres?</Text>
         <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
@@ -340,6 +343,18 @@ type Vehicle = {
   brand?: string;
   model?: string;
 };
+
+function DispatcherCard({ title, subtitle, icon, selected, onPress }: { title: string; subtitle: string; icon: any; selected: boolean; onPress: () => void }) {
+  return (
+    <Pressable onPress={onPress} style={[styles.dispatcherCard, selected && styles.dispatcherCardActive]}>
+      <Ionicons name={icon} size={18} color={selected ? '#14617B' : '#64748B'} />
+      <View style={{ marginLeft: 8 }}>
+        <Text style={styles.dispatcherTitle}>{title}</Text>
+        <Text style={styles.dispatcherSub}>{subtitle}</Text>
+      </View>
+    </Pressable>
+  );
+}
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#F8FAFC', padding: 16 },
