@@ -19,36 +19,45 @@ export default function RegisterScreen() {
   }
 
   const handleRegister = async () => {
-    setErrors({});
     if (!name || !email || !password || !confirm) {
-      Alert.alert('Campos requeridos', 'Completa todos los campos');
+      Alert.alert('Required fields', 'Please complete all fields');
       return;
     }
     if (password.length < 8) {
-      Alert.alert('Contraseña débil', 'Mínimo 8 caracteres');
+      Alert.alert('Weak password', 'Minimum 8 characters');
       return;
     }
     if (password !== confirm) {
-      Alert.alert('Error', 'Las contraseñas no coinciden');
+      Alert.alert('Error', 'Passwords do not match');
       return;
     }
     setLoading(true);
     try {
+      // Verificar si el usuario ya existe
+      const checkRes = await fetch(`${endpoints.authRegister.replace('/register','/users')}?email=${encodeURIComponent(email)}`);
+      if (checkRes.ok) {
+        const users = await checkRes.json();
+        if (Array.isArray(users) && users.length > 0) {
+          setErrors({ email: 'Email already registered' });
+          setLoading(false);
+          return;
+        }
+      }
+      // Registrar usuario
       const res = await fetch(endpoints.authRegister, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ full_name: name, email, password: password.slice(0,72) }),
       });
       if (res.ok) {
-        Toast.show({ type: 'success', text1: '¡Cuenta creada!', text2: 'Ahora puedes iniciar sesión.' });
+        Toast.show({ type: 'success', text1: 'Account created!', text2: 'You can now sign in.' });
         router.replace('/(auth)/login' as any);
       } else {
         const data = await res.json().catch(() => ({} as any));
-        setErrors({ email: data.detail || 'No se pudo crear la cuenta' });
-        Alert.alert('Error', data.detail || 'No se pudo crear la cuenta');
+        setErrors({ email: data.detail || "Couldn't create account" });
       }
     } catch (e) {
-      Alert.alert('Error', 'No se pudo conectar al backend');
+      Alert.alert('Error', "Couldn't connect to the backend");
     } finally {
       setLoading(false);
     }
@@ -58,27 +67,27 @@ export default function RegisterScreen() {
     <SafeAreaView style={styles.root}>
       <KeyboardAwareScrollView contentContainerStyle={{ alignItems: 'center' }} enableOnAndroid extraScrollHeight={20} keyboardShouldPersistTaps="handled">
         <View style={styles.logoCircle}><Text style={styles.logo}>💧</Text></View>
-        <Text style={styles.title}>Crear cuenta</Text>
-        <Text style={styles.subtitle}>Sign up to request service</Text>
+  <Text style={styles.title}>Create account</Text>
+  <Text style={styles.subtitle}>Sign up to request service</Text>
 
         <View style={styles.form}>
-        <Text style={styles.label}>Nombre</Text>
-        <TextInput style={styles.input} placeholder="Tu nombre" value={name} onChangeText={setName} />
+  <Text style={styles.label}>Name</Text>
+  <TextInput style={styles.input} placeholder="Your name" value={name} onChangeText={setName} />
 
-        <Text style={[styles.label, { marginTop: 12 }]}>Correo</Text>
-        <TextInput style={styles.input} placeholder="tú@correo.com" autoCapitalize="none" keyboardType="email-address" value={email} onChangeText={setEmail} />
+  <Text style={[styles.label, { marginTop: 12 }]}>Email</Text>
+  <TextInput style={styles.input} placeholder="you@domain.com" autoCapitalize="none" keyboardType="email-address" value={email} onChangeText={setEmail} />
 
-        <Text style={[styles.label, { marginTop: 12 }]}>Contraseña</Text>
-        <TextInput style={styles.input} placeholder="Mínimo 8 caracteres" secureTextEntry value={password} onChangeText={setPassword} />
+  <Text style={[styles.label, { marginTop: 12 }]}>Password</Text>
+  <TextInput style={styles.input} placeholder="Minimum 8 characters" secureTextEntry value={password} onChangeText={setPassword} />
 
-        <Text style={[styles.label, { marginTop: 12 }]}>Confirmar contraseña</Text>
-        <TextInput style={styles.input} placeholder="Repite tu contraseña" secureTextEntry value={confirm} onChangeText={setConfirm} />
+  <Text style={[styles.label, { marginTop: 12 }]}>Confirm password</Text>
+  <TextInput style={styles.input} placeholder="Repeat your password" secureTextEntry value={confirm} onChangeText={setConfirm} />
 
         <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
-          {loading ? <ActivityIndicator color="#F7FBFE" /> : <Text style={styles.buttonText}>Crear cuenta</Text>}
+          {loading ? <ActivityIndicator color="#F7FBFE" /> : <Text style={styles.buttonText}>Create account</Text>}
         </TouchableOpacity>
 
-        <Text style={styles.smallText}>¿Ya tienes cuenta? <Link href="/(auth)/login" style={styles.link}>Inicia sesión</Link></Text>
+  <Text style={styles.smallText}>Already have an account? <Link href="/(auth)/login" style={styles.link}>Sign in</Link></Text>
         </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>

@@ -182,9 +182,9 @@ export default function TrackingScreen() {
   return (
     <View style={styles.root}>
       <Header showBack />
-      <Text style={styles.title}>Seguimiento del despacho</Text>
+      <Text style={styles.title}>Delivery tracking</Text>
       <Text style={styles.subtitle}>
-        {dispatcher ? (arrived ? 'Despachador llegó a tu ubicación' : 'Despachador asignado') : 'Esperando confirmación del despachador…'}
+        {dispatcher ? (arrived ? 'Dispatcher arrived at your location' : 'Dispatcher assigned') : 'Waiting for dispatcher confirmation…'}
       </Text>
 
       {/* Map placeholder appears after acceptance, fills available space */}
@@ -198,8 +198,8 @@ export default function TrackingScreen() {
           {/* Compact progress/ETA card overlay */}
           {!arrived && (
             <View style={styles.progressCard}>
-              <Text style={styles.sectionTitle}>{progressPercent >= 100 ? 'En destino' : 'En camino'}</Text>
-              <Text style={{ color: '#64748B', marginTop: 6 }}>Tiempo estimado: {etaMinutes} min</Text>
+              <Text style={styles.sectionTitle}>{progressPercent >= 100 ? 'At destination' : 'En route'}</Text>
+              <Text style={{ color: '#64748B', marginTop: 6 }}>Estimated time: {etaMinutes} min</Text>
               <View style={{ marginTop: 10, height: 10, backgroundColor: '#EEF6F3', borderRadius: 999 }}>
                 <View style={{ width: `${progressPercent}%`, height: '100%', backgroundColor: '#059669', borderRadius: 999 }} />
               </View>
@@ -224,8 +224,8 @@ export default function TrackingScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontWeight: '800', color: '#0F172A' }}>{dispatcher?.name}</Text>
-              <Text style={{ color: '#64748B', marginTop: 6 }}>Repartidor</Text>
-              <Text style={{ color: '#64748B', marginTop: 6 }}>{`${dispatcher.vehicle || 'Vehículo'} • Placa: ${dispatcher.plate}`}</Text>
+              <Text style={{ color: '#64748B', marginTop: 6 }}>Courier</Text>
+              <Text style={{ color: '#64748B', marginTop: 6 }}>{`${dispatcher.vehicle || 'Vehicle'} • Plate: ${dispatcher.plate}`}</Text>
             </View>
             <View style={{ flexDirection: 'row', gap: 8 }}>
               <Pressable style={{ width: 44, height: 44, borderRadius: 10, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center' }}>
@@ -241,7 +241,7 @@ export default function TrackingScreen() {
               onPress={() => setShowPayment(true)}
               style={{ marginTop: 12, height: 44, borderRadius: 10, backgroundColor: '#14617B', alignItems: 'center', justifyContent: 'center' }}
             >
-              <Text style={{ color: '#fff', fontWeight: '800' }}>Reanudar pago</Text>
+              <Text style={{ color: '#fff', fontWeight: '800' }}>Resume payment</Text>
             </Pressable>
           )}
         </View>
@@ -254,7 +254,7 @@ export default function TrackingScreen() {
           <Animated.View style={[styles.arrivalBadge, { transform: [{ scale: successScale }], opacity: successOpacity }]}>
             <Ionicons name="checkmark" size={38} color="#fff" />
           </Animated.View>
-          <Text style={styles.arrivalText}>¡Despachador en destino!</Text>
+          <Text style={styles.arrivalText}>Dispatcher at destination!</Text>
         </View>
       )}
 
@@ -275,13 +275,13 @@ export default function TrackingScreen() {
             <View style={{ alignItems: 'center', marginTop: 18 }}>
               {paid ? (
                 <>
-                  <Text style={{ fontWeight: '800', fontSize: 18, color: '#0F172A' }}>Pago recibido</Text>
-                  <Text style={{ color: '#64748B', marginTop: 6, textAlign: 'center' }}>Gracias. Se ha procesado el pago con NFC.</Text>
+                  <Text style={{ fontWeight: '800', fontSize: 18, color: '#0F172A' }}>Payment received</Text>
+                    <Text style={{ color: '#64748B', marginTop: 6, textAlign: 'center' }}>Thanks — payment processed via NFC.</Text>
                 </>
               ) : (
                 <>
-                  <Text style={{ fontWeight: '800', fontSize: 18, color: '#0F172A' }}>Pagar con NFC</Text>
-                  <Text style={{ color: '#64748B', marginTop: 6, textAlign: 'center' }}>Acerca tu teléfono para completar el pago.</Text>
+                  <Text style={{ fontWeight: '800', fontSize: 18, color: '#0F172A' }}>Pay with NFC</Text>
+                  <Text style={{ color: '#64748B', marginTop: 6, textAlign: 'center' }}>Hold your phone near the reader to complete payment.</Text>
                 </>
               )}
 
@@ -291,7 +291,7 @@ export default function TrackingScreen() {
             </View>
 
             <View style={{ marginTop: 16 }}>
-              <Text style={{ color: '#64748B' }}>Pedido</Text>
+              <Text style={{ color: '#64748B' }}>Order</Text>
               <Text style={{ fontWeight: '800', color: '#0F172A', marginTop: 4 }}>
                 {clientVehicle ? `${clientVehicle.brand || ''} ${clientVehicle.model || ''} • ${clientVehicle.plate}` : '-'}
               </Text>
@@ -309,10 +309,10 @@ export default function TrackingScreen() {
                 }
                 router.replace('/');
               }} style={{ flex: 1, height: 48, borderRadius: 12, backgroundColor: '#14617B', alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: '#fff', fontWeight: '800' }}>Volver al inicio</Text>
+                <Text style={{ color: '#fff', fontWeight: '800' }}>Back to home</Text>
               </Pressable>
               <Pressable onPress={() => { setShowPayment(false); }} style={{ flex: 1, height: 48, borderRadius: 12, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E6EDF0' }}>
-                <Text style={{ color: '#0F172A', fontWeight: '800' }}>Cerrar</Text>
+                <Text style={{ color: '#0F172A', fontWeight: '800' }}>Close</Text>
               </Pressable>
             </View>
           </View>
@@ -323,18 +323,18 @@ export default function TrackingScreen() {
       <Modal visible={showWaiting} transparent animationType="fade">
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center' }}>
           <View style={{ backgroundColor: '#fff', width: '86%', borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E6EDF0' }}>
-            <Text style={{ fontWeight: '800', fontSize: 16, color: '#0F172A' }}>Esperando confirmación…</Text>
-            <Text style={{ color: '#64748B', marginTop: 6 }}>Buscando un despachador disponible para tu pedido en {address || 'tu ubicación'}.</Text>
+            <Text style={{ fontWeight: '800', fontSize: 16, color: '#0F172A' }}>Waiting for confirmation…</Text>
+            <Text style={{ color: '#64748B', marginTop: 6 }}>Searching for an available dispatcher for your order at {address || 'your location'}.</Text>
             <View style={{ marginTop: 14, height: 10, backgroundColor: '#EEF6F3', borderRadius: 999 }}>
               <View style={{ width: `${waitingProgress}%`, height: '100%', backgroundColor: '#10B981', borderRadius: 999 }} />
             </View>
             <Text style={{ marginTop: 8, color: '#64748B', fontSize: 12 }}>{waitingProgress}%</Text>
             <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
               <Pressable onPress={() => setShowWaiting(false)} style={{ flex: 1, height: 44, borderRadius: 10, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: '#0F172A', fontWeight: '700' }}>Cancelar</Text>
+                <Text style={{ color: '#0F172A', fontWeight: '700' }}>Cancel</Text>
               </Pressable>
               <Pressable onPress={() => { setDispatcher({ name: 'Juan Delgado', plate: 'AB-1234', vehicle: 'Toyota Hilux', photo: null }); setShowWaiting(false); setWaitingProgress(100); }} style={{ flex: 1, height: 44, borderRadius: 10, backgroundColor: '#10B981', alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: '#fff', fontWeight: '700' }}>Forzar aceptar</Text>
+                <Text style={{ color: '#fff', fontWeight: '700' }}>Force accept</Text>
               </Pressable>
             </View>
           </View>
