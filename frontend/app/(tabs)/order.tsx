@@ -119,6 +119,7 @@ export default function Order() {
       showsVerticalScrollIndicator={false}
     >
       <Header />
+    
 
   <Text style={styles.title}>Solicitar Servicio</Text>
   <Text style={styles.subtitle}>Completa los detalles de tu pedido</Text>
@@ -152,6 +153,33 @@ export default function Order() {
           <Ionicons name="add" size={22} color="#0F172A" />
         </Pressable>
       </ScrollView>
+
+      {/* Tipo de Vehículo del Despachadorr */}
+      <Text style={[styles.overline, { marginTop: 14 }]}>Tipo de Vehículo del Despachador</Text>
+      <View style={styles.grid2}> 
+        <DispatcherCard title="Camioneta" subtitle="AB-1234 • 100L" icon="car" selected={dispatcherType==='pickup'} onPress={() => setDispatcherType('pickup')} />
+        <DispatcherCard title="Camión chico" subtitle="CD-5678 • 250L" icon="bus" selected={dispatcherType==='small-truck'} onPress={() => setDispatcherType('small-truck')} />
+      </View>
+
+      {/* Cantidad (Litros) */}
+  <Text style={[styles.overline, { marginTop: 14 }]}>Cantidad (Litros)</Text>
+      <TextInput
+        keyboardType="numeric"
+        value={String(liters)}
+        onChangeText={(t) => setLiters(Math.max(0, Number(t.replace(/[^0-9.]/g, '')) || 0))}
+        style={styles.input}
+        placeholder="0"
+        placeholderTextColor="#94A3B8"
+      />
+      <View style={styles.quickRow}>
+        {[10, 20, 30, 40].map((n) => (
+          <Pressable key={n} onPress={() => setLiters(n)} style={[styles.pill, liters === n && styles.pillActive]}>
+            <Text style={[styles.pillText, liters === n && styles.pillTextActive]}>{n}L</Text>
+          </Pressable>
+        ))}
+      </View>
+
+      {/* Ubicación de Entrega */}
       <View style={styles.card}>
         <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
           <View style={styles.iconBadge}><Ionicons name="location" size={16} color="#059669" /></View>
