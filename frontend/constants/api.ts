@@ -1,5 +1,5 @@
 // Centralized API configuration
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://168.231.64.20:8000';
 
 export const endpoints = {
   authToken: `${API_BASE_URL}/api/auth/token`,

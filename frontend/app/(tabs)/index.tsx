@@ -45,19 +45,19 @@ export default function HomeScreen() {
 
       {pending && (
         <View style={[styles.card, { backgroundColor: '#F0FBF6', borderColor: '#CBE9DC' }] }>
-          <Text style={styles.cardTitle}>Pago pendiente</Text>
+          <Text style={styles.cardTitle}>Pending payment</Text>
           <Text style={styles.cardMeta}>
-            {pending.summary || 'Pedido'} • Total ${pending.total}
+            {pending.summary || 'Order'} • Total ${pending.total}
           </Text>
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
             <Pressable
               style={{ flex: 1, height: 44, borderRadius: 12, backgroundColor: '#14617B', alignItems: 'center', justifyContent: 'center' }}
               onPress={() => {
-                const q = new URLSearchParams({ resumePayment: '1', address: 'tu ubicación', vehicleId: String(pending.vehicleId || ''), fuel: String(pending.fuel || ''), liters: String(pending.liters || '') }).toString();
+                const q = new URLSearchParams({ resumePayment: '1', address: 'your location', vehicleId: String(pending.vehicleId || ''), fuel: String(pending.fuel || ''), liters: String(pending.liters || '') }).toString();
                 router.push(`/tracking?${q}` as any);
               }}
             >
-              <Text style={{ color: '#fff', fontWeight: '800' }}>Reanudar pago</Text>
+              <Text style={{ color: '#fff', fontWeight: '800' }}>Resume payment</Text>
             </Pressable>
             <Pressable
               style={{ width: 44, height: 44, borderRadius: 10, borderWidth: 1, borderColor: '#E6EDF0', backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}
