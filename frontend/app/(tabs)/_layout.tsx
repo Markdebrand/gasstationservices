@@ -1,11 +1,31 @@
-import React from 'react';
-import { Tabs } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Tabs, useRouter } from 'expo-router';
 import { View, Text, TouchableOpacity } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Feather from '@expo/vector-icons/Feather';
+import { getToken } from '@/utils/auth';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+// Protección de autenticación global
+function AuthGuard({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const token = await getToken();
+      if (!token) {
+        router.replace('/(auth)/login');
+      } else {
+        setChecked(true);
+      }
+    })();
+  }, [router]);
+  if (!checked) return null;
+  return <>{children}</>;
+}
 
 function CustomTabBar({ state, descriptors, navigation }: any) {
   const insets = useSafeAreaInsets();
@@ -96,6 +116,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
 
 export default function TabsLayout() {
   return (
+    <AuthGuard>
     <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: '#14617B', tabBarStyle: { display: 'none' } }} tabBar={(props) => <CustomTabBar {...props} />}>
   <Tabs.Screen name="index" options={{ title: 'Home' }} />
   <Tabs.Screen name="finance" options={{ title: 'Finance' }} />
@@ -103,5 +124,6 @@ export default function TabsLayout() {
   <Tabs.Screen name="locations" options={{ title: 'Locations' }} />
   <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
     </Tabs>
+    </AuthGuard>
   );
 }

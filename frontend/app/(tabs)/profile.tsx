@@ -1,4 +1,5 @@
 import React from 'react';
+import { fetchUserProfile } from '../../services/user';
 import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Header from '../components/Header';
@@ -6,18 +7,21 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { clearToken } from '@/utils/auth';
-import { router } from 'expo-router';
 
 export default function Profile() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const [user, setUser] = React.useState<{ full_name?: string; email?: string; role?: string } | null>(null);
+  React.useEffect(() => {
+    fetchUserProfile().then(setUser).catch(() => setUser(null));
+  }, []);
 
   const coupons = [
     { title: '10% OFF on Premium', code: 'HSO10' },
     { title: '2x points this week', code: 'DOUBLE' },
   ];
 
-  const options = ['Payment methods', 'Order history', 'Notifications', 'My vehicles', 'Add vehicle', 'Sign out'];
+  const options = ['Payment methods', 'Order history', 'Notifications', 'My vehicles', 'Add vehicle'];
 
   const handleOptionPress = async (option: string) => {
     if (option === 'Sign out') {
@@ -46,8 +50,8 @@ export default function Profile() {
           <View style={styles.rowCenter}>
             <View style={styles.avatar}><Ionicons name="person" size={28} color="#14617B" /></View>
             <View style={{ marginLeft: 12 }}>
-              <Text style={styles.name}>User name</Text>
-              <Text style={styles.subtitle}>User • @username</Text>
+              <Text style={styles.name}>{user?.full_name || 'User name'}</Text>
+              <Text style={styles.subtitle}>{user ? `${user.role || 'User'} • ${user.email}` : 'User • @username'}</Text>
             </View>
           </View>
         </View>
@@ -99,6 +103,10 @@ export default function Profile() {
         <Pressable style={styles.editButton} onPress={() => {}}>
           <Text style={styles.editText}>Edit profile</Text>
         </Pressable>
+
+        <Pressable style={styles.signOutButton} onPress={() => handleOptionPress('Sign out')}>
+          <Text style={styles.signOutText}>Sign out</Text>
+        </Pressable>
         {/* spacer so the last button isn't covered by the bottom tab bar */}
         <View style={{ height: Math.max(insets.bottom + 28, 96) }} />
     </ScrollView>
@@ -132,4 +140,6 @@ const styles = StyleSheet.create({
   optionText: { fontSize: 14, color: '#0F172A' },
   editButton: { marginTop: 14, borderRadius: 12, borderWidth: 1, borderColor: '#E6EDF0', paddingVertical: 12, alignItems: 'center', backgroundColor: '#fff' },
   editText: { color: '#0F172A', fontWeight: '700' },
+  signOutButton: { marginTop: 16, borderRadius: 12, borderWidth: 1, borderColor: '#EF4444', paddingVertical: 12, alignItems: 'center', backgroundColor: '#fff' },
+  signOutText: { color: '#EF4444', fontWeight: '700' },
 });
