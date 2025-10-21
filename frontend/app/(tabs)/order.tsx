@@ -116,6 +116,7 @@ export default function Order() {
       showsVerticalScrollIndicator={false}
     >
       <Header />
+    
 
   <Text style={styles.title}>Solicitar Servicio</Text>
   <Text style={styles.subtitle}>Completa los detalles de tu pedido</Text>
@@ -151,7 +152,7 @@ export default function Order() {
         </Pressable>
       </ScrollView>
 
-      {/* Tipo de Vehículo del Despachador */}
+      {/* Tipo de Vehículo del Despachadorr */}
       <Text style={[styles.overline, { marginTop: 14 }]}>Tipo de Vehículo del Despachador</Text>
       <View style={styles.grid2}> 
         <DispatcherCard title="Camioneta" subtitle="AB-1234 • 100L" icon="car" selected={dispatcherType==='pickup'} onPress={() => setDispatcherType('pickup')} />
