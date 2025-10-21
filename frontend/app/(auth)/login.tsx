@@ -21,8 +21,8 @@ export default function LoginScreen() {
     try {
       const res = await fetch(endpoints.authToken, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: email, password }),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
       });
       if (res.ok) {
         const data = await res.json();

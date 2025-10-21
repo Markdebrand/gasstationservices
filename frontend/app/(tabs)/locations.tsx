@@ -14,10 +14,6 @@ const stations = [
 // Definir tipo para marker
 
 export default function LocationsScreen() {
-  // ...existing code...
-
-  // ...existing code...
-
   return (
   <KeyboardAwareScrollView style={styles.root} enableOnAndroid extraScrollHeight={10} keyboardShouldPersistTaps="handled">
       <Header />
@@ -29,12 +25,9 @@ export default function LocationsScreen() {
           <TextInput
             placeholder="Buscar localización..."
             placeholderTextColor="#94A3B8"
-            // ...existing code...
             style={styles.searchInput}
           />
         </View>
-        {/* ...existing code... */}
-        {/* Lista de estaciones locales */}
         <Text style={styles.countText}>{stations.length} nearby stations</Text>
         <View style={{ marginTop: 8 }}>
           {stations.map((s) => (

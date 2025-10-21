@@ -109,8 +109,6 @@ export default function Order() {
 
   const removePromo = () => setAppliedPromo(null);
 
-  // ...existing code...
-
   return (
     <KeyboardAwareScrollView
       style={styles.root}
@@ -133,7 +131,6 @@ export default function Order() {
   <FuelCard label="Diesel" price={FUEL_PRICES.diesel} selected={fuel === 'diesel'} onPress={() => setFuel('diesel')} />
       </View>
 
-      {/* Tu Vehículo (para identificar) */}
       <Text style={[styles.overline, { marginTop: 14 }]}>Tu Vehículo (para identificar)</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 8 }}>
         {vehicles.map(v => (
@@ -155,7 +152,6 @@ export default function Order() {
           <Ionicons name="add" size={22} color="#0F172A" />
         </Pressable>
       </ScrollView>
-      {/* Ubicación de Entrega */}
       <View style={styles.card}>
         <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
           <View style={styles.iconBadge}><Ionicons name="location" size={16} color="#059669" /></View>
@@ -165,8 +161,6 @@ export default function Order() {
           </View>
         </View>
       </View>
-
-      {/* Cuándo lo quieres */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>¿Cuándo lo quieres?</Text>
         <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
