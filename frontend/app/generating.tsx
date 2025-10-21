@@ -46,8 +46,8 @@ export default function GeneratingScreen() {
         <Animated.View style={[styles.iconWrap, { transform: [{ scale: pulse }] }]}>
           <Ionicons name="construct" size={34} color="#14617B" />
         </Animated.View>
-        <Text style={styles.title}>Generando tu pedido…</Text>
-  <Text style={styles.subtitle}>Estamos preparando la orden.</Text>
+    <Text style={styles.title}>Generating your order…</Text>
+  <Text style={styles.subtitle}>We're preparing the order.</Text>
 
         <View style={styles.progressBar}>
           <View style={[styles.progressFill, { width: `${progress}%` }]} />
@@ -55,7 +55,7 @@ export default function GeneratingScreen() {
         <Text style={styles.percent}>{progress}%</Text>
 
         <Pressable onPress={() => router.replace({ pathname: '/tracking', params: { ...params } as any })} style={[styles.skip, { bottom: Math.max(16, insets.bottom + 8) }]}>
-          <Text style={styles.skipText}>Saltar</Text>
+          <Text style={styles.skipText}>Skip</Text>
         </Pressable>
       </View>
     </View>
