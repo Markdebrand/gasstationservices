@@ -19,6 +19,7 @@ export default function RegisterScreen() {
   }
 
   const handleRegister = async () => {
+    setErrors({});
     if (!name || !email || !password || !confirm) {
       Alert.alert('Campos requeridos', 'Completa todos los campos');
       return;
@@ -33,17 +34,6 @@ export default function RegisterScreen() {
     }
     setLoading(true);
     try {
-      // Verificar si el usuario ya existe
-      const checkRes = await fetch(`${endpoints.authRegister.replace('/register','/users')}?email=${encodeURIComponent(email)}`);
-      if (checkRes.ok) {
-        const users = await checkRes.json();
-        if (Array.isArray(users) && users.length > 0) {
-          setErrors({ email: 'El correo ya está registrado' });
-          setLoading(false);
-          return;
-        }
-      }
-      // Registrar usuario
       const res = await fetch(endpoints.authRegister, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -55,6 +45,7 @@ export default function RegisterScreen() {
       } else {
         const data = await res.json().catch(() => ({} as any));
         setErrors({ email: data.detail || 'No se pudo crear la cuenta' });
+        Alert.alert('Error', data.detail || 'No se pudo crear la cuenta');
       }
     } catch (e) {
       Alert.alert('Error', 'No se pudo conectar al backend');

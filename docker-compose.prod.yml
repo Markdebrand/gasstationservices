@@ -11,7 +11,7 @@ services:
     ]
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_DB: ${MYSQL_DB}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
@@ -34,24 +34,16 @@ services:
       DB_PROFILE: prod
       MYSQL_HOST: db
       MYSQL_PORT: 3306
-      MYSQL_DB: ${MYSQL_DATABASE}
+      MYSQL_DB: ${MYSQL_DB}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-*}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-["*"]}
       ROOT_PATH: ${ROOT_PATH:-}
       ENVIRONMENT: prod
     depends_on:
       - db
-    networks:
-      - app
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.frontend
-    restart: unless-stopped
-    depends_on:
-      - backend
+    ports:
+      - "8001:8000"
     networks:
       - app
 

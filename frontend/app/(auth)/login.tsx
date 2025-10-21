@@ -5,6 +5,7 @@ import Toast from 'react-native-toast-message';
 import { Link, router } from 'expo-router';
 import { endpoints } from '@/constants/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setToken } from '@/utils/auth';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -12,18 +13,32 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    // Bypass backend for local testing: accept any non-empty inputs
     if (!email || !password) {
       Alert.alert('Required fields', 'Enter email and password');
       return;
     }
     setLoading(true);
     try {
-      // store a fake token and navigate into the app
-      await AsyncStorage.setItem('auth:token', 'LOCAL_FAKE_TOKEN');
-      Toast.show({ type: 'success', text1: 'Welcome!', text2: 'Local login successful.' });
-      // replace navigation to main tabs
-      router.replace('/(tabs)' as any);
+      const res = await fetch(endpoints.authToken, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.access_token) {
+          await setToken(data.access_token);
+          Toast.show({ type: 'success', text1: 'Welcome!', text2: 'Login successful.' });
+          router.replace('/(tabs)' as any);
+        } else {
+          Alert.alert('Login failed', 'No token received.');
+        }
+      } else {
+        const err = await res.json().catch(() => ({}));
+        Alert.alert('Login failed', err.detail || 'Invalid credentials');
+      }
+    } catch (e) {
+      Alert.alert('Error', 'Could not connect to backend');
     } finally {
       setLoading(false);
     }

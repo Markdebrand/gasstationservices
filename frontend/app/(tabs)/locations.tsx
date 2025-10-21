@@ -1,9 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TextInput, Pressable } from 'react-native';
+import { View, Text, StyleSheet, TextInput } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import Feather from '@expo/vector-icons/Feather';
 import Header from '../components/Header';
 
 const stations = [
@@ -13,53 +11,26 @@ const stations = [
   { name: 'HSO Station Sur', addr: 'Autopista Sur Km 8', dist: 7.2, rate: 4.7, hours: '24/7', open: true },
 ];
 
+// Definir tipo para marker
+
 export default function LocationsScreen() {
-  const insets = useSafeAreaInsets();
-  const tabBarBase = 64;
-  const contentPadBottom = tabBarBase + Math.max(insets.bottom, 8) + 12;
-  const [query, setQuery] = React.useState('');
-
-  const filtered = React.useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return stations;
-    return stations.filter(s => s.name.toLowerCase().includes(q) || s.addr.toLowerCase().includes(q));
-  }, [query]);
-
   return (
-    <KeyboardAwareScrollView style={styles.root} contentContainerStyle={{ paddingBottom: contentPadBottom }} enableOnAndroid extraScrollHeight={10} keyboardShouldPersistTaps="handled">
+  <KeyboardAwareScrollView style={styles.root} enableOnAndroid extraScrollHeight={10} keyboardShouldPersistTaps="handled">
       <Header />
-
-  <Text style={styles.title}>Locations</Text>
-  <Text style={styles.subtitle}>Nearby affiliated gas stations</Text>
-
+      <Text style={styles.title}>Locations</Text>
+      <Text style={styles.subtitle}>Nearby affiliated gas stations</Text>
       <View style={{ marginTop: 12 }}>
         <View style={styles.searchRow}>
           <Ionicons name="search" size={18} color="#64748B" />
           <TextInput
-            placeholder="Search location..."
+            placeholder="Buscar localización..."
             placeholderTextColor="#94A3B8"
-            value={query}
-            onChangeText={setQuery}
             style={styles.searchInput}
           />
         </View>
-
-        <View style={styles.mapBox}>
-          <View style={{ position: 'absolute', right: 12, top: 12 }}>
-            <Pressable style={styles.locButton} onPress={() => { /* TODO: wire geolocation */ }}>
-              <Ionicons name="navigate" size={14} color="#FFFFFF" />
-              <Text style={styles.locButtonText}>My location</Text>
-            </Pressable>
-          </View>
-          <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-            <Feather name="map-pin" size={28} color="#0F172A" />
-            <Text style={{ marginTop: 8, fontSize: 13, color: '#334155' }}>Locations map</Text>
-          </View>
-        </View>
-
-  <Text style={styles.countText}>{filtered.length} nearby stations</Text>
+        <Text style={styles.countText}>{stations.length} nearby stations</Text>
         <View style={{ marginTop: 8 }}>
-          {filtered.map((s) => (
+          {stations.map((s) => (
             <View key={s.name} style={styles.card}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <View style={{ flex: 1, paddingRight: 8 }}>
