@@ -25,11 +25,11 @@ export default function Profile() {
       router.replace('/(auth)/login' as any);
     } else {
       if (option === 'My vehicles') {
-        router.push('/vehicles');
+        router.push('/vehicles/components/vehicle_list');
         return;
       }
       if (option === 'Add vehicle') {
-        router.push('/vehicle');
+        router.push('/vehicles/components/vehicle_add');
         return;
       }
       Alert.alert(option);

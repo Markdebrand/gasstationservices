@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, Pressable, Alert, ScrollView } from 'react-native';
+import { View, Text, Image, Pressable, Alert, ScrollView } from 'react-native';
 import Header from '../components/Header';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -76,7 +76,7 @@ export default function VehicleDetail() {
         ) : null}
 
         <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
-          <Pressable style={[styles.button, { backgroundColor: '#14617B' }]} onPress={() => router.push({ pathname: '/vehicle', params: { id } })}>
+          <Pressable style={[styles.button, { backgroundColor: '#14617B' }]} onPress={() => router.push({ pathname: '/vehicles/components/vehicle_add', params: { id } })}>
             <Text style={[styles.buttonText]}>Edit</Text>
           </Pressable>
           <Pressable style={[styles.button, { backgroundColor: '#EF4444' }]} onPress={remove}>
@@ -87,16 +87,4 @@ export default function VehicleDetail() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#F8FAFC', padding: 16 },
-  card: { margin: 16, backgroundColor: '#fff', borderRadius: 12, padding: 16, alignItems: 'center', borderWidth: 1, borderColor: '#E6EDF0' },
-  photo: { width: 220, height: 140, borderRadius: 12, backgroundColor: '#EEE' },
-  plate: { fontSize: 20, fontWeight: '800', marginTop: 12, color: '#0F172A' },
-  meta: { fontSize: 14, color: '#64748B', marginTop: 4 },
-  row: { width: '100%', flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 },
-  label: { color: '#94A3B8', fontSize: 13 },
-  value: { color: '#0F172A', fontWeight: '700' },
-  button: { flex: 1, height: 44, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  buttonText: { color: '#fff', fontWeight: '700' },
-});
+import styles from '../../src/styles/vehicleDetailStyles';
