@@ -345,7 +345,7 @@ export default function LocationsMap({ visible, onClose, initialRegion, search, 
       <Animated.View style={[styles.modalRoot, { opacity: anim, transform: [{ scale: anim.interpolate({ inputRange: [0, 1], outputRange: [0.96, 1] }) }] }]}>
         <View style={[styles.modalTop, { paddingTop: Math.max(insets.top, 12) }]}>
           <Pressable onPress={closeAnimated} style={[styles.modalBack, { position: 'absolute', left: 16, top: Math.max(insets.top, 12) }]}>
-            <Ionicons name="chevron-back" size={20} color="#14617B" />
+            <Ionicons name="chevron-back" size={20} color="#7F1D1D" />
           </Pressable>
           <View style={{ flex: 1, paddingLeft: 66 }}>
             <Text style={styles.modalOverline}>LOCATIONS</Text>

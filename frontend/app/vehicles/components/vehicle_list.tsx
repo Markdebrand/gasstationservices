@@ -85,7 +85,7 @@ export default function VehiclesScreen() {
                 {!!v.vin && <Text style={styles.meta}>VIN: {v.vin}</Text>}
               </View>
               <Pressable onPress={() => remove(v.id)}>
-                <Ionicons name="trash-outline" size={20} color="#EF4444" />
+                <Ionicons name="trash-outline" size={20} color="#b91c1c" />
               </Pressable>
             </View>
           </Pressable>

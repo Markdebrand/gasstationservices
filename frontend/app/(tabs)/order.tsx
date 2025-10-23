@@ -289,7 +289,7 @@ export default function Order() {
       {/* Ubicación de Entrega */}
       <View style={styles.card}>
         <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
-          <View style={styles.iconBadge}><Ionicons name="location" size={16} color="#059669" /></View>
+          <View style={styles.iconBadge}><Ionicons name="location" size={16} color="#b91c1c" /></View>
           <View style={{ flex: 1 }}>
             <Text style={styles.cardTitle}>Delivery Location</Text>
             <Text style={styles.cardSub}>{address}</Text>

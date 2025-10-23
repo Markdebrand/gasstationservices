@@ -18,6 +18,7 @@ export default StyleSheet.create({
   badgeTrend: { marginTop: 6, alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 9999, fontSize: 11 },
   muted: { color: '#64748B', fontSize: 12 },
   bold: { marginTop: 4, fontSize: 14, fontWeight: '600', color: '#0F172A' },
-  cta: { marginTop: 20, backgroundColor: '#14617B', borderRadius: 16, height: 48, alignItems: 'center', justifyContent: 'center' },
+  // darker red for layout/CTA to match provided image
+  cta: { marginTop: 20, backgroundColor: '#b91c1c', borderRadius: 16, height: 48, alignItems: 'center', justifyContent: 'center' },
   ctaText: { color: '#F7FBFE', fontSize: 16, fontWeight: '600' },
 });

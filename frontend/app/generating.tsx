@@ -44,7 +44,7 @@ export default function GeneratingScreen() {
       <BackgroundMotion />
       <View style={styles.card}>
         <Animated.View style={[styles.iconWrap, { transform: [{ scale: pulse }] }]}>
-          <Ionicons name="construct" size={34} color="#14617B" />
+          <Ionicons name="construct" size={34} color="#b91c1c" />
         </Animated.View>
     <Text style={styles.title}>Generating your order…</Text>
   <Text style={styles.subtitle}>We're preparing the order.</Text>

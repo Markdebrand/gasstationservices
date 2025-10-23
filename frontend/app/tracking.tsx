@@ -201,7 +201,7 @@ export default function TrackingScreen() {
               <Text style={styles.sectionTitle}>{progressPercent >= 100 ? 'At destination' : 'En route'}</Text>
               <Text style={{ color: '#64748B', marginTop: 6 }}>Estimated time: {etaMinutes} min</Text>
               <View style={{ marginTop: 10, height: 10, backgroundColor: '#EEF6F3', borderRadius: 999 }}>
-                <View style={{ width: `${progressPercent}%`, height: '100%', backgroundColor: '#059669', borderRadius: 999 }} />
+                <View style={{ width: `${progressPercent}%`, height: '100%', backgroundColor: '#b91c1c', borderRadius: 999 }} />
               </View>
               <View style={{ position: 'absolute', right: 12, top: 12, backgroundColor: '#E6FAF2', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999 }}>
                 <Text style={{ color: '#065F46', fontWeight: '700' }}>{progressPercent}%</Text>

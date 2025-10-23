@@ -44,7 +44,7 @@ export default function Profile() {
       <Header />
         <View style={styles.sectionCard}>
           <View style={styles.rowCenter}>
-            <View style={styles.avatar}><Ionicons name="person" size={28} color="#14617B" /></View>
+            <View style={styles.avatar}><Ionicons name="person" size={28} color="#b91c1c" /></View>
             <View style={{ marginLeft: 12 }}>
               <Text style={styles.name}>User name</Text>
               <Text style={styles.subtitle}>User • @username</Text>
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   pointsTitle: { fontSize: 13, color: '#374151', fontWeight: '600' },
   pointsValue: { fontSize: 14, color: '#0F172A', marginTop: 2 },
   progressBarBackground: { marginTop: 10, height: 8, backgroundColor: '#F1F5F9', borderRadius: 999 },
-  progressBarFill: { height: 8, backgroundColor: '#14617B', borderRadius: 999 },
+  progressBarFill: { height: 8, backgroundColor: '#b91c1c', borderRadius: 999 },
   progressNote: { marginTop: 8, fontSize: 11, color: '#64748B' },
   sectionTitle: { fontSize: 14, fontWeight: '700', marginBottom: 8 },
   couponRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8 },

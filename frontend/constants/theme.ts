@@ -5,24 +5,26 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+// Red palette
+const tintColorLight = '#b91c1c'; // warm red for light theme accents
+const tintColorDark = '#ffdddd'; // light rosy tint for dark theme accents
 
 export const Colors = {
   light: {
     text: '#11181C',
     background: '#fff',
     tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
+    // neutral greys adjusted to pair with red accents
+    icon: '#6B6B6B',
+    tabIconDefault: '#6B6B6B',
     tabIconSelected: tintColorLight,
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
+    text: '#F5EAEA',
+    background: '#0f0b0b',
     tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
+    icon: '#BFA7A7',
+    tabIconDefault: '#BFA7A7',
     tabIconSelected: tintColorDark,
   },
 };

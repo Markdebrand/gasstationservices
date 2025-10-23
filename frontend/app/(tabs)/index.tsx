@@ -45,14 +45,14 @@ export default function HomeScreen() {
       <Header />
 
       {pending && (
-        <View style={[styles.card, { backgroundColor: '#F0FBF6', borderColor: '#CBE9DC' }] }>
+        <View style={[styles.card, { backgroundColor: '#FFF1F2', borderColor: '#F5D6D6' }] }>
           <Text style={styles.cardTitle}>Pending payment</Text>
           <Text style={styles.cardMeta}>
             {pending.summary || 'Order'} • Total ${pending.total}
           </Text>
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
             <Pressable
-              style={{ flex: 1, height: 44, borderRadius: 12, backgroundColor: '#14617B', alignItems: 'center', justifyContent: 'center' }}
+              style={{ flex: 1, height: 44, borderRadius: 12, backgroundColor: '#b91c1c', alignItems: 'center', justifyContent: 'center' }}
               onPress={() => {
                 const q = new URLSearchParams({ resumePayment: '1', address: 'your location', vehicleId: String(pending.vehicleId || ''), fuel: String(pending.fuel || ''), liters: String(pending.liters || '') }).toString();
                 router.push(`/tracking?${q}` as any);
@@ -64,16 +64,16 @@ export default function HomeScreen() {
               style={{ width: 44, height: 44, borderRadius: 10, borderWidth: 1, borderColor: '#E6EDF0', backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}
               onPress={async () => { try { await AsyncStorage.removeItem('order:pendingPayment'); } catch {}; setPending(null); }}
             >
-              <Ionicons name="close" size={20} color="#0F172A" />
+                <Ionicons name="close" size={20} color="#0F172A" />
             </Pressable>
           </View>
         </View>
       )}
 
       <View style={styles.grid3}>
-        <PriceBadge title="Gasolina" price="$1.18" unit="/L" trend="+1.2%" colorBg="#E0F2FE" icon={<MaterialCommunityIcons name="gas-station" size={16} color="#475569" />} />
+    <PriceBadge title="Gasolina" price="$1.18" unit="/L" trend="+1.2%" colorBg="#FFF1F2" icon={<MaterialCommunityIcons name="gas-station" size={16} color="#475569" />} />
   <PriceBadge title="Diesel" price="$1.06" unit="/L" trend="-0.4%" colorBg="#F1F5F9" negative icon={<Ionicons name="flame-outline" size={16} color="#475569" />} />
-        <PriceBadge title="Premium" price="$1.34" unit="/L" trend="+0.6%" colorBg="#FEF3C7" icon={<Ionicons name="speedometer-outline" size={16} color="#475569" />} />
+    <PriceBadge title="Premium" price="$1.34" unit="/L" trend="+0.6%" colorBg="#FEF3C7" icon={<Ionicons name="speedometer-outline" size={16} color="#475569" />} />
       </View>
 
   <View style={[styles.card, { marginTop: 8 }] }>
@@ -84,7 +84,7 @@ export default function HomeScreen() {
             <Text style={styles.cardMeta}>Average</Text>
           </View>
         </View>
-        <View style={{ height: 120, justifyContent: 'center' }}>
+          <View style={{ height: 120, justifyContent: 'center' }}>
           <PolylineChart data={chartData} />
         </View>
   <Text style={styles.cardNote}>Last 6 months • overall average</Text>
@@ -101,7 +101,7 @@ export default function HomeScreen() {
         </View>
       </View>
 
-  <TouchableOpacity style={[styles.cta, { marginTop: 20 }]}>
+  <TouchableOpacity style={[styles.cta, { marginTop: 20, backgroundColor: '#b91c1c' }]}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <Ionicons name="water-outline" size={18} color="#F7FBFE" />
           <Text style={styles.ctaText}>Request service</Text>
@@ -122,7 +122,7 @@ function PriceBadge({ title, price, unit, trend, colorBg, negative, icon }: { ti
         {price}
         <Text style={styles.badgeUnit}>{unit}</Text>
       </Text>
-      <Text style={[styles.badgeTrend, { backgroundColor: negative ? '#FFF1F2' : '#ECFDF5', color: negative ? '#E11D48' : '#059669' }]}>{trend}</Text>
+  <Text style={[styles.badgeTrend, { backgroundColor: negative ? '#FFF1F2' : '#FFF1F2', color: negative ? '#E11D48' : '#b91c1c' }]}>{trend}</Text>
     </View>
   );
 }
@@ -209,7 +209,7 @@ function PolylineChart({ data }: { data: number[] }) {
               ref={pathRef}
               d={polyPoints.path}
               fill="none"
-              stroke="#14617B"
+              stroke="#991B1B"
               strokeWidth={3.5}
               strokeLinecap="round"
               strokeLinejoin="round"

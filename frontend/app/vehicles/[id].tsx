@@ -79,7 +79,7 @@ export default function VehicleDetail() {
           <Pressable style={[styles.button, { backgroundColor: '#14617B' }]} onPress={() => router.push({ pathname: '/vehicles/components/vehicle_add', params: { id } })}>
             <Text style={[styles.buttonText]}>Edit</Text>
           </Pressable>
-          <Pressable style={[styles.button, { backgroundColor: '#EF4444' }]} onPress={remove}>
+          <Pressable style={[styles.button, { backgroundColor: '#b91c1c' }]} onPress={remove}>
             <Text style={[styles.buttonText]}>Delete</Text>
           </Pressable>
         </View>

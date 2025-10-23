@@ -60,7 +60,7 @@ export default function Finance() {
   <Text style={styles.subtitle}>Spending summary and balance</Text>
 
       {/* Balance card */}
-      <LinearGradient colors={["#10b981", "#059669"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.balanceCard}>
+  <LinearGradient colors={["#b91c1c", "#7f1414"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.balanceCard}>
         <View style={styles.balanceRow}>
           <View>
             <Text style={styles.balanceOverline}>Total Balance</Text>
@@ -74,7 +74,7 @@ export default function Finance() {
       {/* Monthly spend (bars) */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Monthly Spend</Text>
-  <ChartBars data={monthly} height={160} barColor="#10b981" onInteractionChange={setIsInteracting} animateTrigger={animateTrigger} />
+  <ChartBars data={monthly} height={160} barColor="#b91c1c" onInteractionChange={setIsInteracting} animateTrigger={animateTrigger} />
       </View>
 
       {/* Trend (line) */}

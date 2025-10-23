@@ -11,7 +11,7 @@ export default StyleSheet.create({
   mapBox: { marginTop: 12, borderRadius: 20, paddingVertical: 36, paddingHorizontal: 16, backgroundColor: 'rgba(16,185,129,0.10)' },
   mapPreview: { ...StyleSheet.absoluteFillObject, borderRadius: 20, overflow: 'hidden' },
   mapPreviewOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(16,185,129,0.12)', borderRadius: 20 },
-  locButton: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#10B981', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999 },
+  locButton: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#b91c1c', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999 },
   locButtonText: { color: '#FFFFFF', fontSize: 12, fontWeight: '600', marginLeft: 6 },
 
   countText: { marginTop: 12, fontSize: 12, color: '#64748B' },
@@ -22,7 +22,7 @@ export default StyleSheet.create({
   cardMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 6 },
   cardMeta: { fontSize: 11, color: '#64748B' },
   statusBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, fontSize: 12, fontWeight: '600' },
-  statusOpen: { backgroundColor: '#ECFDF5', color: '#059669' },
+  statusOpen: { backgroundColor: '#FFF1F2', color: '#b91c1c' },
   statusClose: { backgroundColor: '#FFE4E6', color: '#E11D48' },
   /* Modal / full-screen map styles */
   modalRoot: { flex: 1, backgroundColor: '#FFFFFF' },

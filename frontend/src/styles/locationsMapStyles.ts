@@ -20,10 +20,10 @@ const styles = StyleSheet.create({
   routeInfo: { position: 'absolute', width: 96, backgroundColor: '#E6FAF2', borderRadius: 12, padding: 8, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#C7F0E0', zIndex: 70, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 6, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
   routeActions: { position: 'absolute', left: 16, right: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 8, zIndex: 80 },
   routeActionBtn: { backgroundColor: '#fff', paddingVertical: 10, paddingHorizontal: 12, borderRadius: 10, borderWidth: 1, borderColor: '#E6EDF0', alignItems: 'center', justifyContent: 'center' },
-  routeActionBtnGreen: { backgroundColor: '#10B981', paddingVertical: 10, paddingHorizontal: 12, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  routeActionBtnGreen: { backgroundColor: '#b91c1c', paddingVertical: 10, paddingHorizontal: 12, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   // New button variants for RouteActions
   ra_btn: { paddingVertical: 12, paddingHorizontal: 14, borderRadius: 999, alignItems: 'center', justifyContent: 'center', marginHorizontal: 6, minWidth: 96 },
-  ra_primary: { backgroundColor: '#10B981', shadowColor: '#0b3a2f', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 8, elevation: 6 },
+  ra_primary: { backgroundColor: '#b91c1c', shadowColor: '#3a0b0b', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 8, elevation: 6 },
   ra_secondary: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E6EDF0' },
   ra_disabled: { opacity: 0.6 },
   ra_text_primary: { color: '#FFFFFF', fontWeight: '700' },
@@ -33,10 +33,10 @@ const styles = StyleSheet.create({
   selectedTitle: { color: '#0F172A', fontWeight: '700' },
   selectedCoords: { color: '#64748B', marginTop: 4 },
   // Time badge that appears above selected marker
-  timeBadge: { backgroundColor: '#065F46', paddingHorizontal: 8, paddingVertical: 6, borderRadius: 12, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.12, shadowRadius: 4, elevation: 4 },
+  timeBadge: { backgroundColor: '#991B1B', paddingHorizontal: 8, paddingVertical: 6, borderRadius: 12, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.12, shadowRadius: 4, elevation: 4 },
   timeBadgeText: { color: '#fff', fontWeight: '700' },
   // increased background alpha to make the panel less translucent (more solid)
-  routeActionsBg: { position: 'absolute', left: 16, right: 16, borderRadius: 14, padding: 6, paddingVertical: 8, overflow: 'hidden', zIndex: 90, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.88)', maxHeight: 180 },
+  routeActionsBg: { position: 'absolute', left: 16, right: 16, borderRadius: 14, padding: 6, paddingVertical: 8, overflow: 'hidden', zIndex: 90, borderWidth: 1, borderColor: 'rgba(255,235,235,0.14)', backgroundColor: 'rgba(255,245,245,0.92)', maxHeight: 180 },
   routeActionsInner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   routeActionsContent: { paddingTop: 12 },
 });

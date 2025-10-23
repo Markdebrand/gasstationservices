@@ -31,11 +31,11 @@ export default function Header({ showBack, onBack }: Props) {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           {showBack ? (
             <Pressable onPress={handleBack} style={styles.backButton}>
-              <Ionicons name="chevron-back" size={20} color="#14617B" />
+              <Ionicons name="chevron-back" size={20} color="#7F1D1D" />
             </Pressable>
           ) : (
             <View style={styles.brandBadge}>
-              <Ionicons name="water" size={20} color="#14617B" />
+              <Ionicons name="water" size={20} color="#7F1D1D" />
             </View>
           )}
           <View>
@@ -45,7 +45,7 @@ export default function Header({ showBack, onBack }: Props) {
         </View>
         <View style={{ position: 'relative' }}>
           <LinearGradient
-            colors={["#3FB0C1", "#14617B"]}
+            colors={["#b91c1c", "#7f1414"]}
             start={[0, 0]}
             end={[1, 1]}
             style={styles.gradientContainer}
@@ -54,7 +54,7 @@ export default function Header({ showBack, onBack }: Props) {
               <Ionicons name="notifications" size={22} color="#ffffff" />
             </Pressable>
           </LinearGradient>
-          <View style={styles.bellDot} />
+          <View style={[styles.bellDot, { backgroundColor: '#b91c1c' }]} />
         </View>
       </View>
     </View>
@@ -64,7 +64,7 @@ export default function Header({ showBack, onBack }: Props) {
 const styles = StyleSheet.create({
   container: { backgroundColor: 'transparent' },
   headerCard: { borderRadius: 0, paddingVertical: 8, paddingHorizontal: 0, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  brandBadge: { height: 40, width: 40, borderRadius: 10, backgroundColor: 'rgba(20,97,123,0.08)', alignItems: 'center', justifyContent: 'center' },
+  brandBadge: { height: 40, width: 40, borderRadius: 10, backgroundColor: 'rgba(255,200,200,0.14)', alignItems: 'center', justifyContent: 'center' },
   headerOverline: { fontSize: 13, color: '#64748B', fontWeight: '700', letterSpacing: 0.4 },
   headerTitle: { fontSize: 20, fontWeight: '800', color: '#0F172A' },
   gradientContainer: {
@@ -87,6 +87,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  backButton: { height: 36, width: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(20,97,123,0.06)', marginRight: 6 },
-  bellDot: { position: 'absolute', top: -6, right: -6, width: 10, height: 10, backgroundColor: '#EF4444', borderRadius: 5, borderWidth: 2, borderColor: '#fff' },
+  backButton: { height: 36, width: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,200,200,0.08)', marginRight: 6 },
+  bellDot: { position: 'absolute', top: -6, right: -6, width: 10, height: 10, backgroundColor: '#b91c1c', borderRadius: 5, borderWidth: 2, borderColor: '#fff' },
 });
