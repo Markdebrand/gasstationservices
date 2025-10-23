@@ -4,7 +4,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import Header from './components/Header';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createVehicle, updateVehicle, listVehicles as apiListVehicles } from '../services/vehicles';
+import { createVehicle, updateVehicle, listVehicles as apiListVehicles, uploadVehiclePhoto } from '../services/vehicles';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -97,8 +97,27 @@ export default function VehicleScreen() {
     }
     setSaving(true);
     try {
+      // Upload local photos and collect URLs
+      const uploadedUrls: string[] = [];
+      for (const p of photos) {
+        if (p.startsWith('http://') || p.startsWith('https://') || p.startsWith('/uploads/')) {
+          uploadedUrls.push(p);
+        } else {
+          try {
+            const url = await uploadVehiclePhoto(p);
+            uploadedUrls.push(url);
+          } catch {
+            // If upload fails, skip this photo
+          }
+        }
+      }
+      if (uploadedUrls.length === 0) {
+        Alert.alert('Photo required', 'Please add at least one vehicle photo.');
+        setSaving(false);
+        return;
+      }
       const payload = {
-        photos,
+        photos: uploadedUrls,
         plate: plate.trim().toUpperCase(),
         brand: brand.trim(),
         model: model.trim(),

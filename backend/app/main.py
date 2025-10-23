@@ -1,12 +1,17 @@
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from .api import auth, stations, orders, users, locations, vehicles
 from .api import order_items, deliveries, products, catalog
 from .db.session import init_db, AsyncSessionLocal
 from .core.config import settings
 
+
 app = FastAPI(title="HSO Fuel Delivery - MVP", version="0.1.0", root_path=settings.root_path)
+
+# Expose /uploads as static files (for serving uploaded images)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # CORS: permitir cualquier origen (para apps y web)
 app.add_middleware(

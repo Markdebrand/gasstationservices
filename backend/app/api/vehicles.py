@@ -1,14 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from fastapi.responses import JSONResponse
 
 from ..db.session import get_session
 from ..models.vehicle import Vehicle
 from ..models.user import User
 from ..schemas.vehicle import VehicleCreate, VehicleRead, VehicleUpdate
 from .deps.auth import get_current_user
+import os
 
 router = APIRouter()
+
+UPLOADS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../uploads'))
+os.makedirs(UPLOADS_DIR, exist_ok=True)
 
 
 @router.get("/", response_model=list[VehicleRead])
@@ -86,3 +91,24 @@ async def delete_vehicle(
     await session.delete(v)
     await session.commit()
     return None
+
+
+@router.post("/upload-photo", response_model=dict)
+async def upload_vehicle_photo(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+):
+    # Only allow images
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Only image files are allowed.")
+    # Save file with a unique name
+    ext = os.path.splitext(file.filename)[1]
+    import uuid
+    filename = f"{current_user.id}_{uuid.uuid4().hex}{ext}"
+    file_path = os.path.join(UPLOADS_DIR, filename)
+    with open(file_path, "wb") as f:
+        content = await file.read()
+        f.write(content)
+    # Build public URL
+    url = f"/uploads/{filename}"
+    return {"url": url}
