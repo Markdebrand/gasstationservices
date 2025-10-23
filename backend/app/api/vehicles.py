@@ -78,6 +78,7 @@ async def update_vehicle(
     return v
 
 
+
 @router.delete("/{vehicle_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_vehicle(
     vehicle_id: int,
@@ -88,6 +89,17 @@ async def delete_vehicle(
     v = res.scalar_one_or_none()
     if not v:
         raise HTTPException(status_code=404, detail="Vehicle not found")
+    # Delete associated photos from uploads dir if they are local
+    if v.photos:
+        for url in v.photos:
+            if isinstance(url, str) and url.startswith("/uploads/"):
+                filename = url.split("/uploads/")[-1]
+                file_path = os.path.join(UPLOADS_DIR, filename)
+                try:
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                except Exception:
+                    pass
     await session.delete(v)
     await session.commit()
     return None
