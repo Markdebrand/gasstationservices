@@ -1,7 +1,7 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .api import auth, stations, orders, users
+from .api import auth, stations, orders, users, locations
 from .api import order_items, deliveries, products, catalog
 from .db.session import init_db, AsyncSessionLocal
 from .core.config import settings
@@ -22,6 +22,7 @@ app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(stations.router, prefix="/api/stations", tags=["stations"])
 app.include_router(orders.router, prefix="/api/orders", tags=["orders"])
+app.include_router(locations.router, prefix="/api/locations", tags=["locations"])
 app.include_router(order_items.router, prefix="/api/orders", tags=["order-items"])  # nested under orders
 app.include_router(deliveries.router, prefix="/api/deliveries", tags=["deliveries"])
 app.include_router(products.router, prefix="/api/products", tags=["products"])  # catalog

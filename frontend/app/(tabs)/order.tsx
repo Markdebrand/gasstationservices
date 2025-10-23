@@ -3,11 +3,11 @@ import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, Image, Modal,
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Header from '../components/Header';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import { listLocations, createLocation as apiCreateLocation, deleteLocation as apiDeleteLocation, type SavedLocation as ApiSavedLocation } from '../../services/locations';
 
 const FUEL_PRICES = {
   premium: 1.45,
@@ -43,7 +43,10 @@ export default function Order() {
   const [tokensTemp, setTokensTemp] = React.useState<string>('');
   const [availableTokens, setAvailableTokens] = React.useState<number>(10);
   const [showLocationModal, setShowLocationModal] = React.useState(false);
-  const [savedLocations, setSavedLocations] = React.useState<{name: string, address: string, lat: number, lon: number}[]>([]);
+  const [showSaveLocationModal, setShowSaveLocationModal] = React.useState(false);
+  const [locationNameInput, setLocationNameInput] = React.useState('');
+  const [locationAddressInput, setLocationAddressInput] = React.useState('');
+  const [savedLocations, setSavedLocations] = React.useState<ApiSavedLocation[]>([]);
   const [selectedLocation, setSelectedLocation] = React.useState<{name: string, address: string, lat: number, lon: number} | null>(null);
   const [region, setRegion] = React.useState({
     latitude: 9.92807,
@@ -103,13 +106,20 @@ export default function Order() {
     })();
   }, []);
 
-  // Load saved locations
+  // Load saved locations (from API, fallback to local cache)
   React.useEffect(() => {
     (async () => {
       try {
-        const raw = await AsyncStorage.getItem('user:savedLocations');
-        if (raw) setSavedLocations(JSON.parse(raw));
-      } catch {}
+        const list = await listLocations();
+        setSavedLocations(list);
+        await AsyncStorage.setItem('user:savedLocations', JSON.stringify(list));
+  } catch {
+        // fallback to local cache if offline or unauthenticated
+        try {
+          const raw = await AsyncStorage.getItem('user:savedLocations');
+          if (raw) setSavedLocations(JSON.parse(raw));
+        } catch {}
+      }
     })();
   }, []);
 
@@ -126,18 +136,60 @@ export default function Order() {
 
   const removePromo = () => setAppliedPromo(null);
 
-  // Save new location
+  // Save new location to API (from modal)
   const saveLocation = async (loc: {name: string, address: string, lat: number, lon: number}) => {
-    const updated = [...savedLocations, loc];
+    try {
+      const created = await apiCreateLocation(loc);
+      const updated = [...savedLocations, created];
+      setSavedLocations(updated);
+      await AsyncStorage.setItem('user:savedLocations', JSON.stringify(updated));
+  } catch {
+      // as a last resort, keep local cache (no id)
+      const fallback: any = { id: Date.now(), ...loc };
+      const updated = [...savedLocations, fallback];
+      setSavedLocations(updated);
+      await AsyncStorage.setItem('user:savedLocations', JSON.stringify(updated));
+    }
+  };
+
+  // Abrir modal para editar nombre/dirección
+  const handleOpenSaveLocationModal = () => {
+    if (selectedLocation) {
+      setLocationNameInput(selectedLocation.name || '');
+      setLocationAddressInput(selectedLocation.address || '');
+      setShowSaveLocationModal(true);
+    }
+  };
+
+  // Guardar desde modal
+  const handleSaveLocationModal = async () => {
+    if (!locationNameInput.trim() || !locationAddressInput.trim()) return;
+    if (selectedLocation) {
+      await saveLocation({
+        name: locationNameInput.trim(),
+        address: locationAddressInput.trim(),
+        lat: selectedLocation.lat,
+        lon: selectedLocation.lon
+      });
+      setShowSaveLocationModal(false);
+    }
+  };
+
+  // Delete saved location
+  const deleteLocationLocal = async (id: number) => {
+    const updated = savedLocations.filter(loc => loc.id !== id);
     setSavedLocations(updated);
     await AsyncStorage.setItem('user:savedLocations', JSON.stringify(updated));
   };
 
-  // Delete saved location
-  const deleteLocation = async (address: string, lat: number) => {
-    const updated = savedLocations.filter(loc => !(loc.address === address && loc.lat === lat));
-    setSavedLocations(updated);
-    await AsyncStorage.setItem('user:savedLocations', JSON.stringify(updated));
+  const handleDeleteLocation = async (id: number) => {
+    try {
+      await apiDeleteLocation(id);
+      await deleteLocationLocal(id);
+    } catch {
+      // still remove locally to keep UI responsive
+      await deleteLocationLocal(id);
+    }
   };
 
   // Select location and close modal
@@ -318,17 +370,39 @@ export default function Order() {
               placeholderTextColor="#94A3B8"
             />
           </View>
-          {photonResults.length > 0 && (
+          {photonResults.length > 0 ? (
             <FlatList
               data={photonResults}
-              keyExtractor={(item) => item.properties.osm_id + item.properties.label}
-              renderItem={({ item }) => (
-                <Pressable onPress={() => handlePhotonSelect(item)} style={{ padding: 12, borderBottomWidth: 1, borderBottomColor: '#E2E8F0' }}>
-                  <Text style={{ fontSize: 15, color: '#0F172A' }}>{item.properties.label}</Text>
-                </Pressable>
-              )}
-              style={{ maxHeight: 180, marginHorizontal: 24, backgroundColor: '#F1F5F9', borderRadius: 12, marginBottom: 8 }}
+              keyExtractor={(item, idx) => {
+                const osmId = item?.properties?.osm_id;
+                const label = item?.properties?.label || '';
+                return (osmId ? String(osmId) : 'idx_' + idx) + '_' + label;
+              }}
+              renderItem={({ item }) => {
+                // Mostrar el mejor texto posible
+                const props = item.properties || {};
+                const display = props.label || props.name || props.street || props.city || props.country || 'Dirección sin nombre';
+                return (
+                  <Pressable onPress={() => handlePhotonSelect(item)} style={{ padding: 12, borderBottomWidth: 1, borderBottomColor: '#E2E8F0' }}>
+                    <Text style={{ fontSize: 15, color: '#0F172A' }}>{display}</Text>
+                  </Pressable>
+                );
+              }}
+              style={{
+                maxHeight: 180,
+                height: Math.min(56 * photonResults.length, 180), // 56px por item aprox
+                marginHorizontal: 24,
+                backgroundColor: '#F1F5F9',
+                borderRadius: 12,
+                marginBottom: 2
+              }}
             />
+          ) : (
+            addressSearch.length >= 3 && (
+              <View style={{ marginHorizontal: 24, marginBottom: 8, backgroundColor: '#F1F5F9', borderRadius: 12, padding: 16 }}>
+                <Text style={{ color: '#64748B', fontSize: 15 }}>No se encontraron resultados.</Text>
+              </View>
+            )
           )}
           <MapView
             style={{ flex: 1, borderRadius: 0 }}
@@ -350,23 +424,58 @@ export default function Order() {
             <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 10 }}>Your saved locations</Text>
             <FlatList
               data={savedLocations}
-              keyExtractor={(item) => item.address + item.lat}
+              keyExtractor={(item, idx) => {
+                return String(item.id ?? idx);
+              }}
               renderItem={({ item }) => (
                 <View style={{ flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#E2E8F0' }}>
                   <Pressable onPress={() => handleSelectLocation(item)} style={{ flex: 1, padding: 12 }}>
                     <Text style={{ fontSize: 15, color: '#0F172A' }}>{item.name}</Text>
                     <Text style={{ fontSize: 13, color: '#64748B' }}>{item.address}</Text>
                   </Pressable>
-                  <Pressable onPress={() => deleteLocation(item.address, item.lat)} style={{ padding: 8 }}>
+                  <Pressable onPress={() => handleDeleteLocation(item.id)} style={{ padding: 8 }}>
                     <Ionicons name="trash" size={20} color="#E11D48" />
                   </Pressable>
                 </View>
               )}
               style={{ maxHeight: 140, backgroundColor: '#F1F5F9', borderRadius: 12 }}
             />
-            <Pressable onPress={() => { if (selectedLocation) saveLocation(selectedLocation); }} style={{ marginTop: 16, backgroundColor: '#10B981', borderRadius: 12, padding: 14, alignItems: 'center' }}>
+            <Pressable onPress={handleOpenSaveLocationModal} style={{ marginTop: 16, backgroundColor: '#10B981', borderRadius: 12, padding: 14, alignItems: 'center' }}>
               <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 15 }}>Save selected location</Text>
             </Pressable>
+      {/* Modal para editar y guardar nombre/dirección personalizada */}
+      <Modal visible={showSaveLocationModal} animationType="slide" transparent={true} onRequestClose={() => setShowSaveLocationModal(false)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.18)', justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ width: '88%', backgroundColor: '#fff', borderRadius: 18, padding: 22, shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 12, elevation: 6 }}>
+            <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 12 }}>Save location</Text>
+            <Text style={{ fontSize: 14, color: '#64748B', marginBottom: 8 }}>Add a name and edit the address if needed.</Text>
+            <Text style={{ fontSize: 13, fontWeight: '600', marginBottom: 4 }}>Name (e.g. Casa, Novia, Trabajo)</Text>
+            <TextInput
+              value={locationNameInput}
+              onChangeText={setLocationNameInput}
+              placeholder="Location name"
+              style={{ borderWidth: 1, borderColor: '#E6EDF0', borderRadius: 10, padding: 10, marginBottom: 12, fontSize: 15, color: '#0F172A' }}
+            />
+            <Text style={{ fontSize: 13, fontWeight: '600', marginBottom: 4 }}>Address</Text>
+            <TextInput
+              value={locationAddressInput}
+              onChangeText={setLocationAddressInput}
+              placeholder="Address"
+              style={{ borderWidth: 1, borderColor: '#E6EDF0', borderRadius: 10, padding: 10, marginBottom: 18, fontSize: 15, color: '#0F172A' }}
+              multiline
+              numberOfLines={2}
+            />
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 12 }}>
+              <Pressable onPress={() => setShowSaveLocationModal(false)} style={{ paddingVertical: 10, paddingHorizontal: 18, borderRadius: 10, backgroundColor: '#F1F5F9' }}>
+                <Text style={{ color: '#64748B', fontWeight: '600', fontSize: 15 }}>Cancel</Text>
+              </Pressable>
+              <Pressable onPress={handleSaveLocationModal} style={{ paddingVertical: 10, paddingHorizontal: 18, borderRadius: 10, backgroundColor: '#10B981' }}>
+                <Text style={{ color: '#fff', fontWeight: '700', fontSize: 15 }}>Save</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
             <Pressable onPress={() => { if (selectedLocation) handleSelectLocation(selectedLocation); }} style={{ marginTop: 12, backgroundColor: '#14617B', borderRadius: 12, padding: 14, alignItems: 'center' }}>
               <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 15 }}>Use this location for delivery</Text>
             </Pressable>
