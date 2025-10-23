@@ -11,23 +11,23 @@ class Settings(BaseSettings):
     # Remote MySQL
     mysql_host: str = Field(default="127.0.0.1", alias="MYSQL_HOST")
     mysql_port: int = Field(default=3306, alias="MYSQL_PORT")
-    mysql_db: str = Field(default="hso_app", alias="MYSQL_DB")
-    mysql_user: str = Field(default="hso_user", alias="MYSQL_USER")
-    mysql_password: str = Field(default="HSOdb2025!#", alias="MYSQL_PASSWORD")
+    mysql_db: str = Field(default="gas_station", alias="MYSQL_DB")
+    mysql_user: str = Field(default="root", alias="MYSQL_USER")
+    mysql_password: str = Field(default="SOGS2025*", alias="MYSQL_PASSWORD")
     mysql_pool_size: int = Field(default=5, alias="MYSQL_POOL_SIZE")
     mysql_max_overflow: int = Field(default=10, alias="MYSQL_MAX_OVERFLOW")
 
     # Local MySQL
     local_mysql_host: str = Field(default="127.0.0.1", alias="LOCAL_MYSQL_HOST")
     local_mysql_port: int = Field(default=3306, alias="LOCAL_MYSQL_PORT")
-    local_mysql_db: str = Field(default="hso_app", alias="LOCAL_MYSQL_DB")
+    local_mysql_db: str = Field(default="gas_station", alias="LOCAL_MYSQL_DB")
     local_mysql_user: str = Field(default="root", alias="LOCAL_MYSQL_USER")
     local_mysql_password: str = Field(default="30200228", alias="LOCAL_MYSQL_PASSWORD")
     local_mysql_pool_size: int = Field(default=5, alias="LOCAL_MYSQL_POOL_SIZE")
     local_mysql_max_overflow: int = Field(default=10, alias="LOCAL_MYSQL_MAX_OVERFLOW")
 
     # JWT
-    jwt_secret_key: str = Field(default="changeme-super-secret")
+    jwt_secret_key: str = Field(default="rotated-super-secret-2025")
     jwt_algorithm: str = Field(default="HS256")
     access_token_expire_minutes: int = 60 * 24
 
