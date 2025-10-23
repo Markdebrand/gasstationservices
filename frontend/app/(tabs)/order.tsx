@@ -8,6 +8,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { listLocations, createLocation as apiCreateLocation, deleteLocation as apiDeleteLocation, type SavedLocation as ApiSavedLocation } from '../../services/locations';
+import { listVehicles as apiListVehicles } from '../../services/vehicles';
 
 const FUEL_PRICES = {
   premium: 1.45,
@@ -84,13 +85,28 @@ export default function Order() {
 
   React.useEffect(() => {
     const load = async () => {
-      const key = 'user:vehicles';
-      const existing = await AsyncStorage.getItem(key);
-      const list: Vehicle[] = existing ? JSON.parse(existing) : [];
-      setVehicles(list);
-      if (list.length > 0 && !selectedVehicleId) setSelectedVehicleId(list[0].id);
+      try {
+        const apiList = await apiListVehicles();
+        const mapped = apiList.map(v => ({
+          id: String((v as any).id),
+          photos: v.photos || [],
+          plate: v.plate,
+          brand: v.brand,
+          model: v.model,
+        })) as Vehicle[];
+        setVehicles(mapped);
+        await AsyncStorage.setItem('user:vehicles', JSON.stringify(mapped));
+        if (mapped.length > 0 && !selectedVehicleId) setSelectedVehicleId(mapped[0].id);
+      } catch {
+        const key = 'user:vehicles';
+        const existing = await AsyncStorage.getItem(key);
+        const list: Vehicle[] = existing ? JSON.parse(existing) : [];
+        setVehicles(list);
+        if (list.length > 0 && !selectedVehicleId) setSelectedVehicleId(list[0].id);
+      }
     };
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // try to load available tokens balance (optional)
