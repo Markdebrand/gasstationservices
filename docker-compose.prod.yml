@@ -46,6 +46,8 @@ services:
       - "8001:8000"
     networks:
       - app
+    volumes:
+      - ./uploads:/app/uploads
 
 networks:
   app: {}
