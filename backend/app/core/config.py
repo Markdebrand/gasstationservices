@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     mysql_port: int = Field(default=3306, alias="MYSQL_PORT")
     mysql_db: str = Field(default="gas_station", alias="MYSQL_DB")
     mysql_user: str = Field(default="root", alias="MYSQL_USER")
-    mysql_password: str = Field(default="SOGS2025*", alias="MYSQL_PASSWORD")
+    mysql_password: str = Field(default="HSOGS2025*", alias="MYSQL_PASSWORD")
     mysql_pool_size: int = Field(default=5, alias="MYSQL_POOL_SIZE")
     mysql_max_overflow: int = Field(default=10, alias="MYSQL_MAX_OVERFLOW")
 
