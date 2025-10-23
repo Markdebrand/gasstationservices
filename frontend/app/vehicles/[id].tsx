@@ -4,32 +4,43 @@ import Header from '../components/Header';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { listVehicles as apiListVehicles, deleteVehicle as apiDeleteVehicle } from '../../services/vehicles';
 
 export default function VehicleDetail() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const id = (params as any).id as string;
+  const idParam = (params as any).id as string;
+  const idNum = Number(idParam);
   const [vehicle, setVehicle] = React.useState<any | null>(null);
 
   React.useEffect(() => {
     const load = async () => {
+      // Try API first
+      try {
+  const list = await apiListVehicles();
+  await AsyncStorage.setItem('user:vehicles', JSON.stringify(list));
+        const found = list.find((v: any) => v.id === idNum);
+        if (found) { setVehicle(found); return; }
+      } catch {}
+      // Fallback to cache (handles older string ids too)
       const key = 'user:vehicles';
       const existing = await AsyncStorage.getItem(key);
       const list = existing ? JSON.parse(existing) : [];
-      const found = list.find((v: any) => v.id === id);
+      const found = list.find((v: any) => v.id === idNum || String(v.id) === idParam);
       setVehicle(found || null);
     };
     load();
-  }, [id]);
+  }, [idParam, idNum]);
 
   const remove = () => {
     Alert.alert('Remove vehicle', 'Are you sure you want to delete this vehicle?', [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Delete', style: 'destructive', onPress: async () => {
+        try { if (!Number.isNaN(idNum)) await apiDeleteVehicle(idNum); } catch {}
         const key = 'user:vehicles';
         const existing = await AsyncStorage.getItem(key);
         const list = existing ? JSON.parse(existing) : [];
-        const next = list.filter((v: any) => v.id !== id);
+        const next = list.filter((v: any) => v.id !== idNum && String(v.id) !== idParam);
         await AsyncStorage.setItem(key, JSON.stringify(next));
         router.back();
       }}
@@ -76,7 +87,7 @@ export default function VehicleDetail() {
         ) : null}
 
         <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
-          <Pressable style={[styles.button, { backgroundColor: '#14617B' }]} onPress={() => router.push({ pathname: '/vehicle', params: { id } })}>
+          <Pressable style={[styles.button, { backgroundColor: '#14617B' }]} onPress={() => router.push({ pathname: '/vehicle', params: { id: String(idNum || idParam) } })}>
             <Text style={[styles.buttonText]}>Edit</Text>
           </Pressable>
           <Pressable style={[styles.button, { backgroundColor: '#EF4444' }]} onPress={remove}>

@@ -12,8 +12,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DB: ${MYSQL_DB}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -35,8 +33,7 @@ services:
       MYSQL_HOST: db
       MYSQL_PORT: 3306
       MYSQL_DB: ${MYSQL_DB}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-["*"]}
       ROOT_PATH: ${ROOT_PATH:-}
       ENVIRONMENT: test
@@ -46,6 +43,8 @@ services:
       - "8002:8000"
     networks:
       - app
+    volumes:
+      - ./uploads:/app/uploads
 
 networks:
   app: {}

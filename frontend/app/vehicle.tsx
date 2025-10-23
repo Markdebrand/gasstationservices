@@ -1,35 +1,36 @@
 import React from 'react';
-import { ScrollView, View, Text, StyleSheet, TextInput, Pressable, Image, Alert, Platform } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TextInput, Pressable, Image, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Header from './components/Header';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createVehicle, updateVehicle, listVehicles as apiListVehicles, uploadVehiclePhoto } from '../services/vehicles';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-type Vehicle = {
-  id: string;
-  photos?: string[];
-  plate: string;
-  brand?: string;
-  model?: string;
-  year?: string;
-  color?: string;
-  vin?: string;
-};
+// local type no longer used; data comes from API
 
 export default function VehicleScreen() {
   const params = useLocalSearchParams();
   const router = useRouter();
-  const editId = (params as any).id as string | undefined;
+  const editIdParam = (params as any).id as string | undefined;
+  const editId = editIdParam ? Number(editIdParam) : undefined;
 
   React.useEffect(() => {
     if (!editId) return;
     const load = async () => {
-      const key = 'user:vehicles';
-      const existing = await AsyncStorage.getItem(key);
-      const list = existing ? JSON.parse(existing) : [];
-      const found = list.find((v: any) => v.id === editId);
+      // Try API first
+      let found: any = null;
+      try {
+        const fromApi = await apiListVehicles();
+        found = fromApi.find((v: any) => v.id === editId);
+        await AsyncStorage.setItem('user:vehicles', JSON.stringify(fromApi));
+      } catch {
+        const key = 'user:vehicles';
+        const existing = await AsyncStorage.getItem(key);
+        const list = existing ? JSON.parse(existing) : [];
+        found = list.find((v: any) => v.id === editId);
+      }
       if (found) {
         // migrate old shape if necessary
         const existingPhotos: string[] = found.photos ? found.photos : (found.photoUri ? [found.photoUri] : []);
@@ -96,31 +97,46 @@ export default function VehicleScreen() {
     }
     setSaving(true);
     try {
-      const key = 'user:vehicles';
-      const existing = await AsyncStorage.getItem(key);
-      const list: any[] = existing ? JSON.parse(existing) : [];
-      if (editId) {
-        const next = list.map(v => v.id === editId ? { ...v, photos, plate: plate.trim().toUpperCase(), brand: brand.trim(), model: model.trim(), year: year.trim(), color: color.trim(), vin: vin.trim() } : v);
-        await AsyncStorage.setItem(key, JSON.stringify(next));
-        Alert.alert('Saved', 'Vehicle updated.');
-        router.back();
-      } else {
-        const vehicle: Vehicle = {
-          id: `${Date.now()}`,
-          photos,
-          plate: plate.trim().toUpperCase(),
-          brand: brand.trim(),
-          model: model.trim(),
-          year: year.trim(),
-          color: color.trim(),
-          vin: vin.trim(),
-        };
-        list.unshift(vehicle);
-        await AsyncStorage.setItem(key, JSON.stringify(list));
-        Alert.alert('Saved', 'Vehicle saved locally.');
-        router.back();
+      // Upload local photos and collect URLs
+      const uploadedUrls: string[] = [];
+      for (const p of photos) {
+        if (p.startsWith('http://') || p.startsWith('https://') || p.startsWith('/uploads/')) {
+          uploadedUrls.push(p);
+        } else {
+          try {
+            const url = await uploadVehiclePhoto(p);
+            uploadedUrls.push(url);
+          } catch {
+            // If upload fails, skip this photo
+          }
+        }
       }
-    } catch (e) {
+      if (uploadedUrls.length === 0) {
+        Alert.alert('Photo required', 'Please add at least one vehicle photo.');
+        setSaving(false);
+        return;
+      }
+      const payload = {
+        photos: uploadedUrls,
+        plate: plate.trim().toUpperCase(),
+        brand: brand.trim(),
+        model: model.trim(),
+        year: year.trim(),
+        color: color.trim(),
+        vin: vin.trim(),
+      };
+      if (editId) {
+        await updateVehicle(editId, payload);
+        // refresh cache
+        try { const list = await apiListVehicles(); await AsyncStorage.setItem('user:vehicles', JSON.stringify(list)); } catch {}
+        Alert.alert('Saved', 'Vehicle updated.');
+      } else {
+        await createVehicle(payload);
+        try { const list = await apiListVehicles(); await AsyncStorage.setItem('user:vehicles', JSON.stringify(list)); } catch {}
+        Alert.alert('Saved', 'Vehicle saved.');
+      }
+      router.back();
+    } catch {
       Alert.alert('Error', 'Could not save vehicle.');
     } finally {
       setSaving(false);

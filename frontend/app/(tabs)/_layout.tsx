@@ -9,6 +9,9 @@ import { getToken } from '@/utils/auth';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Protección de autenticación global
+import { fetchUserProfile } from '@/services/user';
+import { clearToken } from '@/utils/auth';
+
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [checked, setChecked] = useState(false);
@@ -18,8 +21,16 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
       const token = await getToken();
       if (!token) {
         router.replace('/(auth)/login');
-      } else {
+        return;
+      }
+      try {
+        const user = await fetchUserProfile();
+        // Optionally, check for user.active or similar property if needed
         setChecked(true);
+      } catch (e) {
+        // If fetch fails (401, inactive, etc), clear token and redirect
+        await clearToken();
+        router.replace('/(auth)/login');
       }
     })();
   }, [router]);
