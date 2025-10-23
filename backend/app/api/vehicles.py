@@ -92,8 +92,9 @@ async def delete_vehicle(
     # Delete associated photos from uploads dir if they are local
     if v.photos:
         for url in v.photos:
-            if isinstance(url, str) and url.startswith("/uploads/"):
-                filename = url.split("/uploads/")[-1]
+            if isinstance(url, str) and "/uploads/" in url:
+                # Works for both relative and absolute URLs
+                filename = url.split("/uploads/")[-1].split("?")[0].split("#")[0]
                 file_path = os.path.join(UPLOADS_DIR, filename)
                 try:
                     if os.path.exists(file_path):
