@@ -10,6 +10,7 @@ import { useRouter } from 'expo-router';
 const AnimatedPath = Animated.createAnimatedComponent(Path as any);
 import Header from '../components/Header';
 import styles from '../../src/styles/indexStyles';
+import { Colors } from '@/constants/theme';
 
 const chartData = [1.08, 1.12, 1.14, 1.1, 1.16, 1.18];
 
@@ -122,7 +123,7 @@ function PriceBadge({ title, price, unit, trend, colorBg, negative, icon }: { ti
         {price}
         <Text style={styles.badgeUnit}>{unit}</Text>
       </Text>
-  <Text style={[styles.badgeTrend, { backgroundColor: negative ? '#FFF1F2' : '#FFF1F2', color: negative ? '#E11D48' : '#b91c1c' }]}>{trend}</Text>
+  <Text style={[styles.badgeTrend, { backgroundColor: negative ? '#FFF1F2' : 'rgba(16,185,129,0.06)', color: negative ? Colors.light.danger : Colors.light.chart }]}>{trend}</Text>
     </View>
   );
 }
@@ -209,7 +210,7 @@ function PolylineChart({ data }: { data: number[] }) {
               ref={pathRef}
               d={polyPoints.path}
               fill="none"
-              stroke="#991B1B"
+              stroke={Colors.light.chart}
               strokeWidth={3.5}
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -231,7 +232,7 @@ function PolylineChart({ data }: { data: number[] }) {
               top: 0,
               width: 1,
               height: height,
-              backgroundColor: 'rgba(20,97,123,0.25)',
+              backgroundColor: 'rgba(16,185,129,0.25)',
             }}
           />
           {/* Marker */}
@@ -244,9 +245,9 @@ function PolylineChart({ data }: { data: number[] }) {
               width: 10,
               height: 10,
               borderRadius: 5,
-              backgroundColor: '#14617B',
+              backgroundColor: Colors.light.chart,
               borderWidth: 2,
-              borderColor: '#F7FBFE',
+              borderColor: Colors.light.background,
             }}
           />
           {/* Tooltip */}

@@ -4,6 +4,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import Header from '../components/Header';
 import styles from '../../src/styles/orderStyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Colors } from '@/constants/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
@@ -512,7 +513,7 @@ export default function Order() {
 function FuelCard({ label, price, selected, onPress }: { label: string; price: number; selected: boolean; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} style={[styles.fuelCard, selected && styles.fuelCardActive]}>
-      <Ionicons name="water" size={18} color={selected ? '#14617B' : '#64748B'} />
+      <Ionicons name="water" size={18} color={selected ? Colors.light.tint : Colors.light.muted} />
       <Text style={styles.fuelLabel}>{label}</Text>
       <Text style={styles.fuelPrice}>${price.toFixed(2)}</Text>
     </Pressable>
@@ -530,7 +531,7 @@ type Vehicle = {
 function DispatcherCard({ title, subtitle, icon, selected, onPress }: { title: string; subtitle: string; icon: any; selected: boolean; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} style={[styles.dispatcherCard, selected && styles.dispatcherCardActive]}>
-      <Ionicons name={icon} size={18} color={selected ? '#14617B' : '#64748B'} />
+      <Ionicons name={icon} size={18} color={selected ? Colors.light.tint : Colors.light.muted} />
       <View style={{ marginLeft: 8 }}>
         <Text style={styles.dispatcherTitle}>{title}</Text>
         <Text style={styles.dispatcherSub}>{subtitle}</Text>

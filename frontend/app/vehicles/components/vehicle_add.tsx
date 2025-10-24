@@ -3,6 +3,7 @@ import { ScrollView, View, Text, StyleSheet, TextInput, Pressable, Image, Alert,
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Header from '../../components/Header';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Colors } from '@/constants/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -159,13 +160,13 @@ export default function VehicleScreen() {
           </View>
         )}
         <View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
-          <Pressable onPress={pickImage} style={[styles.pill, { backgroundColor: '#14617B' }]}>
-            <Ionicons name="images" size={16} color="#F7FBFE" />
-            <Text style={[styles.pillText, { color: '#F7FBFE' }]}>Gallery</Text>
+          <Pressable onPress={pickImage} style={[styles.pill, { backgroundColor: Colors.light.background, borderWidth: 1, borderColor: Colors.light.tint }]}>
+            <Ionicons name="images" size={16} color={Colors.light.tint} />
+            <Text style={[styles.pillText, { color: Colors.light.tint }]}>Gallery</Text>
           </Pressable>
-          <Pressable onPress={takePhoto} style={[styles.pill, { backgroundColor: '#10B981' }]}>
-            <Ionicons name="camera" size={16} color="#FFFFFF" />
-            <Text style={[styles.pillText, { color: '#FFFFFF' }]}>Camera</Text>
+          <Pressable onPress={takePhoto} style={[styles.pill, { backgroundColor: Colors.light.background, borderWidth: 1, borderColor: Colors.light.tint }]}>
+            <Ionicons name="camera" size={16} color={Colors.light.tint} />
+            <Text style={[styles.pillText, { color: Colors.light.tint }]}>Camera</Text>
           </Pressable>
         </View>
       </View>

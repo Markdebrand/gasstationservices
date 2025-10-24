@@ -1,14 +1,15 @@
 import { StyleSheet } from 'react-native';
+import { Colors } from '@/constants/theme';
 
 export default StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#F8FAFC', padding: 16 },
-  card: { margin: 16, backgroundColor: '#fff', borderRadius: 12, padding: 16, alignItems: 'center', borderWidth: 1, borderColor: '#E6EDF0' },
-  photo: { width: 220, height: 140, borderRadius: 12, backgroundColor: '#EEE' },
-  plate: { fontSize: 20, fontWeight: '800', marginTop: 12, color: '#0F172A' },
-  meta: { fontSize: 14, color: '#64748B', marginTop: 4 },
+  root: { flex: 1, backgroundColor: Colors.light.subtleBg, padding: 16 },
+  card: { margin: 16, backgroundColor: Colors.light.background, borderRadius: 12, padding: 16, alignItems: 'center', borderWidth: 1, borderColor: Colors.light.cardBorder },
+  photo: { width: 220, height: 140, borderRadius: 12, backgroundColor: Colors.light.background },
+  plate: { fontSize: 20, fontWeight: '800', marginTop: 12, color: Colors.light.text },
+  meta: { fontSize: 14, color: Colors.light.muted, marginTop: 4 },
   row: { width: '100%', flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 },
-  label: { color: '#94A3B8', fontSize: 13 },
-  value: { color: '#0F172A', fontWeight: '700' },
+  label: { color: Colors.light.muted, fontSize: 13 },
+  value: { color: Colors.light.text, fontWeight: '700' },
   button: { flex: 1, height: 44, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  buttonText: { color: '#fff', fontWeight: '700' },
+  buttonText: { color: Colors.light.background, fontWeight: '700' },
 });

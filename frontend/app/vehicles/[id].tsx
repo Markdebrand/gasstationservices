@@ -4,6 +4,7 @@ import Header from '../components/Header';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Colors } from '@/constants/theme';
 
 export default function VehicleDetail() {
   const router = useRouter();
@@ -76,8 +77,8 @@ export default function VehicleDetail() {
         ) : null}
 
         <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
-          <Pressable style={[styles.button, { backgroundColor: '#14617B' }]} onPress={() => router.push({ pathname: '/vehicles/components/vehicle_add', params: { id } })}>
-            <Text style={[styles.buttonText]}>Edit</Text>
+          <Pressable style={[styles.button, { backgroundColor: Colors.light.background, borderWidth: 1, borderColor: Colors.light.tint }]} onPress={() => router.push({ pathname: '/vehicles/components/vehicle_add', params: { id } })}>
+            <Text style={[styles.buttonText, { color: Colors.light.tint }]}>Edit</Text>
           </Pressable>
           <Pressable style={[styles.button, { backgroundColor: '#b91c1c' }]} onPress={remove}>
             <Text style={[styles.buttonText]}>Delete</Text>
