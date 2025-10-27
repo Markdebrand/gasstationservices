@@ -8,6 +8,7 @@ import MapView, { Marker, PROVIDER_DEFAULT, Polyline } from 'react-native-maps';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 import styles from '../../../src/styles/locationsMapStyles';
+import { Colors } from '@/constants/theme';
 import RouteActions from './RouteActions';
 import formatDuration from '../../../src/utils/formatDuration';
 
@@ -36,6 +37,9 @@ export default function LocationsMap({ visible, onClose, initialRegion, search, 
   const [showRoute, setShowRoute] = useState(false);
   const [navigating, setNavigating] = useState(false);
   const [navIndex, setNavIndex] = useState(0);
+  // arrivalMounted controls whether the arrival overlay is mounted
+  const [arrivalMounted, setArrivalMounted] = useState(false);
+  const arrivalAnim = useRef(new Animated.Value(0)).current;
   const navMarkerRef = useRef<any>(null);
   const mapRef = useRef<MapView | null>(null);
   const [badgePos, setBadgePos] = useState<{ x: number; y: number } | null>(null);
@@ -218,6 +222,8 @@ export default function LocationsMap({ visible, onClose, initialRegion, search, 
       if (idx >= routeCoords.length - 1) {
         clearInterval(id);
         setNavigating(false);
+          // show arrival overlay when we reach destination
+          showArrival();
       }
     }, 300);
     return () => clearInterval(id);
@@ -340,6 +346,27 @@ export default function LocationsMap({ visible, onClose, initialRegion, search, 
     }
   };
 
+  // Arrival overlay helpers: mount/unmount with animation
+  const showArrival = () => {
+    try {
+      setArrivalMounted(true);
+      arrivalAnim.setValue(0);
+      Animated.spring(arrivalAnim, { toValue: 1, friction: 8, tension: 60, useNativeDriver: true }).start();
+    } catch (e) { /* ignore */ }
+  };
+
+  const hideArrival = (cb?: () => void) => {
+    try {
+      Animated.timing(arrivalAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start(() => {
+        setArrivalMounted(false);
+        if (cb) cb();
+      });
+    } catch (e) {
+      setArrivalMounted(false);
+      if (cb) cb();
+    }
+  };
+
   return (
     <Modal visible={visible} animationType="none" transparent={false} onRequestClose={closeAnimated}>
       <Animated.View style={[styles.modalRoot, { opacity: anim, transform: [{ scale: anim.interpolate({ inputRange: [0, 1], outputRange: [0.96, 1] }) }] }]}>
@@ -393,6 +420,21 @@ export default function LocationsMap({ visible, onClose, initialRegion, search, 
                 setMarker({ latitude, longitude, title: 'Selected location' });
               }
             }}
+            // Enable selecting Points of Interest (POI) like gas stations / supermarkets on supported providers
+            showsPointsOfInterest={true}
+            onPoiClick={(e: any) => {
+              try {
+                const coord = e.nativeEvent.coordinate;
+                const name = e.nativeEvent.name || 'Point of interest';
+                if (coord && coord.latitude && coord.longitude) {
+                  setMarker({ latitude: coord.latitude, longitude: coord.longitude, title: name });
+                  // fetch a lightweight route summary when a POI is selected
+                  fetchRouteSummary({ latitude: coord.latitude, longitude: coord.longitude, title: name }).catch(() => {});
+                }
+              } catch (err) {
+                // ignore
+              }
+            }}
             onLongPress={(e) => {
               const { latitude, longitude } = e.nativeEvent.coordinate;
               setMarker({ latitude, longitude, title: 'Selected location' });
@@ -438,7 +480,12 @@ export default function LocationsMap({ visible, onClose, initialRegion, search, 
               <Marker coordinate={{ latitude: userLocation.latitude, longitude: userLocation.longitude }} title={userLocation.title} pinColor="#2563EB" />
             )}
             {showRoute && routeCoords && routeCoords.length > 0 && (
-              <Polyline coordinates={routeCoords} strokeWidth={4} strokeColor="#0B5C73" />
+              // When navigating, only draw the remaining segment of the route starting at navIndex
+              <Polyline
+                coordinates={navigating && navIndex > 0 ? routeCoords.slice(navIndex) : routeCoords}
+                strokeWidth={4}
+                strokeColor={Colors.light.tint}
+              />
             )}
           </MapView>
 
@@ -469,7 +516,17 @@ export default function LocationsMap({ visible, onClose, initialRegion, search, 
               const ok = await fetchRouteFromMarker(marker);
               if (ok) setShowRoute(true);
             }}
-            onToggleNavigate={() => { if (!navigating) { setNavigating(true); setNavIndex(0); } else { setNavigating(false); } }}
+            onToggleNavigate={() => {
+              if (!navigating) {
+                // ensure arrival overlay is hidden when starting navigation
+                hideArrival();
+                setNavigating(true);
+                setNavIndex(0);
+              } else {
+                setNavigating(false);
+                hideArrival();
+              }
+            }}
             onSave={() => saveRoute()}
             animatedStyle={[{ bottom: 0, paddingBottom: Math.max(insets.bottom, 12) + 16, borderBottomLeftRadius: 0, borderBottomRightRadius: 0, borderTopLeftRadius: 14, borderTopRightRadius: 14, opacity: routePanelAnim, transform: [{ translateY: routePanelAnim.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) }] } as any]}
           />
@@ -503,6 +560,23 @@ export default function LocationsMap({ visible, onClose, initialRegion, search, 
               </>
             );
           })()}
+          {/* Arrival overlay shown when navigation reached final coordinate */}
+          {arrivalMounted && (
+            <Animated.View style={[{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.35)' }, { opacity: arrivalAnim, transform: [{ scale: arrivalAnim.interpolate({ inputRange: [0, 1], outputRange: [0.95, 1] }) }] }]} pointerEvents="auto">
+              <Animated.View style={{ width: 300, backgroundColor: '#fff', borderRadius: 12, padding: 18, alignItems: 'center', opacity: arrivalAnim, transform: [{ scale: arrivalAnim.interpolate({ inputRange: [0, 1], outputRange: [0.96, 1] }) }] }}>
+                <Text style={{ fontSize: 18, fontWeight: '800', color: '#0F172A', marginBottom: 8 }}>You've arrived</Text>
+                <Text style={{ color: '#64748B', textAlign: 'center', marginBottom: 16 }}>You have reached your destination.</Text>
+                <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between' }}>
+                  <Pressable onPress={() => { hideArrival(); }} style={{ paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8 }}>
+                    <Text style={{ color: Colors.light.tint, fontWeight: '700' }}>Close</Text>
+                  </Pressable>
+                  <Pressable onPress={() => { saveRoute(); hideArrival(); }} style={{ paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: Colors.light.tint }}>
+                    <Text style={{ color: '#fff', fontWeight: '700' }}>Save route</Text>
+                  </Pressable>
+                </View>
+              </Animated.View>
+            </Animated.View>
+          )}
         </View>
       </Animated.View>
     </Modal>

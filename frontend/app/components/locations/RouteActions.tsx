@@ -50,23 +50,23 @@ function RouteActionsInner({ loading, navigating, disabledStart, onToggleShowRou
       <Pressable
         onPress={() => onToggleShowRoute()}
         style={[styles.ra_btn, styles.ra_secondary, loading ? styles.ra_disabled : null]}
-        accessibilityLabel="Ver u ocultar ruta"
+        accessibilityLabel="Show or hide route"
         disabled={loading}
       >
-        <Text style={styles.ra_text_secondary}>{loading ? 'Cargando...' : 'Ver ruta'}</Text>
+        <Text style={styles.ra_text_secondary}>{loading ? 'Loading...' : 'View route'}</Text>
       </Pressable>
 
       <Pressable
         onPress={() => onToggleNavigate()}
         style={[styles.ra_btn, styles.ra_primary, disabledStart ? styles.ra_disabled : null]}
         disabled={disabledStart}
-        accessibilityLabel={navigating ? 'Detener navegación' : 'Iniciar navegación'}
+        accessibilityLabel={navigating ? 'Detener navegación' : 'Start Navigation'}
       >
-        <Text style={styles.ra_text_primary}>{navigating ? 'Detener' : 'Iniciar ruta'}</Text>
+        <Text style={styles.ra_text_primary}>{navigating ? 'Detener' : 'Start route'}</Text>
       </Pressable>
 
       <Pressable onPress={() => onSave()} style={[styles.ra_btn, styles.ra_secondary]} accessibilityLabel="Guardar ruta">
-        <Text style={styles.ra_text_secondary}>Guardar</Text>
+        <Text style={styles.ra_text_secondary}>Save</Text>
       </Pressable>
       </View>
     </View>

@@ -8,9 +8,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 type Props = {
   showBack?: boolean;
   onBack?: () => void;
+  showNotifications?: boolean;
 };
 
-export default function Header({ showBack, onBack }: Props) {
+export default function Header({ showBack, onBack, showNotifications = true }: Props) {
   const insets = useSafeAreaInsets();
   const paddingTop = Math.max(insets.top, 12);
   const router = useRouter();
@@ -43,19 +44,23 @@ export default function Header({ showBack, onBack }: Props) {
             <Text style={styles.headerTitle}>Your fuel, delivered</Text>
           </View>
         </View>
-        <View style={{ position: 'relative' }}>
-          <LinearGradient
-            colors={["#b91c1c", "#7f1414"]}
-            start={[0, 0]}
-            end={[1, 1]}
-            style={styles.gradientContainer}
-          >
-            <Pressable onPress={() => router.push('/notifications')} style={styles.bellInner} hitSlop={10}>
-              <Ionicons name="notifications" size={22} color="#ffffff" />
-            </Pressable>
-          </LinearGradient>
-          <View style={[styles.bellDot, { backgroundColor: '#b91c1c' }]} />
-        </View>
+        {showNotifications ? (
+          <View style={{ position: 'relative' }}>
+            <LinearGradient
+              colors={["#b91c1c", "#7f1414"]}
+              start={[0, 0]}
+              end={[1, 1]}
+              style={styles.gradientContainer}
+            >
+              <Pressable onPress={() => router.push('/notifications')} style={styles.bellInner} hitSlop={10}>
+                <Ionicons name="notifications" size={22} color="#ffffff" />
+              </Pressable>
+            </LinearGradient>
+            <View style={[styles.bellDot, { backgroundColor: '#b91c1c' }]} />
+          </View>
+        ) : (
+          <View style={{ width: 46, height: 46 }} />
+        )}
       </View>
     </View>
   );

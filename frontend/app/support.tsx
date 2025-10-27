@@ -11,7 +11,7 @@ export default function SupportScreen() {
   const insets = useSafeAreaInsets();
   const [text, setText] = React.useState('');
   const [messages, setMessages] = React.useState<Message[]>([
-    { id: 'm1', text: '¡Hola! ¿En qué podemos ayudarte hoy?', from: 'agent', ts: Date.now() - 60000 },
+    { id: 'm1', text: 'Hello! ¿How can we help you today?', from: 'agent', ts: Date.now() - 60000 },
   ]);
   const [keyboardHeight, setKeyboardHeight] = React.useState(0);
 
@@ -33,14 +33,14 @@ export default function SupportScreen() {
     setText('');
     // simulate agent reply
     setTimeout(() => {
-      setMessages((s) => [...s, { id: `r-${Date.now()}`, text: 'Gracias — te responderemos enseguida.', from: 'agent', ts: Date.now() }]);
+      setMessages((s) => [...s, { id: `r-${Date.now()}`, text: 'Thank you, we will respond shortly.', from: 'agent', ts: Date.now() }]);
     }, 900);
   };
 
   return (
     <View style={styles.root}>
       <Header showBack />
-      <Text style={styles.pageTitle}>Soporte</Text>
+      <Text style={styles.pageTitle}>Support</Text>
 
       <FlatList
         data={messages}

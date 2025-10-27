@@ -17,7 +17,7 @@ export default function Notifications() {
 
   return (
     <ScrollView style={styles.root} contentContainerStyle={{ paddingBottom: 120 }}>
-      <Header showBack />
+      <Header showBack showNotifications={false} />
   <Text style={styles.title}>Notifications</Text>
   <Text style={styles.subtitle}>Latest alerts and promotions</Text>
 

@@ -17,6 +17,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
       // backdropFilter not supported in RN; keep without
     }}>
       <View style={{ height: totalHeight, paddingBottom: Math.max(insets.bottom, 8), flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' }}>
+        {/* Render placeholders for tabs; central order button is absolutely centered below */}
         {state.routes.map((route: any, index: number) => {
           const isFocused = state.index === index;
           const onPress = () => {
@@ -24,36 +25,14 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
             if (!isFocused && !event.defaultPrevented) navigation.navigate(route.name);
           };
 
+          // Reserve a fixed width placeholder where the central button will appear so spacing is even
           if (route.name === 'order') {
-            // central elevated droplet button
-            return (
-              <View key={route.key} style={{ marginTop: -28, alignItems: 'center' }}>
-                <View style={{ width: 76, height: 76, alignItems: 'center', justifyContent: 'center' }}>
-                  <View style={{
-                    position: 'absolute',
-                    width: 72,
-                    height: 72,
-                    borderRadius: 18,
-                    backgroundColor: '#b91c1c',
-                    opacity: 0.10,
-                    shadowColor: '#b91c1c',
-                    shadowOpacity: 0.14,
-                    shadowRadius: 12,
-                    shadowOffset: { width: 0, height: 6 },
-                    elevation: 10,
-                  }} />
-                  {/* Touchable area for the button */}
-                  <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={{ height: 64, width: 64, borderRadius: 16, backgroundColor: '#b91c1c', alignItems: 'center', justifyContent: 'center' }}>
-                    <Ionicons name="water-outline" size={26} color="#F7FBFE" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            );
+            return <View key={route.key} style={{ width: 76 }} />;
           }
 
           const label = route.name === 'index' ? 'Home' : route.name === 'finance' ? 'Finance' : route.name === 'locations' ? 'Locations' : 'Profile';
 
-          // Icon choices:
+          // Icon choices for the remaining tabs
           if (route.name === 'index') {
             return (
               <TouchableOpacity key={route.key} activeOpacity={0.8} onPress={onPress} style={{ alignItems: 'center', padding: 8, borderRadius: 12 }}>
@@ -89,6 +68,40 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
             </TouchableOpacity>
           );
         })}
+
+        {/* Absolutely positioned central order button to ensure it is visually centered */}
+        {(() => {
+          const orderRoute = state.routes.find((r: any) => r.name === 'order');
+          if (!orderRoute) return null;
+          const orderIndex = state.routes.indexOf(orderRoute);
+          const isOrderFocused = state.index === orderIndex;
+          const onPressOrder = () => {
+            const event = navigation.emit({ type: 'tabPress', target: orderRoute.key, canPreventDefault: true });
+            if (!isOrderFocused && !event.defaultPrevented) navigation.navigate(orderRoute.name);
+          };
+          return (
+            <View pointerEvents="box-none" style={{ position: 'absolute', left: '50%', top: -28, transform: [{ translateX: -38 }] }}>
+              <View style={{ width: 76, height: 76, alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{
+                  position: 'absolute',
+                  width: 72,
+                  height: 72,
+                  borderRadius: 18,
+                  backgroundColor: '#b91c1c',
+                  opacity: 0.10,
+                  shadowColor: '#b91c1c',
+                  shadowOpacity: 0.14,
+                  shadowRadius: 12,
+                  shadowOffset: { width: 0, height: 6 },
+                  elevation: 10,
+                }} />
+                <TouchableOpacity activeOpacity={0.8} onPress={onPressOrder} style={{ height: 64, width: 64, borderRadius: 16, backgroundColor: '#b91c1c', alignItems: 'center', justifyContent: 'center' }}>
+                  <Ionicons name="water-outline" size={26} color="#F7FBFE" />
+                </TouchableOpacity>
+              </View>
+            </View>
+          );
+        })()}
       </View>
     </View>
   );

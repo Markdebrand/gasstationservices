@@ -18,13 +18,17 @@ export default function Profile() {
     { title: '2x points this week', code: 'DOUBLE' },
   ];
 
-  const options = ['Payment methods', 'Order history', 'Notifications', 'My vehicles', 'Add vehicle', 'Support', 'Sign out'];
+  const options = ['Payment methods', 'Order history', 'My vehicles', 'Add vehicle', 'Support', 'Sign out'];
 
   const handleOptionPress = async (option: string) => {
     if (option === 'Sign out') {
       await clearToken();
       router.replace('/(auth)/login' as any);
     } else {
+      if (option === 'Payment methods') {
+        router.push('/payment_methods');
+        return;
+      }
       if (option === 'My vehicles') {
         router.push('/vehicles/components/vehicle_list');
         return;
