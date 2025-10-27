@@ -109,12 +109,12 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
 
 export default function TabsLayout() {
   return (
-  <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: '#b91c1c', tabBarStyle: { display: 'none' } }} tabBar={(props) => <CustomTabBar {...props} />}>
-  <Tabs.Screen name="index" options={{ title: 'Home' }} />
-  <Tabs.Screen name="finance" options={{ title: 'Finance' }} />
+    <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: '#b91c1c', tabBarStyle: { display: 'none' } }} tabBar={(props) => <CustomTabBar {...props} />}>
+      <Tabs.Screen name="index" options={{ title: 'Home' }} />
+      <Tabs.Screen name="finance" options={{ title: 'Finance' }} />
       <Tabs.Screen name="order" options={{ title: 'Orden' }} />
-  <Tabs.Screen name="locations" options={{ title: 'Locations' }} />
-  <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
+      <Tabs.Screen name="locations" options={{ title: 'Locations' }} />
+      <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
     </Tabs>
   );
 }

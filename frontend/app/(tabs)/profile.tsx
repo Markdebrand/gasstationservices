@@ -5,6 +5,7 @@ import Header from '../components/Header';
 import { Colors } from '@/constants/theme';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import HsoPointsCard from '../components/HSOPointsCard';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { clearToken } from '@/utils/auth';
 import { router } from 'expo-router';
@@ -18,7 +19,7 @@ export default function Profile() {
     { title: '2x points this week', code: 'DOUBLE' },
   ];
 
-  const options = ['Payment methods', 'Order history', 'My vehicles', 'Add vehicle', 'Support', 'Sign out'];
+  const options = ['HSO Points', 'Payment methods', 'Order history', 'My vehicles', 'Add vehicle', 'Support', 'Sign out'];
 
   const handleOptionPress = async (option: string) => {
     if (option === 'Sign out') {
@@ -27,6 +28,10 @@ export default function Profile() {
     } else {
       if (option === 'Payment methods') {
         router.push('/payment_methods');
+        return;
+      }
+      if (option === 'HSO Points') {
+        router.push('/hso_points');
         return;
       }
       if (option === 'My vehicles') {
@@ -65,19 +70,7 @@ export default function Profile() {
           </View>
         </View>
 
-        <LinearGradient colors={["#FFF1F2", "#FFF5F5"]} style={styles.pointsCard} start={[0,0]} end={[1,1]}>
-          <View style={styles.rowCenter}>
-            <View style={styles.iconCircle}><Ionicons name="trophy" size={20} color={Colors.light.text} /></View>
-            <View style={{ marginLeft: 12 }}>
-              <Text style={styles.pointsTitle}>HSO Points</Text>
-              <Text style={styles.pointsValue}><Text style={{ fontWeight: '800' }}>1,240</Text> pts • Silver level</Text>
-            </View>
-          </View>
-          <View style={styles.progressBarBackground}>
-            <View style={[styles.progressBarFill, { width: '66%' }]} />
-          </View>
-          <Text style={styles.progressNote}>360 pts to the next level</Text>
-        </LinearGradient>
+        <HsoPointsCard compact />
 
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>Rewards and coupons</Text>

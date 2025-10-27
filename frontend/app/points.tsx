@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Pressable, TextInput, FlatList, Share } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import Header from './components/Header';
+import HsoPointsCard from './components/HSOPointsCard';
 import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Colors } from '@/constants/theme';
@@ -44,20 +45,7 @@ export default function PointsScreen() {
       </View>
 
       <View style={styles.content}>
-        <LinearGradient colors={["#EFFAF6", "#FFF"]} start={[0,0]} end={[1,1]} style={styles.pointsCard}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <View style={styles.pointsIcon}><Ionicons name="gift" size={22} color={Colors.light.text} /></View>
-            <View style={{ flex: 1, marginLeft: 12 }}>
-              <Text style={styles.pointsLabel}>HSO Points</Text>
-              <Text style={styles.pointsValue}><Text style={{ fontWeight: '800' }}>1240</Text> pts • Silver</Text>
-              <View style={styles.progressBg}>
-                <View style={[styles.progressFill, { width: '66%' }]} />
-              </View>
-              <Text style={styles.progressNote}>120 pts to the next level</Text>
-            </View>
-            <View style={styles.levelBadge}><Text style={{ fontSize: 12, color: Colors.light.text }}>Silver</Text></View>
-          </View>
-        </LinearGradient>
+        <HsoPointsCard compact />
 
         <View style={styles.segmentRow}>
           <TextInput placeholder="Search coupons or codes" placeholderTextColor={Colors.light.muted} value={query} onChangeText={setQuery} style={styles.searchInput} />
