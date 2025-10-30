@@ -19,7 +19,7 @@ export default function Profile() {
     { title: '2x points this week', code: 'DOUBLE' },
   ];
 
-  const options = ['HSO Points', 'Payment methods', 'Order history', 'My vehicles', 'Add vehicle', 'Support', 'Sign out'];
+  const options = ['HSO Points', 'Payment methods', 'Order history', 'Saved addresses', 'My vehicles', 'Add vehicle', 'Support', 'Sign out'];
 
   const handleOptionPress = async (option: string) => {
     if (option === 'Sign out') {
@@ -44,6 +44,10 @@ export default function Profile() {
       }
       if (option === 'Order history' || option === 'Historial de pedidos') {
         router.push('/order_history');
+        return;
+      }
+      if (option === 'Saved addresses' || option === 'Ubicaciones guardadas') {
+        router.push('/components/SavedLocations');
         return;
       }
       if (option === 'Support') {

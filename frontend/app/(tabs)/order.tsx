@@ -7,9 +7,11 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Colors } from '@/constants/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SavedLocationBridge } from '../../src/lib/savedLocationBridge';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import SelectDeliveryLocation from '../components/locations/SelectDeliveryLocation';
 
 const FUEL_PRICES = {
   premium: 1.45,
@@ -107,12 +109,19 @@ export default function Order() {
 
   // Load saved locations
   React.useEffect(() => {
-    (async () => {
+    let mounted = true;
+    const load = async () => {
       try {
         const raw = await AsyncStorage.getItem('user:savedLocations');
-        if (raw) setSavedLocations(JSON.parse(raw));
+        if (raw && mounted) setSavedLocations(JSON.parse(raw));
       } catch {}
-    })();
+    };
+    load();
+
+    // subscribe to changes made elsewhere (SavedLocations screen)
+    const onChange = () => { load(); };
+    SavedLocationBridge.setChangeListener(onChange);
+    return () => { mounted = false; SavedLocationBridge.clearChangeListener(); };
   }, []);
 
   const applyPromo = () => {
@@ -300,80 +309,16 @@ export default function Order() {
           </View>
         </View>
       </View>
-      {/* Modal para seleccionar ubicación de entrega */}
-      <Modal visible={showLocationModal} animationType="slide" transparent={false} onRequestClose={() => setShowLocationModal(false)}>
-        <View style={{ flex: 1, backgroundColor: '#fff', justifyContent: 'flex-start', alignItems: 'stretch' }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', padding: 18 }}>
-            <Pressable onPress={() => setShowLocationModal(false)} style={{ padding: 6 }}>
-              <Ionicons name="close" size={32} color="#64748B" />
-            </Pressable>
-          </View>
-          <Text style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 12, marginLeft: 24 }}>Select delivery location</Text>
-          {/* Autocompletado Photon */}
-          <View style={{ flexDirection: 'row', paddingHorizontal: 24, paddingBottom: 12 }}>
-            <TextInput
-              style={{ flex: 1, borderWidth: 1, borderColor: '#ccc', borderRadius: 10, padding: 12, fontSize: 16 }}
-              placeholder="Search address..."
-              value={addressSearch}
-              onChangeText={handleAddressAutocomplete}
-              placeholderTextColor="#94A3B8"
-            />
-          </View>
-          {photonResults.length > 0 && (
-            <FlatList
-              data={photonResults}
-              keyExtractor={(item) => item.properties.osm_id + item.properties.label}
-              renderItem={({ item }) => (
-                <Pressable onPress={() => handlePhotonSelect(item)} style={{ padding: 12, borderBottomWidth: 1, borderBottomColor: '#E2E8F0' }}>
-                  <Text style={{ fontSize: 15, color: '#0F172A' }}>{item.properties.label}</Text>
-                </Pressable>
-              )}
-              style={{ maxHeight: 180, marginHorizontal: 24, backgroundColor: '#F1F5F9', borderRadius: 12, marginBottom: 8 }}
-            />
-          )}
-          <MapView
-            style={{ flex: 1, borderRadius: 0 }}
-            provider={Platform.OS === 'android' ? PROVIDER_DEFAULT : undefined}
-            region={region}
-            mapType="standard"
-            showsUserLocation={true}
-            showsMyLocationButton={true}
-            onPress={handleMapPress}
-          >
-            {selectedLocation && (
-              <Marker
-                coordinate={{ latitude: selectedLocation.lat, longitude: selectedLocation.lon }}
-                title={selectedLocation.name}
-              />
-            )}
-          </MapView>
-          <View style={{ padding: 18 }}>
-            <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 10 }}>Your saved locations</Text>
-            <FlatList
-              data={savedLocations}
-              keyExtractor={(item) => item.address + item.lat}
-              renderItem={({ item }) => (
-                <View style={{ flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#E2E8F0' }}>
-                  <Pressable onPress={() => handleSelectLocation(item)} style={{ flex: 1, padding: 12 }}>
-                    <Text style={{ fontSize: 15, color: '#0F172A' }}>{item.name}</Text>
-                    <Text style={{ fontSize: 13, color: '#64748B' }}>{item.address}</Text>
-                  </Pressable>
-                  <Pressable onPress={() => deleteLocation(item.address, item.lat)} style={{ padding: 8 }}>
-                    <Ionicons name="trash" size={20} color="#E11D48" />
-                  </Pressable>
-                </View>
-              )}
-              style={{ maxHeight: 140, backgroundColor: '#F1F5F9', borderRadius: 12 }}
-            />
-            <Pressable onPress={() => { if (selectedLocation) saveLocation(selectedLocation); }} style={{ marginTop: 16, backgroundColor: '#10B981', borderRadius: 12, padding: 14, alignItems: 'center' }}>
-              <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 15 }}>Save selected location</Text>
-            </Pressable>
-            <Pressable onPress={() => { if (selectedLocation) handleSelectLocation(selectedLocation); }} style={{ marginTop: 12, backgroundColor: '#14617B', borderRadius: 12, padding: 14, alignItems: 'center' }}>
-              <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 15 }}>Use this location for delivery</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+      {/* Select delivery location component (extracted) */}
+      <SelectDeliveryLocation
+        visible={showLocationModal}
+        onClose={() => setShowLocationModal(false)}
+        onSelect={(loc) => { if (loc) handleSelectLocation(loc); }}
+        onSave={(loc) => { if (loc) saveLocation(loc); }}
+        onDelete={(address, lat) => deleteLocation(address, lat)}
+        savedLocations={savedLocations}
+        initialRegion={region}
+      />
 
       {/* Cuándo lo quieres */}
       <View style={styles.card}>

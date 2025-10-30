@@ -33,6 +33,8 @@ const styles = StyleSheet.create({
   selectedCard: { paddingHorizontal: 12, paddingBottom: 8 },
   selectedTitle: { color: Colors.light.text, fontWeight: '700' },
   selectedCoords: { color: Colors.light.muted, marginTop: 4 },
+  // Saved locations list item card
+  savedItem: { backgroundColor: Colors.light.subtleBg, borderRadius: 12, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: Colors.light.cardBorder, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 6, shadowOffset: { width: 0, height: 3 }, elevation: 2 },
   // Time badge that appears above selected marker
   timeBadge: { backgroundColor: Colors.light.primaryDark, paddingHorizontal: 8, paddingVertical: 6, borderRadius: 12, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.12, shadowRadius: 4, elevation: 4 },
   timeBadgeText: { color: Colors.light.background, fontWeight: '700' },
