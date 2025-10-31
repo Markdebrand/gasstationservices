@@ -102,7 +102,10 @@ export default function HomeScreen() {
         </View>
       </View>
 
-  <TouchableOpacity style={[styles.cta, { marginTop: 20, backgroundColor: '#b91c1c' }]}>
+  <TouchableOpacity
+    style={[styles.cta, { marginTop: 20, backgroundColor: '#b91c1c' }]}
+    onPress={() => { router.push('/order'); }}
+  >
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <Ionicons name="water-outline" size={18} color="#F7FBFE" />
           <Text style={styles.ctaText}>Request service</Text>

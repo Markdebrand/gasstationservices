@@ -155,6 +155,7 @@ export default function LocationsScreen() {
             provider={Platform.OS === 'android' ? PROVIDER_DEFAULT : undefined}
             region={region}
             mapType="standard"
+            toolbarEnabled={false}
             pointerEvents="none"
             showsUserLocation={false}
             zoomEnabled={false}

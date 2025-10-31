@@ -10,7 +10,11 @@ import * as Location from 'expo-location';
 import styles from '../../../src/styles/locationsMapStyles';
 import { Colors } from '@/constants/theme';
 import RouteActions from './RouteActions';
+import RouteProgress from './RouteProgress';
+import RouteETA from './RouteETA';
+import RouteReroute from './RouteReroute';
 import formatDuration from '../../../src/utils/formatDuration';
+import { SavedLocationBridge } from '../../../src/lib/savedLocationBridge';
 
 export interface MarkerTypeLocal { latitude: number; longitude: number; title: string }
 
@@ -37,11 +41,17 @@ export default function LocationsMap({ visible, onClose, initialRegion, search, 
   const [showRoute, setShowRoute] = useState(false);
   const [navigating, setNavigating] = useState(false);
   const [navIndex, setNavIndex] = useState(0);
+  const [navFraction, setNavFraction] = useState(0);
+  const [remainingKm, setRemainingKm] = useState<number | null>(null);
+  const [etaSec, setEtaSec] = useState<number | null>(null);
+  const [showNameEditor, setShowNameEditor] = useState(false);
+  const [editName, setEditName] = useState('');
   // arrivalMounted controls whether the arrival overlay is mounted
   const [arrivalMounted, setArrivalMounted] = useState(false);
   const arrivalAnim = useRef(new Animated.Value(0)).current;
   const navMarkerRef = useRef<any>(null);
   const mapRef = useRef<MapView | null>(null);
+  const watchRef = useRef<any>(null);
   const [badgePos, setBadgePos] = useState<{ x: number; y: number } | null>(null);
   const [mapSize, setMapSize] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
   const [badgeShift, setBadgeShift] = useState<number>(0);
@@ -207,26 +217,57 @@ export default function LocationsMap({ visible, onClose, initialRegion, search, 
 
   // Simulate navigation along route when 'navigating' is true
   useEffect(() => {
+    // Switch to real GPS-based navigation: watch device position and update navIndex to the nearest
     if (!navigating || !routeCoords || routeCoords.length === 0) {
       setNavIndex(0);
+      // ensure we stop any active watcher
+      try { if (watchRef.current) { watchRef.current.remove(); watchRef.current = null; } } catch (e) {}
       return;
     }
-    let idx = navIndex;
-    const id = setInterval(() => {
-      idx = Math.min(routeCoords.length - 1, idx + 1);
-      setNavIndex(idx);
-      const coord = routeCoords[idx];
-      if (mapRef.current && (mapRef.current as any).animateToRegion) {
-        try { (mapRef.current as any).animateToRegion({ latitude: coord.latitude, longitude: coord.longitude, latitudeDelta: 0.01, longitudeDelta: 0.01 }, 250); } catch {}
+
+    let mounted = true;
+    const startWatch = async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          console.warn('Location permission not granted for navigation');
+          return;
+        }
+        // subscribe to device location updates
+        const sub = await Location.watchPositionAsync(
+          { accuracy: Location.Accuracy.BestForNavigation, distanceInterval: 3, timeInterval: 1000 },
+          (pos) => {
+            if (!mounted) return;
+            const { latitude, longitude } = pos.coords;
+            // update user marker
+            setUserLocation({ latitude, longitude, title: 'You are here' });
+
+                // center map on current device position for navigation
+            if (mapRef.current && (mapRef.current as any).animateToRegion) {
+              try { (mapRef.current as any).animateToRegion({ latitude, longitude, latitudeDelta: 0.01, longitudeDelta: 0.01 }, 500); } catch (e) { }
+            }
+
+            // if we've reached the destination (within ~8 meters of last point) stop navigation
+            const last = routeCoords[routeCoords.length - 1];
+            const distToLast = haversineDistance(latitude, longitude, last.latitude, last.longitude);
+            if (distToLast < 0.008) { // ~8 meters
+              try { if (watchRef.current) { watchRef.current.remove(); watchRef.current = null; } } catch (e) {}
+              setNavigating(false);
+              showArrival();
+            }
+          }
+        );
+        watchRef.current = sub;
+      } catch (e) {
+        console.warn('Failed to start location watch for navigation', e);
       }
-      if (idx >= routeCoords.length - 1) {
-        clearInterval(id);
-        setNavigating(false);
-          // show arrival overlay when we reach destination
-          showArrival();
-      }
-    }, 300);
-    return () => clearInterval(id);
+    };
+
+    startWatch();
+    return () => {
+      mounted = false;
+      try { if (watchRef.current) { watchRef.current.remove(); watchRef.current = null; } } catch (e) {}
+    };
   }, [navigating, routeCoords]);
 
   // Animate route actions panel when a marker is selected or routeInfo appears/disappears
@@ -290,6 +331,17 @@ export default function LocationsMap({ visible, onClose, initialRegion, search, 
     return () => clearTimeout(t);
   }, [marker, region, updateBadgePosition]);
 
+  // simple haversine distance (returns kilometers)
+  const haversineDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const toRad = (v: number) => (v * Math.PI) / 180;
+    const R = 6371; // km
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
   // Reverse-geocode selected marker to a human-readable address
   useEffect(() => {
     const doReverse = async () => {
@@ -328,6 +380,23 @@ export default function LocationsMap({ visible, onClose, initialRegion, search, 
       }
     } catch (e) {
       console.warn('Failed to save route', e);
+    }
+  };
+
+  // Save the currently selected marker as a saved location (addresses list)
+  const saveSelectedLocation = async () => {
+    if (!marker) return;
+    const loc = { id: `loc:${Date.now()}`, name: editName || marker.title || 'Selected', address: selectedAddress ?? `${marker.latitude.toFixed(5)}, ${marker.longitude.toFixed(5)}`, lat: marker.latitude, lon: marker.longitude } as any;
+    try {
+      const raw = await AsyncStorage.getItem('user:savedLocations');
+      const list = raw ? JSON.parse(raw) : [];
+      // simple dedupe by lat/lon
+      const exists = list.some((l: any) => Number(l.lat) === Number(loc.lat) && Number(l.lon) === Number(loc.lon));
+      if (!exists) list.push(loc);
+      await AsyncStorage.setItem('user:savedLocations', JSON.stringify(list));
+      try { SavedLocationBridge.notifyChange(); } catch (e) { /* ignore */ }
+    } catch (e) {
+      console.warn('Failed to save location', e);
     }
   };
 
@@ -394,6 +463,7 @@ export default function LocationsMap({ visible, onClose, initialRegion, search, 
             mapType="standard"
             showsUserLocation={true}
             showsMyLocationButton={false}
+            toolbarEnabled={false}
             onMapReady={() => {
               // ensure badge is positioned once map is ready
               updateBadgePosition().catch(() => {});
@@ -489,6 +559,89 @@ export default function LocationsMap({ visible, onClose, initialRegion, search, 
             )}
           </MapView>
 
+          {/* Route progress helper: computes projection, nearest segment, remaining distance and smoothing */}
+          <RouteProgress
+            routeCoords={routeCoords}
+            userLocation={userLocation}
+            navIndex={navIndex}
+            window={40}
+            smoothingAlpha={0.45}
+            onUpdate={(u) => {
+              try {
+                setNavIndex(u.nearestIndex);
+                setNavFraction(u.t);
+                setRemainingKm(u.smoothedRemainingKm);
+              } catch (e) { /* ignore */ }
+            }}
+          />
+
+          {/* ETA helper: queries OSRM for a current summary (duration/distance) from device -> destination */}
+          <RouteETA
+            origin={userLocation}
+            destination={routeCoords && routeCoords.length > 0 ? routeCoords[routeCoords.length - 1] : null}
+            enabled={navigating && !!userLocation && routeCoords && routeCoords.length > 0}
+            intervalMs={8000}
+            smoothingAlpha={0.4}
+            onUpdate={(u) => {
+              try {
+                setEtaSec(Math.round(u.smoothedDurationSec));
+                // Also update routeInfo so time badge uses the live ETA
+                setRouteInfo((prev) => ({ ...(prev || {}), duration: Math.round(u.smoothedDurationSec), distance: Math.round(u.distanceM) }));
+              } catch (e) {}
+            }}
+          />
+
+          {/* Re-route helper: if user deviates off-route, request a new route from OSRM and replace routeCoords */}
+          <RouteReroute
+            routeCoords={routeCoords}
+            userLocation={userLocation}
+            navIndex={navIndex}
+            enabled={navigating && !!userLocation && routeCoords && routeCoords.length > 0}
+            offRouteThresholdMeters={30}
+            cooldownMs={15000}
+            onStart={() => { setRouteLoading(true); }}
+            onReroute={(coords, info) => {
+              try {
+                if (coords && coords.length > 0) setRouteCoords(coords);
+                if (info) setRouteInfo({ distance: info.distance, duration: info.duration });
+              } catch (e) {}
+              setRouteLoading(false);
+            }}
+          />
+
+          {/* Name editor modal shown when user taps Save */}
+          <Modal visible={showNameEditor} transparent animationType="fade" onRequestClose={() => setShowNameEditor(false)}>
+            <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' }}>
+              <View style={{ width: '92%', backgroundColor: Colors.light.background, borderRadius: 12, padding: 16 }}>
+                <Text style={{ fontWeight: '700', fontSize: 16, marginBottom: 8 }}>Name</Text>
+                <TextInput
+                  value={editName}
+                  onChangeText={setEditName}
+                  placeholder="Location name"
+                  placeholderTextColor={Colors.light.muted}
+                  style={{ borderWidth: 1, borderColor: '#E5E7EB', borderRadius: 8, padding: 10, marginBottom: 12, color: Colors.light.text }}
+                />
+                <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+                  <Pressable onPress={() => setShowNameEditor(false)} style={[styles.ra_btn, styles.ra_secondary, { marginRight: 8 }]}>
+                    <Text style={styles.ra_text_secondary}>Cancel</Text>
+                  </Pressable>
+                  <Pressable onPress={async () => {
+                    try {
+                      await saveSelectedLocation();
+                    } catch (e) { /* ignore */ }
+                    setShowNameEditor(false);
+                    // notify parent as well
+                    if (onSave) {
+                      try { onSave(marker); } catch (e) {}
+                    }
+                  }} style={[styles.ra_btn, styles.ra_primary]}>
+                    <Text style={styles.ra_text_primary}>Save</Text>
+                  </Pressable>
+                </View>
+              </View>
+            </View>
+          </Modal>
+
           
 
           <View style={[styles.floatingSearch, { top: Math.max(insets.top, 12) }]}>
@@ -527,7 +680,14 @@ export default function LocationsMap({ visible, onClose, initialRegion, search, 
                 hideArrival();
               }
             }}
-            onSave={() => saveRoute()}
+            onSave={() => {
+              // Trigger route save and then open the name editor to save the location
+              try { saveRoute(); } catch (e) { /* ignore */ }
+              if (marker) {
+                setEditName(marker.title || 'Selected');
+                setShowNameEditor(true);
+              }
+            }}
             animatedStyle={[{ bottom: 0, paddingBottom: Math.max(insets.bottom, 12) + 16, borderBottomLeftRadius: 0, borderBottomRightRadius: 0, borderTopLeftRadius: 14, borderTopRightRadius: 14, opacity: routePanelAnim, transform: [{ translateY: routePanelAnim.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) }] } as any]}
           />
 

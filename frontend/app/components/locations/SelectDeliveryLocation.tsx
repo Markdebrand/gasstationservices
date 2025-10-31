@@ -325,6 +325,7 @@ export default function SelectDeliveryLocation({
             mapType="standard"
             showsUserLocation={true}
             showsMyLocationButton={false}
+            toolbarEnabled={false}
             onRegionChangeComplete={(r) => setRegion(r)}
             onPress={handleMapPress}
             onPoiClick={(e: any) => {

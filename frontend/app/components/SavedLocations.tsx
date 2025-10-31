@@ -38,9 +38,6 @@ export default function SavedLocations() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    // LayoutAnimation works on Android with the New Architecture without
-    // calling setLayoutAnimationEnabledExperimental (it's a no-op there).
-    // We avoid calling it to prevent the runtime warning.
   }, []);
 
   const showConfirmDelete = (address: string, lat: number, index?: number) => {
