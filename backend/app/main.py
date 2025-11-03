@@ -43,6 +43,7 @@ async def ensure_user(session, email: str, password: str, role: str, full_name: 
     from .models.user import User
     from .core.security.passwords import get_password_hash
     res = await session.execute(select(User).where(User.email == email))
+    await session.flush() # Ensure the query is executed before checking the result
     existing = res.scalar_one_or_none()
     if not existing:
         new_user = User(
@@ -55,6 +56,7 @@ async def ensure_user(session, email: str, password: str, role: str, full_name: 
         )
         session.add(new_user)
         await session.commit()
+        await session.refresh(new_user)
 
 
 @app.on_event("startup")
@@ -62,17 +64,6 @@ async def on_startup():
     await init_db()
     # Seed default accounts for testing: admin, user, driver
     async with AsyncSessionLocal() as session:
-        from sqlalchemy import select
-        result = await session.execute(select(User).where(User.email == "user"))
-        user = result.scalar_one_or_none()
-        if not user:
-            new_user = User(
-                email="user",
-                full_name="Usuario Estático",
-                hashed_password=get_password_hash("12345678"),
-                is_active=True,
-                is_admin=False,
-                role="user"
-            )
-            session.add(new_user)
-            await session.commit()
+        await ensure_user(session, "admin@example.com", "admin123", "admin", "Admin User", is_admin=True)
+        await ensure_user(session, "user@example.com", "user123", "user", "Normal User")
+        await ensure_user(session, "driver@example.com", "driver123", "driver", "Driver User")
