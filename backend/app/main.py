@@ -2,10 +2,14 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import select
+
 from .api import auth, stations, orders, users, locations, vehicles
 from .api import order_items, deliveries, products, catalog
 from .db.session import init_db, AsyncSessionLocal
 from .core.config import settings
+from .models.user import User
+from .core.security.passwords import get_password_hash
 
 
 app = FastAPI(title="HSO Fuel Delivery - MVP", version="0.1.0", root_path=settings.root_path)
@@ -16,7 +20,7 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 # CORS: permitir cualquier origen (para apps y web)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=["*"],  # O una lista más restrictiva de orígenes
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -39,9 +43,6 @@ async def health():
     return {"status": "ok"}
 
 async def ensure_user(session, email: str, password: str, role: str, full_name: str, is_admin: bool = False):
-    from sqlalchemy import select
-    from .models.user import User
-    from .core.security.passwords import get_password_hash
     res = await session.execute(select(User).where(User.email == email))
     existing = res.scalar_one_or_none()
     if not existing:
@@ -55,40 +56,14 @@ async def ensure_user(session, email: str, password: str, role: str, full_name: 
         )
         session.add(new_user)
         await session.commit()
+        await session.refresh(new_user)
 
 
 @app.on_event("startup")
 async def on_startup():
     await init_db()
-    # Seed default accounts for testing: admin, user, driver
+    # Crear cuentas por defecto para pruebas
     async with AsyncSessionLocal() as session:
-        from sqlalchemy import select
-        # Usuario normal de ejemplo
-        result = await session.execute(select(User).where(User.email == "user"))
-        user = result.scalar_one_or_none()
-        if not user:
-            new_user = User(
-                email="user",
-                full_name="Usuario Estático",
-                hashed_password=get_password_hash("12345678"),
-                is_active=True,
-                is_admin=False,
-                role="user"
-            )
-            session.add(new_user)
-            await session.commit()
-
-        # Usuario support admin
-        result = await session.execute(select(User).where(User.email == "support@hso.com"))
-        support = result.scalar_one_or_none()
-        if not support:
-            new_support = User(
-                email="support@hso.com",
-                full_name="Soporte HSO",
-                hashed_password=get_password_hash("support1234"),
-                is_active=True,
-                is_admin=True,
-                role="admin"
-            )
-            session.add(new_support)
-            await session.commit()
+        await ensure_user(session, "user@example.com", "user123", "user", "Usuario de Ejemplo")
+        await ensure_user(session, "support@hso.com", "support1234", "admin", "Soporte HSO", is_admin=True)
+        await ensure_user(session, "driver@example.com", "driver123", "driver", "Conductor de Ejemplo")
