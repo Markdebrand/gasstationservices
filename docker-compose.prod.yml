@@ -44,16 +44,6 @@ services:
       - db
     networks:
       - app
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.frontend
-    restart: unless-stopped
-    depends_on:
-      - backend
-    networks:
-      - app
     volumes:
       - ./uploads:/app/uploads
 
