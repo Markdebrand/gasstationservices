@@ -45,7 +45,7 @@ async def get_assignment(order_id: int, session: AsyncSession = Depends(get_sess
     return assignment
 
 @router.post("/assignments/{assignment_id}/events", response_model=DeliveryEventRead)
-async def add_event(assignment_id: int, payload: DeliveryEventCreate, session: AsyncSession = Depends(get_session), _ = Depends(require_role("driver", "admin"))):
+async def add_event(assignment_id: int, payload: DeliveryEventCreate, session: AsyncSession = Depends(get_session), _ = Depends(get_current_admin)):
     res = await session.execute(select(DeliveryAssignment).where(DeliveryAssignment.id == assignment_id))
     assignment = res.scalar_one_or_none()
     if not assignment:
