@@ -8,6 +8,7 @@ class UserBase(BaseModel):
     is_active: bool = True
     is_admin: bool = False
     role: str = "user"
+    hso_points: int = 0
 
 
 class UserCreate(BaseModel):
@@ -15,6 +16,7 @@ class UserCreate(BaseModel):
     full_name: Optional[str] = None
     password: str
     role: str = "user"
+    hso_points: int = 0
 
 
 class UserRead(UserBase):

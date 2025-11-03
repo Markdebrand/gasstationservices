@@ -10,6 +10,29 @@ from ..core.security.passwords import get_password_hash
 
 router = APIRouter()
 
+from pydantic import BaseModel
+from fastapi import Path
+
+class HSOUpdate(BaseModel):
+    hso_points: int
+
+@router.patch("/{user_id}/hso_points", response_model=UserRead)
+async def update_hso_points(
+    user_id: int = Path(..., ge=1),
+    data: HSOUpdate = None,
+    session: AsyncSession = Depends(get_session),
+    _: User = Depends(get_current_admin)
+):
+    result = await session.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user.hso_points = data.hso_points
+    session.add(user)
+    await session.commit()
+    await session.refresh(user)
+    return user
+
 @router.get("/me", response_model=UserRead)
 async def read_me(current_user: User = Depends(get_current_user)):
     return current_user
@@ -38,7 +61,12 @@ async def create_user(user_in: UserCreate, session: AsyncSession = Depends(get_s
     exists = await session.execute(select(User).where(User.email == user_in.email))
     if exists.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Email already exists")
-    user = User(email=user_in.email, full_name=user_in.full_name, hashed_password=get_password_hash(user_in.password))
+    user = User(
+        email=user_in.email,
+        full_name=user_in.full_name,
+        hashed_password=get_password_hash(user_in.password),
+        hso_points=user_in.hso_points
+    )
     session.add(user)
     await session.commit()
     await session.refresh(user)
