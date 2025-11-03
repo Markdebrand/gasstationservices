@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View, Text, TextInput, TouchableOpacity, ActivityIndicator, StyleSheet, Alert, Platform, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, StyleSheet, Alert, Platform, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Toast from 'react-native-toast-message';
 import { Link, router } from 'expo-router';
@@ -52,52 +53,54 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.root}>
-      <KeyboardAwareScrollView contentContainerStyle={{ alignItems: 'center' }} enableOnAndroid extraScrollHeight={20} keyboardShouldPersistTaps="handled">
-        <View style={styles.headerSpacer} />
-        <View style={styles.logoWrap}>
-          <Image
-            source={require('../../assets/images/LogoAPP.webp')}
-            style={styles.logoImage}
-            resizeMode="contain"
-          />
-        </View>
-  <Text style={styles.title}>Sign in</Text>
-  <Text style={styles.subtitle}>Sign in with your email and password</Text>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.centerWrap}
+        enableOnAndroid
+        extraScrollHeight={20}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.card}>
+          <View style={styles.logoWrap}>
+            <Text style={styles.logo}>💧</Text>
+          </View>
+          <Text style={styles.title}>Sign in</Text>
+          <Text style={styles.subtitle}>Sign in with your email and password</Text>
 
-        <View style={styles.form}>
-  <Text style={styles.label}>Email</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="you@domain.com"
-          autoCapitalize="none"
-          keyboardType="email-address"
-          value={email}
-          onChangeText={setEmail}
-          placeholderTextColor="#94A3B8"
-        />
+          <View style={styles.form}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="you@domain.com"
+              autoCapitalize="none"
+              keyboardType="email-address"
+              value={email}
+              onChangeText={setEmail}
+              placeholderTextColor="#94A3B8"
+            />
 
-  <Text style={[styles.label, { marginTop: 12 }]}>Password</Text>
-        <TextInput
-          style={[styles.input, { color: '#0f172a' }]}
-          placeholder="••••••••"
-          placeholderTextColor="#64748B"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
+            <Text style={[styles.label, { marginTop: 12 }]}>Password</Text>
+            <TextInput
+              style={[styles.input, { color: '#0f172a' }]}
+              placeholder="••••••••"
+              placeholderTextColor="#64748B"
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+            />
 
-        <View style={styles.linksRow}>
-          <Text style={styles.link}>Forgot your password?</Text>
-          <Link href="/(auth)/register" style={styles.mutedLink}>Create account</Link>
-        </View>
+            <View style={styles.linksRow}>
+              <Text style={styles.link}>Forgot your password?</Text>
+              <Link href="/(auth)/register" style={styles.mutedLink}>Create account</Link>
+            </View>
 
-        <TouchableOpacity style={[styles.button, { width: '100%' }]} onPress={handleLogin} disabled={loading}>
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Sign in</Text>
-          )}
-        </TouchableOpacity>
+            <TouchableOpacity style={[styles.button, { width: '100%' }]} onPress={handleLogin} disabled={loading}>
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Sign in</Text>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>
@@ -105,17 +108,20 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: '#f8fafc',
-    paddingHorizontal: 16,
-    paddingTop: 120,
-    alignItems: 'center',
-  },
-  headerSpacer: {
-    height: Platform.OS === 'android' ? 8 : 0,
+  root: { flex: 1, backgroundColor: '#f8fafc' },
+  centerWrap: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16, paddingVertical: 24 },
+  card: {
     width: '100%',
-    backgroundColor: 'transparent',
+    maxWidth: 380,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    paddingHorizontal: 18,
+    paddingVertical: 20,
+    // shadow
+    ...Platform.select({
+      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.10, shadowRadius: 12 },
+      android: { elevation: 6 },
+    }),
   },
   logoWrap: {
     height: 72,
@@ -125,6 +131,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
+    alignSelf: 'center',
   },
   logoImage: {
     height: 96,
@@ -132,7 +139,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   title: {
-    marginTop: 12,
+    marginTop: 4,
     textAlign: 'center',
     fontSize: 22,
     fontWeight: '600',
@@ -145,11 +152,10 @@ const styles = StyleSheet.create({
     color: '#64748B', // muted-foreground
   },
   form: {
-    marginTop: 24,
+    marginTop: 20,
     gap: 8,
     width: '100%',
-    maxWidth: 900,
-    paddingHorizontal: 8,
+    paddingHorizontal: 4,
   },
   label: {
     fontSize: 12,

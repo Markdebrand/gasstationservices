@@ -6,7 +6,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import Feather from '@expo/vector-icons/Feather';
 import Header from '../components/Header';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
-import styles from '@/src/styles/locationsMapStyles';
+import styles from '@/src/styles/locationsStyles';
 
 const stations = [
   { name: 'HSO Station Centro', addr: 'Av. Principal 123, Centro', dist: 1.2, rate: 4.8, hours: '24/7', open: true },

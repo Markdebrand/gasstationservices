@@ -2,7 +2,7 @@ import React from 'react';
 import { ScrollView, View, Text, StyleSheet, Image, Pressable, Alert } from 'react-native';
 import Header from './../../components/Header';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { listVehicles as apiListVehicles, deleteVehicle as apiDeleteVehicle, type Vehicle as ApiVehicle } from '../services/vehicles';
+import { listVehicles as apiListVehicles, deleteVehicle as apiDeleteVehicle, type Vehicle as ApiVehicle } from '../../../services/vehicles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
