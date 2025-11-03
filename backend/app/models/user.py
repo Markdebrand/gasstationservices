@@ -12,6 +12,5 @@ class User(Base, TimestampMixin):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
     role: Mapped[str] = mapped_column(String(20), default="user")  # user, admin, operator, driver
-    hso_points: Mapped[int] = mapped_column(default=0)
 
     orders = relationship("Order", back_populates="user")

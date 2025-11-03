@@ -5,7 +5,7 @@ import Header from '../../components/Header';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Colors } from '@/constants/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createVehicle, updateVehicle, listVehicles as apiListVehicles, uploadVehiclePhoto } from '../../../services/vehicles';
+import { createVehicle, updateVehicle, listVehicles as apiListVehicles, uploadVehiclePhoto } from '../services/vehicles';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styles from '../../../src/styles/vehicleAddStyles';
