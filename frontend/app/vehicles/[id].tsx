@@ -87,7 +87,7 @@ export default function VehicleDetail() {
         ) : null}
 
         <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
-          <Pressable style={[styles.button, { backgroundColor: '#14617B' }]} onPress={() => router.push({ pathname: '/vehicle', params: { id: String(idNum || idParam) } })}>
+          <Pressable style={[styles.button, { backgroundColor: '#14617B' }]} onPress={() => router.push({ pathname: '/vehicles/components/vehicle_add', params: { id: String(idNum || idParam) } })}>
             <Text style={[styles.buttonText]}>Edit</Text>
           </Pressable>
           <Pressable style={[styles.button, { backgroundColor: '#b91c1c' }]} onPress={remove}>
