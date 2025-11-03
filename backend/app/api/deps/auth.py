@@ -31,3 +31,14 @@ async def get_current_admin(user: User = Depends(get_current_user)) -> User:
     if not user.is_admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions")
     return user
+
+# Permite requerir uno o más roles para acceder a una ruta
+from typing import Callable
+from fastapi import Request
+
+def require_role(*roles: str) -> Callable:
+    async def _require_role(user: User = Depends(get_current_user)) -> User:
+        if user.role not in roles:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions")
+        return user
+    return _require_role
