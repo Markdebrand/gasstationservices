@@ -2,8 +2,12 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, Image, Modal, FlatList, Platform } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Header from '../components/Header';
+// import styles from '../../src/styles/orderStyles'; // Removed to avoid naming conflict
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Colors } from '@/constants/theme';
+import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SavedLocationBridge } from '../../src/lib/savedLocationBridge';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
@@ -293,7 +297,6 @@ export default function Order() {
       showsVerticalScrollIndicator={false}
     >
       <Header />
-    
 
   <Text style={styles.title}>Request Service</Text>
   <Text style={styles.subtitle}>Complete your order details</Text>
@@ -324,20 +327,20 @@ export default function Order() {
             </View>
           </Pressable>
         ))}
-        <Pressable onPress={() => router.push('/vehicle')} style={[styles.addVehicleBox]}>
+        <Pressable onPress={() => router.push('/vehicles/components/vehicle_add')} style={[styles.addVehicleBox]}>
           <Ionicons name="add" size={22} color="#0F172A" />
         </Pressable>
       </ScrollView>
 
-      {/* Tipo de Vehículo del Despachadorr */}
-      <Text style={[styles.overline, { marginTop: 14 }]}>Tipo de Vehículo del Despachador</Text>
+      {/* Tipo de Vehículo del Despachador */}
+  <Text style={[styles.overline, { marginTop: 14 }]}>Dispatcher Vehicle Type</Text>
       <View style={styles.grid2}> 
-        <DispatcherCard title="Camioneta" subtitle="AB-1234 • 100L" icon="car" selected={dispatcherType==='pickup'} onPress={() => setDispatcherType('pickup')} />
-        <DispatcherCard title="Camión chico" subtitle="CD-5678 • 250L" icon="bus" selected={dispatcherType==='small-truck'} onPress={() => setDispatcherType('small-truck')} />
+        <DispatcherCard title="Pickup truck" subtitle="AB-1234 • 100L" icon="car" selected={dispatcherType==='pickup'} onPress={() => setDispatcherType('pickup')} />
+        <DispatcherCard title="Small truck" subtitle="CD-5678 • 250L" icon="bus" selected={dispatcherType==='small-truck'} onPress={() => setDispatcherType('small-truck')} />
       </View>
 
       {/* Cantidad (Litros) */}
-  <Text style={[styles.overline, { marginTop: 14 }]}>Cantidad (Litros)</Text>
+  <Text style={[styles.overline, { marginTop: 14 }]}>Amount (Liters)</Text>
       <TextInput
         keyboardType="numeric"
         value={String(liters)}
@@ -357,7 +360,7 @@ export default function Order() {
       {/* Ubicación de Entrega */}
       <View style={styles.card}>
         <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
-          <View style={styles.iconBadge}><Ionicons name="location" size={16} color="#059669" /></View>
+          <View style={styles.iconBadge}><Ionicons name="location" size={16} color="#b91c1c" /></View>
           <View style={{ flex: 1 }}>
             <Text style={styles.cardTitle}>Delivery Location</Text>
             <Text style={styles.cardSub}>{address}</Text>
@@ -637,7 +640,7 @@ export default function Order() {
 function FuelCard({ label, price, selected, onPress }: { label: string; price: number; selected: boolean; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} style={[styles.fuelCard, selected && styles.fuelCardActive]}>
-      <Ionicons name="water" size={18} color={selected ? '#14617B' : '#64748B'} />
+      <Ionicons name="water" size={18} color={selected ? Colors.light.tint : Colors.light.muted} />
       <Text style={styles.fuelLabel}>{label}</Text>
       <Text style={styles.fuelPrice}>${price.toFixed(2)}</Text>
     </Pressable>

@@ -5,24 +5,43 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+// Red palette
+const tintColorLight = '#b91c1c'; // warm red for light theme accents
+const tintColorDark = '#ffdddd'; // light rosy tint for dark theme accents
 
 export const Colors = {
   light: {
     text: '#11181C',
-    background: '#fff',
+    background: '#ffffff',
     tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
+    // additional named shades to make theme usage consistent across the app
+    primaryDark: '#7f1414',
+    danger: '#E11D48',
+  // keep all accents in red/white palette; reuse tint for success to match requested theme
+  success: tintColorLight,
+    // chart color (green) used for charts when user wants green charts
+    chart: '#10B981',
+    muted: '#64748B',
+    subtleBg: '#F8FAFC',
+    cardBorder: '#E6EDF0',
+    icon: '#6B6B6B',
+    tabIconDefault: '#6B6B6B',
     tabIconSelected: tintColorLight,
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
+    text: '#F5EAEA',
+    background: '#0f0b0b',
     tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
+    primaryDark: '#7f1414',
+    danger: '#E11D48',
+  success: tintColorDark,
+    // chart color for dark theme
+    chart: '#34D399',
+    muted: '#BFA7A7',
+    subtleBg: '#050505',
+    cardBorder: '#2a2323',
+    icon: '#BFA7A7',
+    tabIconDefault: '#BFA7A7',
     tabIconSelected: tintColorDark,
   },
 };

@@ -1,0 +1,56 @@
+import { StyleSheet } from 'react-native';
+import { Colors } from '@/constants/theme';
+
+export default StyleSheet.create({
+  root: { flex: 1, backgroundColor: Colors.light.subtleBg, padding: 16 },
+  title: { fontSize: 18, fontWeight: '700', color: Colors.light.text },
+  subtitle: { fontSize: 12, color: Colors.light.muted, marginTop: 2 },
+
+  searchRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.light.background, borderRadius: 20, borderWidth: 1, borderColor: Colors.light.cardBorder, paddingHorizontal: 10, height: 44 },
+  searchInput: { marginLeft: 6, flex: 1, color: Colors.light.text },
+
+  mapBox: { marginTop: 12, borderRadius: 20, paddingVertical: 36, paddingHorizontal: 16, backgroundColor: 'rgba(185,28,28,0.10)' },
+  mapPreview: { ...StyleSheet.absoluteFillObject, borderRadius: 20, overflow: 'hidden' },
+  mapPreviewOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(185,28,28,0.12)', borderRadius: 20 },
+  locButton: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: Colors.light.tint, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999 },
+  locButtonText: { color: Colors.light.background, fontSize: 12, fontWeight: '600', marginLeft: 6 },
+
+  countText: { marginTop: 12, fontSize: 12, color: Colors.light.muted },
+
+  card: { backgroundColor: Colors.light.background, borderRadius: 16, padding: 12, marginTop: 10, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 6, shadowOffset: { width: 0, height: 3 }, elevation: 1 },
+  cardTitle: { fontSize: 14, fontWeight: '600', color: Colors.light.text },
+  cardAddr: { fontSize: 12, color: Colors.light.muted, marginTop: 2 },
+  cardMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 6 },
+  cardMeta: { fontSize: 11, color: Colors.light.muted },
+  statusBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, fontSize: 12, fontWeight: '600' },
+  statusOpen: { backgroundColor: 'rgba(185,28,28,0.06)', color: Colors.light.tint },
+  statusClose: { backgroundColor: 'rgba(185,28,28,0.08)', color: Colors.light.danger },
+  /* Modal / full-screen map styles */
+  modalRoot: { flex: 1, backgroundColor: Colors.light.background },
+  modalTop: { borderRadius: 0, paddingVertical: 8, paddingHorizontal: 0, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, width: '100%', backgroundColor: 'transparent' },
+  modalBack: { height: 40, width: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(185,28,28,0.06)', marginRight: 6 },
+  modalOverline: { fontSize: 13, color: Colors.light.muted, fontWeight: '700', letterSpacing: 0.4 },
+  modalTitle: { fontSize: 20, fontWeight: '800', color: Colors.light.text, marginTop: -1 },
+  mapModalContainer: { flex: 1, margin: 18, borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: Colors.light.cardBorder, backgroundColor: Colors.light.background },
+  mapModalView: { flex: 1 },
+  modalActions: { paddingHorizontal: 18, paddingTop: 12, gap: 10 },
+  modalButton: { borderRadius: 12, paddingVertical: 14, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
+  modalButtonText: { color: Colors.light.background, fontSize: 15, fontWeight: '600' },
+  mapFullRoot: { flex: 1, backgroundColor: '#000' },
+  mapFull: { ...StyleSheet.absoluteFillObject },
+  modalTopOverlay: { position: 'absolute', left: 0, right: 0, top: 0, height: 64, zIndex: 30, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 14, backgroundColor: 'transparent' },
+  modalBackOverlay: { padding: 8, backgroundColor: 'rgba(0,0,0,0.28)', borderRadius: 10 },
+  modalTitleOverlay: { color: Colors.light.background, fontSize: 16, fontWeight: '700' },
+  floatingActions: { position: 'absolute', left: 16, right: 16, bottom: 12, zIndex: 40, flexDirection: 'column' },
+  floatingButton: { borderRadius: 12, paddingVertical: 14, alignItems: 'center', justifyContent: 'center', marginTop: 8, shadowColor: '#000', shadowOpacity: 0.18, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
+  floatingButtonText: { color: Colors.light.background, fontWeight: '700', fontSize: 15 },
+  bottomSearch: { position: 'absolute', left: 16, right: 16, zIndex: 45, alignItems: 'center' },
+  bottomSearchInner: { width: '100%', backgroundColor: Colors.light.background, borderRadius: 14, paddingHorizontal: 12, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 8 },
+  bottomSearchInput: { flex: 1, color: Colors.light.text, paddingVertical: 6, paddingLeft: 6 },
+  bottomSearchBtn: { marginLeft: 8, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10 },
+  compactSearchCard: { width: '100%', backgroundColor: Colors.light.background, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: Colors.light.cardBorder },
+  compactSearchInput: { flex: 1, color: Colors.light.text, paddingVertical: 6, paddingLeft: 6 },
+  compactSearchBtn: { marginLeft: 8, paddingHorizontal: 8, paddingVertical: 6, borderRadius: 8 },
+  floatingSearch: { position: 'absolute', left: 16, right: 16, zIndex: 50, alignItems: 'center' },
+  locateButton: { position: 'absolute', right: 20, backgroundColor: Colors.light.background, width: 48, height: 48, borderRadius: 999, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 6, shadowOffset: { width: 0, height: 4 }, elevation: 6, zIndex: 60 },
+});

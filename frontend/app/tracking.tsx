@@ -1,11 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, Pressable, Modal, Animated, Easing } from 'react-native';
+import { View, Text, Image, Pressable, Modal, Animated, Easing } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import Header from './components/Header';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Colors } from '@/constants/theme';
+import styles from '../src/styles/trackingStyles';
+
 
 type ClientVehicle = {
   id: string;
@@ -189,11 +192,11 @@ export default function TrackingScreen() {
 
       {/* Map placeholder appears after acceptance, fills available space */}
       {dispatcher && (
-        <View style={styles.mapBoxLarge}>
+          <View style={styles.mapBoxLarge}>
           <View style={styles.mapBackdrop} />
           <Animated.View style={[styles.pinPulse, { transform: [{ scale }], opacity }]} />
           <View style={styles.pinCenter}>
-            <Ionicons name="paper-plane" size={20} color="#0B5C73" />
+            <Ionicons name="paper-plane" size={20} color={Colors.light.tint} />
           </View>
           {/* Compact progress/ETA card overlay */}
           {!arrived && (
@@ -203,8 +206,8 @@ export default function TrackingScreen() {
               <View style={{ marginTop: 10, height: 10, backgroundColor: '#EEF6F3', borderRadius: 999 }}>
                 <View style={{ width: `${progressPercent}%`, height: '100%', backgroundColor: '#059669', borderRadius: 999 }} />
               </View>
-              <View style={{ position: 'absolute', right: 12, top: 12, backgroundColor: '#E6FAF2', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999 }}>
-                <Text style={{ color: '#065F46', fontWeight: '700' }}>{progressPercent}%</Text>
+              <View style={{ position: 'absolute', right: 12, top: 12, backgroundColor: 'rgba(185,28,28,0.06)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999 }}>
+                <Text style={{ color: Colors.light.tint, fontWeight: '700' }}>{progressPercent}%</Text>
               </View>
             </View>
           )}
@@ -215,11 +218,11 @@ export default function TrackingScreen() {
       {dispatcher && (
         <View style={[styles.bottomCard, { left: 16, right: 16, bottom: Math.max(16, insets.bottom + 8) }]}> 
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <View style={{ width: 56, height: 56, borderRadius: 12, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center' }}>
+            <View style={{ width: 56, height: 56, borderRadius: 12, backgroundColor: Colors.light.subtleBg, alignItems: 'center', justifyContent: 'center' }}>
               {dispatcher?.photo ? (
                 <Image source={{ uri: dispatcher.photo }} style={{ width: 52, height: 52, borderRadius: 10 }} />
               ) : (
-                <Ionicons name="person" size={28} color="#64748B" />
+                <Ionicons name="person" size={28} color={Colors.light.muted} />
               )}
             </View>
             <View style={{ flex: 1 }}>
@@ -228,10 +231,10 @@ export default function TrackingScreen() {
               <Text style={{ color: '#64748B', marginTop: 6 }}>{`${dispatcher.vehicle || 'Vehicle'} • Plate: ${dispatcher.plate}`}</Text>
             </View>
             <View style={{ flexDirection: 'row', gap: 8 }}>
-              <Pressable style={{ width: 44, height: 44, borderRadius: 10, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center' }}>
-                <Ionicons name="call" size={20} color="#0F172A" />
+              <Pressable style={{ width: 44, height: 44, borderRadius: 10, backgroundColor: Colors.light.subtleBg, alignItems: 'center', justifyContent: 'center' }}>
+                <Ionicons name="call" size={20} color={Colors.light.text} />
               </Pressable>
-              <Pressable style={{ width: 44, height: 44, borderRadius: 10, backgroundColor: '#10B981', alignItems: 'center', justifyContent: 'center' }}>
+              <Pressable style={{ width: 44, height: 44, borderRadius: 10, backgroundColor: Colors.light.tint, alignItems: 'center', justifyContent: 'center' }}>
                 <Ionicons name="chatbubble" size={20} color="#fff" />
               </Pressable>
             </View>
@@ -239,7 +242,7 @@ export default function TrackingScreen() {
           {arrived && !paid && !showPayment && (
             <Pressable
               onPress={() => setShowPayment(true)}
-              style={{ marginTop: 12, height: 44, borderRadius: 10, backgroundColor: '#14617B', alignItems: 'center', justifyContent: 'center' }}
+              style={{ marginTop: 12, height: 44, borderRadius: 10, backgroundColor: Colors.light.tint, alignItems: 'center', justifyContent: 'center' }}
             >
               <Text style={{ color: '#fff', fontWeight: '800' }}>Resume payment</Text>
             </Pressable>
@@ -264,11 +267,11 @@ export default function TrackingScreen() {
           <View style={[styles.paymentCard, { paddingBottom: Math.max(16, insets.bottom + 8) }]}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <View>
-                <Text style={styles.sectionTitle}>Entregado</Text>
-                <Text style={{ color: '#64748B' }}>Tiempo estimado: {Math.max(1, etaMinutes)} min</Text>
+                <Text style={styles.sectionTitle}>Delivered</Text>
+                <Text style={{ color: Colors.light.muted }}>Estimated time: {Math.max(1, etaMinutes)} min</Text>
               </View>
-              <View style={{ backgroundColor: '#E6FAF2', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999 }}>
-                <Text style={{ color: '#065F46', fontWeight: '800' }}>100%</Text>
+              <View style={{ backgroundColor: 'rgba(185,28,28,0.06)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999 }}>
+                <Text style={{ color: Colors.light.tint, fontWeight: '800' }}>100%</Text>
               </View>
             </View>
 
@@ -297,8 +300,8 @@ export default function TrackingScreen() {
               </Text>
             </View>
             <View style={{ marginTop: 12 }}>
-              <Text style={{ color: '#64748B' }}>Total</Text>
-              <Text style={{ fontWeight: '800', color: '#0F172A', marginTop: 4 }}>${passedTotal || computeTotal(fuel, liters)}</Text>
+              <Text style={{ color: Colors.light.muted }}>Total</Text>
+              <Text style={{ fontWeight: '800', color: Colors.light.text, marginTop: 4 }}>${passedTotal || computeTotal(fuel, liters)}</Text>
             </View>
 
             <View style={{ flexDirection: 'row', gap: 12, marginTop: 18 }}>
@@ -328,7 +331,7 @@ export default function TrackingScreen() {
             <View style={{ marginTop: 14, height: 10, backgroundColor: '#EEF6F3', borderRadius: 999 }}>
               <View style={{ width: `${waitingProgress}%`, height: '100%', backgroundColor: '#10B981', borderRadius: 999 }} />
             </View>
-            <Text style={{ marginTop: 8, color: '#64748B', fontSize: 12 }}>{waitingProgress}%</Text>
+            <Text style={{ marginTop: 8, color: Colors.light.muted, fontSize: 12 }}>{waitingProgress}%</Text>
             <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
               <Pressable onPress={() => setShowWaiting(false)} style={{ flex: 1, height: 44, borderRadius: 10, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{ color: '#0F172A', fontWeight: '700' }}>Cancel</Text>
@@ -343,29 +346,6 @@ export default function TrackingScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#F8FAFC', padding: 16 },
-  title: { fontSize: 18, fontWeight: '700', color: '#0F172A' },
-  subtitle: { fontSize: 12, color: '#64748B', marginTop: 2 },
-  mapBoxLarge: { flex: 1, marginTop: 12, borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: '#E6EDF0', backgroundColor: '#E6F3F7', alignItems: 'center', justifyContent: 'center' },
-  mapBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: '#DDEFF5' },
-  pinPulse: { position: 'absolute', width: 90, height: 90, borderRadius: 999, backgroundColor: 'rgba(20,97,123,0.18)' },
-  pinCenter: { width: 46, height: 46, borderRadius: 999, backgroundColor: '#E8F5F9', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#CFE6ED' },
-  bottomCard: { position: 'absolute', backgroundColor: '#FFFFFF', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#E6EDF0' },
-  card: { backgroundColor: '#FFFFFF', borderRadius: 12, padding: 12, marginTop: 12, borderWidth: 1, borderColor: '#E6EDF0' },
-  sectionTitle: { fontSize: 14, fontWeight: '700', color: '#0F172A', marginBottom: 6 },
-  rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 },
-  label: { color: '#64748B', fontSize: 12 },
-  value: { color: '#0F172A', fontSize: 13, fontWeight: '700' },
-  hint: { marginTop: 10, color: '#64748B', fontSize: 12 },
-  arrivalOverlay: { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center' },
-  arrivalRing: { position: 'absolute', width: 220, height: 220, borderRadius: 220, backgroundColor: 'rgba(16,185,129,0.25)' },
-  arrivalBadge: { width: 120, height: 120, borderRadius: 120, backgroundColor: '#10B981', alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.18, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
-  arrivalText: { marginTop: 16, color: '#0F172A', fontWeight: '800' },
-  progressCard: { position: 'absolute', left: 12, right: 12, top: 12, backgroundColor: '#FFFFFF', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#E6EDF0' },
-  paymentCard: { backgroundColor: '#fff', padding: 16, borderTopLeftRadius: 16, borderTopRightRadius: 16 },
-});
 
 // Helper component: NFC pulse button
 function NfcPulse({ onPaid }: { onPaid: () => void }) {
@@ -390,7 +370,7 @@ function NfcPulse({ onPaid }: { onPaid: () => void }) {
 
   return (
     <Animated.View style={{ transform: [{ scale: s }], opacity: o, marginTop: 16 }}>
-      <Pressable onPress={onPaid} style={{ width: 120, height: 120, borderRadius: 999, backgroundColor: '#10B981', alignItems: 'center', justifyContent: 'center' }}>
+      <Pressable onPress={onPaid} style={{ width: 120, height: 120, borderRadius: 999, backgroundColor: Colors.light.tint, alignItems: 'center', justifyContent: 'center' }}>
         <Ionicons name="phone-portrait" size={40} color="#fff" />
       </Pressable>
     </Animated.View>

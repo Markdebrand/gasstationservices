@@ -31,13 +31,3 @@ async def get_current_admin(user: User = Depends(get_current_user)) -> User:
     if not user.is_admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions")
     return user
-
-def require_role(*roles: str):
-    async def _dep(user: User = Depends(get_current_user)) -> User:
-        if user.role not in roles:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions")
-        return user
-    return _dep
-
-def require_any_role(roles: list[str]):
-    return require_role(*roles)

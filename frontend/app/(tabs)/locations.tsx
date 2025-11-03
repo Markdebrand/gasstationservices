@@ -6,6 +6,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import Feather from '@expo/vector-icons/Feather';
 import Header from '../components/Header';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import styles from '@/src/styles/locationsMapStyles';
 
 const stations = [
   { name: 'HSO Station Centro', addr: 'Av. Principal 123, Centro', dist: 1.2, rate: 4.8, hours: '24/7', open: true },
@@ -144,7 +145,7 @@ export default function LocationsScreen() {
         <View style={styles.searchRow}>
           <Ionicons name="search" size={18} color="#64748B" />
           <TextInput
-            placeholder="Buscar localización..."
+            placeholder="Search location..."
             placeholderTextColor="#94A3B8"
             value={search}
             onChangeText={handleUnifiedSearch}
@@ -211,7 +212,7 @@ export default function LocationsScreen() {
                     <Text style={styles.cardMeta}>⏰ {s.hours}</Text>
                   </View>
                 </View>
-                <Text style={[styles.statusBadge, s.open ? styles.statusOpen : styles.statusClose]}>{s.open ? 'Abierto' : 'Cerrado'}</Text>
+                <Text style={[styles.statusBadge, s.open ? styles.statusOpen : styles.statusClose]}>{s.open ? 'Open' : 'Closed'}</Text>
               </View>
             </View>
           ))}
@@ -220,27 +221,3 @@ export default function LocationsScreen() {
     </KeyboardAwareScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#F8FAFC', padding: 16 },
-  title: { fontSize: 18, fontWeight: '700', color: '#0F172A' },
-  subtitle: { fontSize: 12, color: '#64748B', marginTop: 2 },
-
-  searchRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0', paddingHorizontal: 10, height: 44 },
-  searchInput: { marginLeft: 6, flex: 1, color: '#0F172A' },
-
-  mapBox: { marginTop: 12, borderRadius: 20, paddingVertical: 36, paddingHorizontal: 16, backgroundColor: 'rgba(16,185,129,0.10)' },
-  locButton: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#10B981', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999 },
-  locButtonText: { color: '#FFFFFF', fontSize: 12, fontWeight: '600', marginLeft: 6 },
-
-  countText: { marginTop: 12, fontSize: 12, color: '#64748B' },
-
-  card: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 12, marginTop: 10, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 6, shadowOffset: { width: 0, height: 3 }, elevation: 1 },
-  cardTitle: { fontSize: 14, fontWeight: '600', color: '#0F172A' },
-  cardAddr: { fontSize: 12, color: '#64748B', marginTop: 2 },
-  cardMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 6 },
-  cardMeta: { fontSize: 11, color: '#64748B' },
-  statusBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, fontSize: 12, fontWeight: '600' },
-  statusOpen: { backgroundColor: '#ECFDF5', color: '#059669' },
-  statusClose: { backgroundColor: '#FFE4E6', color: '#E11D48' },
-});

@@ -6,9 +6,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Header from '../components/Header';
+import { Colors } from '@/constants/theme';
 import Svg, { Rect, Line as SvgLine, Path } from 'react-native-svg';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path as any);
+
+import styles from '../../src/styles/financeStyles';
 
 const monthly = [
   { m: 'Ene', gasto: 82 },
@@ -58,30 +61,30 @@ export default function Finance() {
   <Text style={styles.subtitle}>Spending summary and balance</Text>
 
       {/* Balance card */}
-      <LinearGradient colors={["#10b981", "#059669"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.balanceCard}>
+  <LinearGradient colors={[Colors.light.tint, Colors.light.primaryDark]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.balanceCard}>
         <View style={styles.balanceRow}>
           <View>
             <Text style={styles.balanceOverline}>Total Balance</Text>
             <Text style={styles.balanceValue}>$1,245.80</Text>
             <Text style={styles.balanceDelta}>+12.5% this month</Text>
           </View>
-          <MaterialIcons name="account-balance-wallet" size={24} color="#fff" />
+          <MaterialIcons name="account-balance-wallet" size={24} color={Colors.light.background} />
         </View>
       </LinearGradient>
 
       {/* Monthly spend (bars) */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Monthly Spend</Text>
-  <ChartBars data={monthly} height={160} barColor="#10b981" onInteractionChange={setIsInteracting} animateTrigger={animateTrigger} />
-      </View>
+  <View style={styles.card}>
+    <Text style={styles.cardTitle}>Monthly Spend</Text>
+  <ChartBars data={monthly} height={160} barColor={Colors.light.chart} onInteractionChange={setIsInteracting} animateTrigger={animateTrigger} />
+  </View>
 
       {/* Trend (line) */}
       <View style={styles.card}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
           <Text style={styles.cardTitle}>Consumption Trend</Text>
-          <MaterialIcons name="trending-up" size={16} color="#6B7280" />
+          <MaterialIcons name="trending-up" size={16} color={Colors.light.muted} />
         </View>
-  <ChartLine data={trend.map(t => t.v)} height={140} color="#10b981" onInteractionChange={setIsInteracting} animateTrigger={animateTrigger} />
+  <ChartLine data={trend.map(t => t.v)} height={140} color={Colors.light.chart} onInteractionChange={setIsInteracting} animateTrigger={animateTrigger} />
       </View>
 
       {/* Transactions */}
@@ -93,7 +96,7 @@ export default function Finance() {
               <Text style={styles.txTitle}>{t.title}</Text>
               <Text style={styles.txDate}>{t.date}</Text>
             </View>
-            <Text style={[styles.txAmount, { color: t.amount < 0 ? '#E11D48' : '#059669' }]}>
+            <Text style={[styles.txAmount, { color: t.amount < 0 ? Colors.light.danger : Colors.light.chart }]}>
               {t.amount < 0 ? `-$${Math.abs(t.amount).toFixed(2)}` : `+$${t.amount.toFixed(2)}`}
             </Text>
           </View>
@@ -103,7 +106,7 @@ export default function Finance() {
   );
 }
 
-function ChartBars({ data, height = 160, barColor = '#10b981', onInteractionChange, animateTrigger }: { data: { m: string; gasto: number }[]; height?: number; barColor?: string; onInteractionChange?: (v: boolean) => void; animateTrigger?: number }) {
+function ChartBars({ data, height = 160, barColor = Colors.light.chart, onInteractionChange, animateTrigger }: { data: { m: string; gasto: number }[]; height?: number; barColor?: string; onInteractionChange?: (v: boolean) => void; animateTrigger?: number }) {
   const [width, setWidth] = React.useState(0);
   const padX = 16;
   const padTop = 16;
@@ -156,7 +159,7 @@ function ChartBars({ data, height = 160, barColor = '#10b981', onInteractionChan
           {data.map((d, i) => {
             const x = padX + i * (barW + gap) + barW / 2;
             return (
-              <SvgLine key={`tick-${i}`} x1={x} y1={height - padBottom + 6} x2={x} y2={height - padBottom + 6} stroke="#6B7280" />
+              <SvgLine key={`tick-${i}`} x1={x} y1={height - padBottom + 6} x2={x} y2={height - padBottom + 6} stroke={Colors.light.muted} />
             );
           })}
         </Svg>
@@ -169,8 +172,8 @@ function ChartBars({ data, height = 160, barColor = '#10b981', onInteractionChan
           const y = toY(d.gasto);
           const finalH = Math.max(4, height - padBottom - y);
           const animH = anims[i].interpolate({ inputRange: [0, 1], outputRange: [0, finalH] });
-          return (
-            <Animated.View key={`bar-${i}`} style={{ position: 'absolute', left: x, bottom: 0, width: barW, height: animH, borderRadius: 6, backgroundColor: i === activeIndex ? '#10b981' : barColor, opacity: i === activeIndex ? 1 : 0.95 }} />
+            return (
+            <Animated.View key={`bar-${i}`} style={{ position: 'absolute', left: x, bottom: 0, width: barW, height: animH, borderRadius: 6, backgroundColor: i === activeIndex ? Colors.light.chart : barColor, opacity: i === activeIndex ? 1 : 0.95 }} />
           );
         })}
       </View>
@@ -189,12 +192,12 @@ function ChartBars({ data, height = 160, barColor = '#10b981', onInteractionChan
         // compute y for marker (top of the bar)
         const y = toY(value);
         const tooltipLeft = Math.min(Math.max(cx - 48, 6), Math.max(6, width - 96));
-        return (
+            return (
           <>
             <View pointerEvents="none" style={{ position: 'absolute', left: cx, top: 0, width: 2, height, backgroundColor: 'rgba(16,185,129,0.12)' }} />
-            <View pointerEvents="none" style={{ position: 'absolute', left: cx - 6, top: y - 6, width: 12, height: 12, borderRadius: 6, backgroundColor: '#10b981', borderWidth: 2, borderColor: '#fff' }} />
-            <View pointerEvents="none" style={{ position: 'absolute', left: tooltipLeft, top: Math.max(y - 44, 6), paddingHorizontal: 8, paddingVertical: 6, borderRadius: 8, backgroundColor: '#FFFFFF', shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 4 }}>
-              <Text style={{ fontSize: 13, fontWeight: '700', color: '#0F172A' }}>${value.toFixed(2)}</Text>
+            <View pointerEvents="none" style={{ position: 'absolute', left: cx - 6, top: y - 6, width: 12, height: 12, borderRadius: 6, backgroundColor: Colors.light.chart, borderWidth: 2, borderColor: Colors.light.background }} />
+            <View pointerEvents="none" style={{ position: 'absolute', left: tooltipLeft, top: Math.max(y - 44, 6), paddingHorizontal: 8, paddingVertical: 6, borderRadius: 8, backgroundColor: Colors.light.background, shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 4 }}>
+              <Text style={{ fontSize: 13, fontWeight: '700', color: Colors.light.text }}>${value.toFixed(2)}</Text>
             </View>
           </>
         );
@@ -203,7 +206,7 @@ function ChartBars({ data, height = 160, barColor = '#10b981', onInteractionChan
   );
 }
 
-function ChartLine({ data, height = 140, color = '#10b981', onInteractionChange, animateTrigger }: { data: number[]; height?: number; color?: string; onInteractionChange?: (v: boolean) => void; animateTrigger?: number }) {
+function ChartLine({ data, height = 140, color = Colors.light.chart, onInteractionChange, animateTrigger }: { data: number[]; height?: number; color?: string; onInteractionChange?: (v: boolean) => void; animateTrigger?: number }) {
   const [width, setWidth] = React.useState(0);
   const padX = 16;
   const padY = 18;
@@ -299,7 +302,7 @@ function ChartLine({ data, height = 140, color = '#10b981', onInteractionChange,
               top: 0,
               width: 1,
               height,
-              backgroundColor: 'rgba(20,97,123,0.25)',
+              backgroundColor: 'rgba(16,185,129,0.25)',
             }}
           />
           {/* Marker */}
@@ -312,13 +315,13 @@ function ChartLine({ data, height = 140, color = '#10b981', onInteractionChange,
               width: 10,
               height: 10,
               borderRadius: 5,
-              backgroundColor: '#14617B',
+              backgroundColor: Colors.light.chart,
               borderWidth: 2,
-              borderColor: '#F7FBFE',
+              borderColor: Colors.light.background,
             }}
           />
           {/* Tooltip */}
-          <View
+            <View
             pointerEvents="none"
             style={{
               position: 'absolute',
@@ -327,7 +330,7 @@ function ChartLine({ data, height = 140, color = '#10b981', onInteractionChange,
               paddingHorizontal: 8,
               paddingVertical: 4,
               borderRadius: 8,
-              backgroundColor: '#FFFFFF',
+              backgroundColor: Colors.light.background,
               shadowColor: '#000',
               shadowOpacity: 0.15,
               shadowRadius: 6,
@@ -335,7 +338,7 @@ function ChartLine({ data, height = 140, color = '#10b981', onInteractionChange,
               elevation: 3,
             }}
           >
-            <Text style={{ fontSize: 12, fontWeight: '600', color: '#0F172A' }}>
+            <Text style={{ fontSize: 12, fontWeight: '600', color: Colors.light.text }}>
               ${data[activeIndex].toFixed(2)}
             </Text>
           </View>
@@ -347,21 +350,4 @@ function ChartLine({ data, height = 140, color = '#10b981', onInteractionChange,
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#F8FAFC', padding: 16 },
-  title: { fontSize: 18, fontWeight: '700', color: '#0F172A' },
-  subtitle: { fontSize: 12, color: '#64748B', marginTop: 2 },
-  
-  balanceCard: { marginTop: 12, borderRadius: 12, padding: 12, shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 1, borderWidth: 1, borderColor: '#E6EDF0' },
-  balanceRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  balanceOverline: { color: '#ECFDF5', opacity: 0.9, fontSize: 12 },
-  balanceValue: { color: '#fff', fontSize: 28, fontWeight: '700', marginTop: 4 },
-  balanceDelta: { color: '#E6FFFA', fontSize: 12, marginTop: 2 },
-  card: { backgroundColor: '#fff', borderRadius: 12, padding: 12, marginTop: 12, shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 1, borderWidth: 1, borderColor: '#E6EDF0' },
-  cardTitle: { fontSize: 14, fontWeight: '600', color: '#0F172A', marginBottom: 6 },
-  tickLabel: { color: '#64748B', fontSize: 12 },
-  txRow: { paddingHorizontal: 12, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  txTitle: { fontSize: 14, fontWeight: '600', color: '#0F172A' },
-  txDate: { fontSize: 12, color: '#64748B' },
-  txAmount: { fontSize: 14, fontWeight: '700' },
-});
+ 

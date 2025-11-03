@@ -17,7 +17,7 @@ export default function Notifications() {
 
   return (
     <ScrollView style={styles.root} contentContainerStyle={{ paddingBottom: 120 }}>
-      <Header showBack />
+      <Header showBack showNotifications={false} />
   <Text style={styles.title}>Notifications</Text>
   <Text style={styles.subtitle}>Latest alerts and promotions</Text>
 
@@ -32,7 +32,7 @@ export default function Notifications() {
               <View style={{ alignItems: 'flex-end' }}>
                 <Text style={styles.time}>{it.time}</Text>
                 <Pressable onPress={() => toggleRead(it.id)} style={{ marginTop: 8 }}>
-                  <Text style={{ color: '#14617B' }}>{it.read ? 'Mark as unread' : 'Mark as read'}</Text>
+                  <Text style={{ color: '#b91c1c' }}>{it.read ? 'Mark as unread' : 'Mark as read'}</Text>
                 </Pressable>
               </View>
             </View>

@@ -23,6 +23,7 @@ try {
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { HsoPointsProvider } from '@/app/contexts/HSOPointsContext';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -53,16 +54,12 @@ export default function RootLayout() {
 
   // determine theme color values once per render
   const theme = colorScheme === 'dark' ? DarkTheme : DefaultTheme;
-  // In light mode prefer the app's common light toolbar/page background so the status bar matches
-  // (many screens use '#F8FAFC' instead of pure white). In dark mode use card for contrast.
   const LIGHT_TOOLBAR_BG = '#F8FAFC';
   const baseColor = colorScheme === 'dark'
     ? (theme.colors?.card ?? theme.colors?.background)
     : (LIGHT_TOOLBAR_BG ?? theme.colors?.background ?? theme.colors?.card);
   const cardColor = baseColor ?? '#6B7280';
-  // choose a lighter (more transparent) overlay depending on theme:
-  // - light theme: much more transparent for a clearer look
-  // - dark theme: slightly less transparent to keep contrast
+
   const overlayAlpha = colorScheme === 'dark' ? 0.45 : 0.2;
   const overlayColor = hexToRgba(cardColor, overlayAlpha);
 
@@ -88,17 +85,18 @@ export default function RootLayout() {
   }, [overlayColor, cardColor, colorScheme]);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-  {/* StatusBar uses theme-aware style */}
-  <ExpoStatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} backgroundColor={overlayColor} />
-  {/* Absolute top/bottom overlays to ensure the status/navigation areas show the current theme color (slightly transparent) */}
-  <View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: insets.top || 20, backgroundColor: overlayColor }} />
-  <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: insets.bottom || 0, backgroundColor: overlayColor }} />
-      <Toast />
-    </ThemeProvider>
+    <HsoPointsProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+        </Stack>
+    {/* StatusBar uses theme-aware style */}
+    <ExpoStatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} backgroundColor={overlayColor} />
+    <View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: insets.top || 20, backgroundColor: overlayColor }} />
+    <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: insets.bottom || 0, backgroundColor: overlayColor }} />
+        <Toast />
+      </ThemeProvider>
+    </HsoPointsProvider>
   );
 }
