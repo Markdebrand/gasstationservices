@@ -1,5 +1,4 @@
 import React from 'react';
-import { fetchUserProfile, updateUserHSOPoints } from '../../services/user';
 
 export type Tier = { id: string; title: string; range: string; ptsMin: number; ptsMax: number; color: string; iconName?: string; benefits: string[] };
 
@@ -76,52 +75,17 @@ type ContextShape = {
 const HsoPointsContext = React.createContext<ContextShape | null>(null);
 
 export function HsoPointsProvider({ children }: { children: React.ReactNode }) {
-  const [points, setPoints] = React.useState<number>(0);
-  const [userId, setUserId] = React.useState<number | null>(null);
+  const [points, setPoints] = React.useState<number>(340);
 
-  // Cargar puntos del usuario al iniciar
-  React.useEffect(() => {
-    fetchUserProfile()
-      .then((user) => {
-        setPoints(user.hso_points || 0);
-        setUserId(user.id);
-      })
-      .catch(() => {
-        setPoints(0);
-        setUserId(null);
-      });
+  const addPoints = React.useCallback((delta: number) => {
+    setPoints((p) => Math.max(0, p + delta));
   }, []);
-
-  // Actualizar puntos en backend y local
-  const setPointsAndSync = React.useCallback(
-    async (value: number | ((prev: number) => number)) => {
-      setPoints((prev) => {
-        const newValue = typeof value === 'function' ? value(prev) : value;
-        // Sincronizar con backend si hay userId
-        if (userId != null) {
-          updateUserHSOPoints(userId, newValue).catch(() => {});
-        }
-        return newValue;
-      });
-    },
-    [userId]
-  );
-
-  const addPoints = React.useCallback(
-    (delta: number) => {
-      setPointsAndSync((p) => Math.max(0, p + delta));
-    },
-    [setPointsAndSync]
-  );
 
   const currentTier = React.useMemo(() => {
     return TIERS.slice().reverse().find(t => points >= t.ptsMin) || TIERS[0];
   }, [points]);
 
-  const ctx: ContextShape = React.useMemo(
-    () => ({ points, setPoints: setPointsAndSync, addPoints, currentTier, tiers: TIERS }),
-    [points, setPointsAndSync, addPoints, currentTier]
-  );
+  const ctx: ContextShape = React.useMemo(() => ({ points, setPoints, addPoints, currentTier, tiers: TIERS }), [points, addPoints, currentTier]);
 
   return <HsoPointsContext.Provider value={ctx}>{children}</HsoPointsContext.Provider>;
 }
