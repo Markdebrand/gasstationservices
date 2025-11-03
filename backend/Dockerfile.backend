@@ -1,17 +1,18 @@
-# Backend Dockerfile for FastAPI
-FROM python:3.12-slim
+# Usa una imagen base de Python ligera para un tamaño de contenedor más pequeño.
+FROM python:3.10-slim-buster
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
-
+# Establece el directorio de trabajo dentro del contenedor.
 WORKDIR /app
 
-COPY requirements.txt ./
+# Copia el archivo de requisitos e instala las dependencias. Esto aprovecha el caché de Docker.
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copia el resto de tu código de la aplicación.
 COPY . .
 
+# Expone el puerto que tu aplicación usa para escuchar las peticiones.
 EXPOSE 8000
 
-# Use uvicorn directly for simplicity; can swap to gunicorn if needed
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Define el comando para ejecutar tu aplicación Gunicorn/Uvicorn.
+CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "-c", "gunicorn.conf.py", "app.main:app"]

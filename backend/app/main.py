@@ -1,69 +1,101 @@
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
-from .api import auth, stations, orders, users, locations, vehicles
-from .api import order_items, deliveries, products, catalog
-from .db.session import init_db, AsyncSessionLocal
-from .core.config import settings
-from .models.user import User
-from .core.security.passwords import get_password_hash
-from sqlalchemy import select
-
-
-app = FastAPI(title="HSO Fuel Delivery - MVP", version="0.1.0", root_path=settings.root_path)
-
-# Expose /uploads as static files (for serving uploaded images)
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
-
-# CORS: permitir cualquier origen (para apps y web)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.allowed_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+from app.config.settings import (
+    APP_NAME,
+    LOG_LEVEL,
+    CORS_ORIGINS,
+    ALLOWED_HOSTS,
+    DOCS_URL,
+    REDOC_URL,
+    OPENAPI_URL,
+    ROOT_PATH,
 )
+from app.utils.logging_config import setup_logging
+from app.db.database import init_db
+from app.utils.exception_handlers import add_global_exception_handler
 
-# Routers
-app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
-app.include_router(users.router, prefix="/api/users", tags=["users"])
-app.include_router(stations.router, prefix="/api/stations", tags=["stations"])
-app.include_router(orders.router, prefix="/api/orders", tags=["orders"])
-app.include_router(locations.router, prefix="/api/locations", tags=["locations"])
-app.include_router(vehicles.router, prefix="/api/vehicles", tags=["vehicles"])
-app.include_router(order_items.router, prefix="/api/orders", tags=["order-items"])  # nested under orders
-app.include_router(deliveries.router, prefix="/api/deliveries", tags=["deliveries"])
-app.include_router(products.router, prefix="/api/products", tags=["products"])  # catalog
-app.include_router(catalog.router, prefix="/api/catalog", tags=["catalog"])  # public catalog
-
-@app.get("/health")
-async def health():
-    return {"status": "ok"}
-
-async def ensure_user(session, email: str, password: str, role: str, full_name: str, is_admin: bool = False):
-    res = await session.execute(select(User).where(User.email == email))
-    await session.flush() # Ensure the query is executed before checking the result
-    existing = res.scalar_one_or_none()
-    if not existing:
-        new_user = User(
-            email=email,
-            full_name=full_name,
-            hashed_password=get_password_hash(password),
-            is_active=True,
-            is_admin=is_admin,
-            role=role,
+def add_middlewares(app):
+    from fastapi.middleware.cors import CORSMiddleware
+    from starlette.middleware.trustedhost import TrustedHostMiddleware
+    from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
+    from starlette.middleware.gzip import GZipMiddleware
+    from app.core.middleware.request_id_middleware import RequestIdMiddleware
+    from app.core.middleware.audit_middleware import AuditMiddleware
+    from app.core.middleware.auth_middleware import AuthContextMiddleware
+    from app.core.middleware.require_auth_middleware import RequireAuthMiddleware
+    from app.api.odoo_webhook_router import ExtensionCompatAdapter
+    if CORS_ORIGINS:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=CORS_ORIGINS,
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
         )
-        session.add(new_user)
-        await session.commit()
-        await session.refresh(new_user)
+    if ALLOWED_HOSTS:
+        app.add_middleware(TrustedHostMiddleware, allowed_hosts=ALLOWED_HOSTS)
+    app.add_middleware(ProxyHeadersMiddleware, trusted_hosts=["*"])
+    app.add_middleware(GZipMiddleware, minimum_size=500)
+    # Correlation-ID para trazabilidad
+    app.add_middleware(RequestIdMiddleware)
+    # Interruptor remoto de disponibilidad (antes de auth para bloquear pronto)
+    app.add_middleware(ExtensionCompatAdapter)
+    # Auth context: decode JWT once and attach payload to request.state
+    app.add_middleware(AuthContextMiddleware)
+    # Require auth for protected prefixes while keeping public endpoints open
+    app.add_middleware(RequireAuthMiddleware)
+    # Auditoría privada de requests
+    app.add_middleware(AuditMiddleware)
 
+def add_routers(app):
+    # Router centralizado
+    from app.api.root_router import router as api_router
+    app.include_router(api_router)
 
-@app.on_event("startup")
-async def on_startup():
-    await init_db()
-    # Seed default accounts for testing: admin, user, driver
-    async with AsyncSessionLocal() as session:
-        await ensure_user(session, "admin@example.com", "admin123", "admin", "Admin User", is_admin=True)
-        await ensure_user(session, "user@example.com", "user123", "user", "Normal User")
-        await ensure_user(session, "driver@example.com", "driver123", "driver", "Driver User")
+def add_dispatcher(app):
+    # Ya no usamos middleware de despacho dinámico.
+    # La autorización y permisos se gestionan con dependencias por ruta.
+    return
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    setup_logging(LOG_LEVEL)
+    # Validación de productos Plaid: advertencia/stop si transfer no está presente en producción
+    try:
+        from app.config.settings import PLAID_PRODUCTS, PLAID_ENV, DEBUG
+        if "transfer" not in [p.lower() for p in PLAID_PRODUCTS]:
+            import logging
+            logger = logging.getLogger(__name__)
+            msg = "PLAID_PRODUCTS does not include 'transfer' — Plaid transfer endpoints may fail."
+            if not DEBUG and (PLAID_ENV or "").lower() != "sandbox":
+                logger.error(msg + " In non-sandbox environment startup will be aborted.")
+                raise RuntimeError(msg)
+            else:
+                logger.warning(msg)
+    except Exception:
+        # No bloquear si hay problemas inesperados leyendo la config
+        pass
+    try:
+        init_db()
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"DB init failed: {e}")
+    yield
+
+def create_app() -> FastAPI:
+    app = FastAPI(
+        title=APP_NAME,
+        docs_url=DOCS_URL,
+        redoc_url=REDOC_URL,
+        openapi_url=OPENAPI_URL,
+        lifespan=lifespan,
+        root_path=ROOT_PATH,
+    )
+    add_global_exception_handler(app)
+    add_middlewares(app)
+    add_routers(app)
+    # Dispatcher eliminado: autorización via dependencias por endpoint
+    return app
+
+app = create_app()
