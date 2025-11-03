@@ -6,6 +6,9 @@ from .api import auth, stations, orders, users, locations, vehicles
 from .api import order_items, deliveries, products, catalog
 from .db.session import init_db, AsyncSessionLocal
 from .core.config import settings
+from .models.user import User
+from .core.security.passwords import get_password_hash
+from sqlalchemy import select
 
 
 app = FastAPI(title="HSO Fuel Delivery - MVP", version="0.1.0", root_path=settings.root_path)
@@ -39,9 +42,6 @@ async def health():
     return {"status": "ok"}
 
 async def ensure_user(session, email: str, password: str, role: str, full_name: str, is_admin: bool = False):
-    from sqlalchemy import select
-    from .models.user import User
-    from .core.security.passwords import get_password_hash
     res = await session.execute(select(User).where(User.email == email))
     await session.flush() # Ensure the query is executed before checking the result
     existing = res.scalar_one_or_none()
