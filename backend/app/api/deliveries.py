@@ -8,7 +8,7 @@ from ..models.order import Order
 from ..models.delivery_assignment import DeliveryAssignment
 from ..models.delivery_event import DeliveryEvent, DeliveryEventType
 from ..schemas.delivery import DeliveryAssignmentCreate, DeliveryAssignmentRead, DeliveryEventCreate, DeliveryEventRead
-from .deps.auth import get_current_admin
+from .deps.auth import get_current_admin, require_role
 
 router = APIRouter()
 
