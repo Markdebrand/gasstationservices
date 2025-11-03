@@ -63,6 +63,7 @@ async def on_startup():
     # Seed default accounts for testing: admin, user, driver
     async with AsyncSessionLocal() as session:
         from sqlalchemy import select
+        # Usuario normal de ejemplo
         result = await session.execute(select(User).where(User.email == "user"))
         user = result.scalar_one_or_none()
         if not user:
@@ -75,4 +76,19 @@ async def on_startup():
                 role="user"
             )
             session.add(new_user)
+            await session.commit()
+
+        # Usuario support admin
+        result = await session.execute(select(User).where(User.email == "support@hso.com"))
+        support = result.scalar_one_or_none()
+        if not support:
+            new_support = User(
+                email="support@hso.com",
+                full_name="Soporte HSO",
+                hashed_password=get_password_hash("support1234"),
+                is_active=True,
+                is_admin=True,
+                role="admin"
+            )
+            session.add(new_support)
             await session.commit()
