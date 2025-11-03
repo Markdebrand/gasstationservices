@@ -5,26 +5,33 @@ import Header from './components/Header';
 import { Colors } from '@/constants/theme';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-type Order = { id: string; title: string; date: string; status: string; amount: string; note?: string };
+import { fetchOrders } from '../services/orders';
 
-const SAMPLE: Order[] = [
-  { id: 'o1', title: 'Premium Gasoline', date: '15 Jun, 2025', status: 'Delivered', amount: '-$65.00', note: 'Rear door delivery. Driver: Juan P.' },
-  { id: 'o2', title: 'HSO Refund', date: '12 Jun, 2025', status: 'Delivered', amount: '+$10.00', note: 'Refund for fare adjustment.' },
-  { id: 'o3', title: 'Diesel', date: '08 Jun, 2025', status: 'Cancelled', amount: '-$42.00', note: 'Order cancelled due to no dispatch.' },
-];
+type Order = {
+  id: number;
+  product_type: string;
+  total_price: number;
+  status: string;
+  delivery_address: string;
+  created_at?: string;
+};
 
 export default function OrderHistory() {
   const insets = useSafeAreaInsets();
   const [selected, setSelected] = React.useState<Order | null>(null);
+  const [orders, setOrders] = React.useState<Order[]>([]);
+  React.useEffect(() => {
+    fetchOrders().then(setOrders).catch(() => setOrders([]));
+  }, []);
 
   const renderItem = ({ item }: { item: Order }) => (
     <View style={styles.row}>
       <View style={styles.rowLeft}>
-        <Text style={styles.rowTitle}>{item.title}</Text>
-        <Text style={styles.rowMeta}>{item.date} • {item.status}</Text>
+        <Text style={styles.rowTitle}>{item.product_type}</Text>
+        <Text style={styles.rowMeta}>{item.created_at ? new Date(item.created_at).toLocaleDateString() : ''} • {item.status}</Text>
       </View>
       <View style={styles.rowRight}>
-        <Text style={[styles.amount, item.amount.startsWith('+') ? styles.amountGreen : styles.amountRed]}>{item.amount}</Text>
+        <Text style={[styles.amount, styles.amountRed]}>${item.total_price?.toFixed(2) ?? '-'}</Text>
         <Pressable onPress={() => setSelected(item)} style={styles.eyeBtn}>
           <Ionicons name="eye" size={18} color={Colors.light.tint} />
         </Pressable>
@@ -33,7 +40,7 @@ export default function OrderHistory() {
   );
 
   return (
-    <View style={[styles.root, { paddingBottom: Math.max(insets.bottom + 12, 24) }]}>
+    <View style={[styles.root, { paddingBottom: Math.max(insets.bottom + 12, 24) }]}>...
       <Header showBack />
   <Text style={styles.pageTitle}>Order history</Text>
 
@@ -42,15 +49,15 @@ export default function OrderHistory() {
         <Text style={styles.cardOverline}>Your recent orders</Text>
         <Text style={styles.cardNote}>Review details and receipts</Text>
 
-        <FlatList data={SAMPLE} keyExtractor={(i) => i.id} renderItem={renderItem} ItemSeparatorComponent={() => <View style={{ height: 12 }} />} contentContainerStyle={{ paddingTop: 12 }} />
+  <FlatList data={orders} keyExtractor={(i) => i.id.toString()} renderItem={renderItem} ItemSeparatorComponent={() => <View style={{ height: 12 }} />} contentContainerStyle={{ paddingTop: 12 }} />
       </View>
 
       <Modal visible={!!selected} transparent animationType="fade">
         <View style={styles.modalWrap}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>{selected?.title}</Text>
-            <Text style={styles.modalMeta}>{selected?.date} • {selected?.status}</Text>
-            <Text style={styles.modalNote}>{selected?.note}</Text>
+            <Text style={styles.modalTitle}>{selected?.product_type}</Text>
+            <Text style={styles.modalMeta}>{selected?.created_at ? new Date(selected.created_at).toLocaleDateString() : ''} • {selected?.status}</Text>
+            <Text style={styles.modalNote}>{selected?.delivery_address}</Text>
 
             <View style={styles.modalActions}>
               <Pressable onPress={() => setSelected(null)} style={[styles.modalBtn, styles.modalBtnOutline]}>
