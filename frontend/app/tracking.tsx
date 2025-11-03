@@ -7,6 +7,8 @@ import Header from './components/Header';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Colors } from '@/constants/theme';
+import styles from '../src/styles/trackingStyles';
+
 
 type ClientVehicle = {
   id: string;
@@ -200,9 +202,9 @@ export default function TrackingScreen() {
           {!arrived && (
             <View style={styles.progressCard}>
               <Text style={styles.sectionTitle}>{progressPercent >= 100 ? 'At destination' : 'En route'}</Text>
-              <Text style={{ color: Colors.light.muted, marginTop: 6 }}>Estimated time: {etaMinutes} min</Text>
-              <View style={{ marginTop: 10, height: 10, backgroundColor: Colors.light.subtleBg, borderRadius: 999 }}>
-                <View style={{ width: `${progressPercent}%`, height: '100%', backgroundColor: Colors.light.tint, borderRadius: 999 }} />
+              <Text style={{ color: '#64748B', marginTop: 6 }}>Estimated time: {etaMinutes} min</Text>
+              <View style={{ marginTop: 10, height: 10, backgroundColor: '#EEF6F3', borderRadius: 999 }}>
+                <View style={{ width: `${progressPercent}%`, height: '100%', backgroundColor: '#059669', borderRadius: 999 }} />
               </View>
               <View style={{ position: 'absolute', right: 12, top: 12, backgroundColor: 'rgba(185,28,28,0.06)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999 }}>
                 <Text style={{ color: Colors.light.tint, fontWeight: '700' }}>{progressPercent}%</Text>
@@ -224,9 +226,9 @@ export default function TrackingScreen() {
               )}
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontWeight: '800', color: Colors.light.text }}>{dispatcher?.name}</Text>
-              <Text style={{ color: Colors.light.muted, marginTop: 6 }}>Courier</Text>
-              <Text style={{ color: Colors.light.muted, marginTop: 6 }}>{`${dispatcher.vehicle || 'Vehicle'} • Plate: ${dispatcher.plate}`}</Text>
+              <Text style={{ fontWeight: '800', color: '#0F172A' }}>{dispatcher?.name}</Text>
+              <Text style={{ color: '#64748B', marginTop: 6 }}>Courier</Text>
+              <Text style={{ color: '#64748B', marginTop: 6 }}>{`${dispatcher.vehicle || 'Vehicle'} • Plate: ${dispatcher.plate}`}</Text>
             </View>
             <View style={{ flexDirection: 'row', gap: 8 }}>
               <Pressable style={{ width: 44, height: 44, borderRadius: 10, backgroundColor: Colors.light.subtleBg, alignItems: 'center', justifyContent: 'center' }}>
@@ -276,13 +278,13 @@ export default function TrackingScreen() {
             <View style={{ alignItems: 'center', marginTop: 18 }}>
               {paid ? (
                 <>
-                  <Text style={{ fontWeight: '800', fontSize: 18, color: Colors.light.text }}>Payment received</Text>
-                    <Text style={{ color: Colors.light.muted, marginTop: 6, textAlign: 'center' }}>Thanks — payment processed via NFC.</Text>
+                  <Text style={{ fontWeight: '800', fontSize: 18, color: '#0F172A' }}>Payment received</Text>
+                    <Text style={{ color: '#64748B', marginTop: 6, textAlign: 'center' }}>Thanks — payment processed via NFC.</Text>
                 </>
               ) : (
                 <>
-                  <Text style={{ fontWeight: '800', fontSize: 18, color: Colors.light.text }}>Pay with NFC</Text>
-                  <Text style={{ color: Colors.light.muted, marginTop: 6, textAlign: 'center' }}>Hold your phone near the reader to complete payment.</Text>
+                  <Text style={{ fontWeight: '800', fontSize: 18, color: '#0F172A' }}>Pay with NFC</Text>
+                  <Text style={{ color: '#64748B', marginTop: 6, textAlign: 'center' }}>Hold your phone near the reader to complete payment.</Text>
                 </>
               )}
 
@@ -292,8 +294,8 @@ export default function TrackingScreen() {
             </View>
 
             <View style={{ marginTop: 16 }}>
-              <Text style={{ color: Colors.light.muted }}>Order</Text>
-              <Text style={{ fontWeight: '800', color: Colors.light.text, marginTop: 4 }}>
+              <Text style={{ color: '#64748B' }}>Order</Text>
+              <Text style={{ fontWeight: '800', color: '#0F172A', marginTop: 4 }}>
                 {clientVehicle ? `${clientVehicle.brand || ''} ${clientVehicle.model || ''} • ${clientVehicle.plate}` : '-'}
               </Text>
             </View>
@@ -309,11 +311,11 @@ export default function TrackingScreen() {
                   try { await AsyncStorage.removeItem('order:pendingPayment'); } catch {}
                 }
                 router.replace('/');
-              }} style={{ flex: 1, height: 48, borderRadius: 12, backgroundColor: Colors.light.tint, alignItems: 'center', justifyContent: 'center' }}>
+              }} style={{ flex: 1, height: 48, borderRadius: 12, backgroundColor: '#14617B', alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{ color: '#fff', fontWeight: '800' }}>Back to home</Text>
               </Pressable>
-              <Pressable onPress={() => { setShowPayment(false); }} style={{ flex: 1, height: 48, borderRadius: 12, backgroundColor: Colors.light.subtleBg, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: Colors.light.cardBorder }}>
-                <Text style={{ color: Colors.light.text, fontWeight: '800' }}>Close</Text>
+              <Pressable onPress={() => { setShowPayment(false); }} style={{ flex: 1, height: 48, borderRadius: 12, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E6EDF0' }}>
+                <Text style={{ color: '#0F172A', fontWeight: '800' }}>Close</Text>
               </Pressable>
             </View>
           </View>
@@ -323,18 +325,18 @@ export default function TrackingScreen() {
       {/* Waiting modal for acceptance */}
       <Modal visible={showWaiting} transparent animationType="fade">
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center' }}>
-          <View style={{ backgroundColor: Colors.light.background, width: '86%', borderRadius: 16, padding: 16, borderWidth: 1, borderColor: Colors.light.cardBorder }}>
-            <Text style={{ fontWeight: '800', fontSize: 16, color: Colors.light.text }}>Waiting for confirmation…</Text>
-            <Text style={{ color: Colors.light.muted, marginTop: 6 }}>Searching for an available dispatcher for your order at {address || 'your location'}.</Text>
-            <View style={{ marginTop: 14, height: 10, backgroundColor: Colors.light.subtleBg, borderRadius: 999 }}>
-              <View style={{ width: `${waitingProgress}%`, height: '100%', backgroundColor: Colors.light.tint, borderRadius: 999 }} />
+          <View style={{ backgroundColor: '#fff', width: '86%', borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E6EDF0' }}>
+            <Text style={{ fontWeight: '800', fontSize: 16, color: '#0F172A' }}>Waiting for confirmation…</Text>
+            <Text style={{ color: '#64748B', marginTop: 6 }}>Searching for an available dispatcher for your order at {address || 'your location'}.</Text>
+            <View style={{ marginTop: 14, height: 10, backgroundColor: '#EEF6F3', borderRadius: 999 }}>
+              <View style={{ width: `${waitingProgress}%`, height: '100%', backgroundColor: '#10B981', borderRadius: 999 }} />
             </View>
             <Text style={{ marginTop: 8, color: Colors.light.muted, fontSize: 12 }}>{waitingProgress}%</Text>
             <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
-              <Pressable onPress={() => setShowWaiting(false)} style={{ flex: 1, height: 44, borderRadius: 10, backgroundColor: Colors.light.subtleBg, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: Colors.light.text, fontWeight: '700' }}>Cancel</Text>
+              <Pressable onPress={() => setShowWaiting(false)} style={{ flex: 1, height: 44, borderRadius: 10, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ color: '#0F172A', fontWeight: '700' }}>Cancel</Text>
               </Pressable>
-              <Pressable onPress={() => { setDispatcher({ name: 'Juan Delgado', plate: 'AB-1234', vehicle: 'Toyota Hilux', photo: null }); setShowWaiting(false); setWaitingProgress(100); }} style={{ flex: 1, height: 44, borderRadius: 10, backgroundColor: Colors.light.tint, alignItems: 'center', justifyContent: 'center' }}>
+              <Pressable onPress={() => { setDispatcher({ name: 'Juan Delgado', plate: 'AB-1234', vehicle: 'Toyota Hilux', photo: null }); setShowWaiting(false); setWaitingProgress(100); }} style={{ flex: 1, height: 44, borderRadius: 10, backgroundColor: '#10B981', alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{ color: '#fff', fontWeight: '700' }}>Force accept</Text>
               </Pressable>
             </View>
@@ -344,7 +346,6 @@ export default function TrackingScreen() {
     </View>
   );
 }
-import styles from '../src/styles/trackingStyles';
 
 // Helper component: NFC pulse button
 function NfcPulse({ onPaid }: { onPaid: () => void }) {

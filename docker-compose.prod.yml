@@ -54,6 +54,8 @@ services:
       - backend
     networks:
       - app
+    volumes:
+      - ./uploads:/app/uploads
 
 networks:
   app: {}

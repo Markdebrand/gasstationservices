@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, Image, Modal, FlatList, Platform } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Header from '../components/Header';
-import styles from '../../src/styles/orderStyles';
+// import styles from '../../src/styles/orderStyles'; // Removed to avoid naming conflict
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Colors } from '@/constants/theme';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -11,7 +11,8 @@ import { SavedLocationBridge } from '../../src/lib/savedLocationBridge';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
-import SelectDeliveryLocation from '../components/locations/SelectDeliveryLocation';
+import { listLocations, createLocation as apiCreateLocation, deleteLocation as apiDeleteLocation, type SavedLocation as ApiSavedLocation } from '../../services/locations';
+import { listVehicles as apiListVehicles } from '../../services/vehicles';
 
 const FUEL_PRICES = {
   premium: 1.45,
@@ -47,7 +48,10 @@ export default function Order() {
   const [tokensTemp, setTokensTemp] = React.useState<string>('');
   const [availableTokens, setAvailableTokens] = React.useState<number>(10);
   const [showLocationModal, setShowLocationModal] = React.useState(false);
-  const [savedLocations, setSavedLocations] = React.useState<{name: string, address: string, lat: number, lon: number}[]>([]);
+  const [showSaveLocationModal, setShowSaveLocationModal] = React.useState(false);
+  const [locationNameInput, setLocationNameInput] = React.useState('');
+  const [locationAddressInput, setLocationAddressInput] = React.useState('');
+  const [savedLocations, setSavedLocations] = React.useState<ApiSavedLocation[]>([]);
   const [selectedLocation, setSelectedLocation] = React.useState<{name: string, address: string, lat: number, lon: number} | null>(null);
   const [region, setRegion] = React.useState({
     latitude: 9.92807,
@@ -85,13 +89,28 @@ export default function Order() {
 
   React.useEffect(() => {
     const load = async () => {
-      const key = 'user:vehicles';
-      const existing = await AsyncStorage.getItem(key);
-      const list: Vehicle[] = existing ? JSON.parse(existing) : [];
-      setVehicles(list);
-      if (list.length > 0 && !selectedVehicleId) setSelectedVehicleId(list[0].id);
+      try {
+        const apiList = await apiListVehicles();
+        const mapped = apiList.map(v => ({
+          id: String((v as any).id),
+          photos: v.photos || [],
+          plate: v.plate,
+          brand: v.brand,
+          model: v.model,
+        })) as Vehicle[];
+        setVehicles(mapped);
+        await AsyncStorage.setItem('user:vehicles', JSON.stringify(mapped));
+        if (mapped.length > 0 && !selectedVehicleId) setSelectedVehicleId(mapped[0].id);
+      } catch {
+        const key = 'user:vehicles';
+        const existing = await AsyncStorage.getItem(key);
+        const list: Vehicle[] = existing ? JSON.parse(existing) : [];
+        setVehicles(list);
+        if (list.length > 0 && !selectedVehicleId) setSelectedVehicleId(list[0].id);
+      }
     };
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // try to load available tokens balance (optional)
@@ -107,21 +126,21 @@ export default function Order() {
     })();
   }, []);
 
-  // Load saved locations
+  // Load saved locations (from API, fallback to local cache)
   React.useEffect(() => {
-    let mounted = true;
-    const load = async () => {
+    (async () => {
       try {
-        const raw = await AsyncStorage.getItem('user:savedLocations');
-        if (raw && mounted) setSavedLocations(JSON.parse(raw));
-      } catch {}
-    };
-    load();
-
-    // subscribe to changes made elsewhere (SavedLocations screen)
-    const onChange = () => { load(); };
-    SavedLocationBridge.setChangeListener(onChange);
-    return () => { mounted = false; SavedLocationBridge.clearChangeListener(); };
+        const list = await listLocations();
+        setSavedLocations(list);
+        await AsyncStorage.setItem('user:savedLocations', JSON.stringify(list));
+  } catch {
+        // fallback to local cache if offline or unauthenticated
+        try {
+          const raw = await AsyncStorage.getItem('user:savedLocations');
+          if (raw) setSavedLocations(JSON.parse(raw));
+        } catch {}
+      }
+    })();
   }, []);
 
   const applyPromo = () => {
@@ -137,18 +156,60 @@ export default function Order() {
 
   const removePromo = () => setAppliedPromo(null);
 
-  // Save new location
+  // Save new location to API (from modal)
   const saveLocation = async (loc: {name: string, address: string, lat: number, lon: number}) => {
-    const updated = [...savedLocations, loc];
+    try {
+      const created = await apiCreateLocation(loc);
+      const updated = [...savedLocations, created];
+      setSavedLocations(updated);
+      await AsyncStorage.setItem('user:savedLocations', JSON.stringify(updated));
+  } catch {
+      // as a last resort, keep local cache (no id)
+      const fallback: any = { id: Date.now(), ...loc };
+      const updated = [...savedLocations, fallback];
+      setSavedLocations(updated);
+      await AsyncStorage.setItem('user:savedLocations', JSON.stringify(updated));
+    }
+  };
+
+  // Abrir modal para editar nombre/dirección
+  const handleOpenSaveLocationModal = () => {
+    if (selectedLocation) {
+      setLocationNameInput(selectedLocation.name || '');
+      setLocationAddressInput(selectedLocation.address || '');
+      setShowSaveLocationModal(true);
+    }
+  };
+
+  // Guardar desde modal
+  const handleSaveLocationModal = async () => {
+    if (!locationNameInput.trim() || !locationAddressInput.trim()) return;
+    if (selectedLocation) {
+      await saveLocation({
+        name: locationNameInput.trim(),
+        address: locationAddressInput.trim(),
+        lat: selectedLocation.lat,
+        lon: selectedLocation.lon
+      });
+      setShowSaveLocationModal(false);
+    }
+  };
+
+  // Delete saved location
+  const deleteLocationLocal = async (id: number) => {
+    const updated = savedLocations.filter(loc => loc.id !== id);
     setSavedLocations(updated);
     await AsyncStorage.setItem('user:savedLocations', JSON.stringify(updated));
   };
 
-  // Delete saved location
-  const deleteLocation = async (address: string, lat: number) => {
-    const updated = savedLocations.filter(loc => !(loc.address === address && loc.lat === lat));
-    setSavedLocations(updated);
-    await AsyncStorage.setItem('user:savedLocations', JSON.stringify(updated));
+  const handleDeleteLocation = async (id: number) => {
+    try {
+      await apiDeleteLocation(id);
+      await deleteLocationLocal(id);
+    } catch {
+      // still remove locally to keep UI responsive
+      await deleteLocationLocal(id);
+    }
   };
 
   // Select location and close modal
@@ -309,16 +370,137 @@ export default function Order() {
           </View>
         </View>
       </View>
-      {/* Select delivery location component (extracted) */}
-      <SelectDeliveryLocation
-        visible={showLocationModal}
-        onClose={() => setShowLocationModal(false)}
-        onSelect={(loc) => { if (loc) handleSelectLocation(loc); }}
-        onSave={(loc) => { if (loc) saveLocation(loc); }}
-        onDelete={(address, lat) => deleteLocation(address, lat)}
-        savedLocations={savedLocations}
-        initialRegion={region}
-      />
+      {/* Modal para seleccionar ubicación de entrega */}
+      <Modal visible={showLocationModal} animationType="slide" transparent={false} onRequestClose={() => setShowLocationModal(false)}>
+        <View style={{ flex: 1, backgroundColor: '#fff', justifyContent: 'flex-start', alignItems: 'stretch' }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', padding: 18 }}>
+            <Pressable onPress={() => setShowLocationModal(false)} style={{ padding: 6 }}>
+              <Ionicons name="close" size={32} color="#64748B" />
+            </Pressable>
+          </View>
+          <Text style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 12, marginLeft: 24 }}>Select delivery location</Text>
+          {/* Autocompletado Photon */}
+          <View style={{ flexDirection: 'row', paddingHorizontal: 24, paddingBottom: 12 }}>
+            <TextInput
+              style={{ flex: 1, borderWidth: 1, borderColor: '#ccc', borderRadius: 10, padding: 12, fontSize: 16 }}
+              placeholder="Search address..."
+              value={addressSearch}
+              onChangeText={handleAddressAutocomplete}
+              placeholderTextColor="#94A3B8"
+            />
+          </View>
+          {photonResults.length > 0 ? (
+            <FlatList
+              data={photonResults}
+              keyExtractor={(item, idx) => {
+                const osmId = item?.properties?.osm_id;
+                const label = item?.properties?.label || '';
+                return (osmId ? String(osmId) : 'idx_' + idx) + '_' + label;
+              }}
+              renderItem={({ item }) => {
+                // Mostrar el mejor texto posible
+                const props = item.properties || {};
+                const display = props.label || props.name || props.street || props.city || props.country || 'Dirección sin nombre';
+                return (
+                  <Pressable onPress={() => handlePhotonSelect(item)} style={{ padding: 12, borderBottomWidth: 1, borderBottomColor: '#E2E8F0' }}>
+                    <Text style={{ fontSize: 15, color: '#0F172A' }}>{display}</Text>
+                  </Pressable>
+                );
+              }}
+              style={{
+                maxHeight: 180,
+                height: Math.min(56 * photonResults.length, 180), // 56px por item aprox
+                marginHorizontal: 24,
+                backgroundColor: '#F1F5F9',
+                borderRadius: 12,
+                marginBottom: 2
+              }}
+            />
+          ) : (
+            addressSearch.length >= 3 && (
+              <View style={{ marginHorizontal: 24, marginBottom: 8, backgroundColor: '#F1F5F9', borderRadius: 12, padding: 16 }}>
+                <Text style={{ color: '#64748B', fontSize: 15 }}>No se encontraron resultados.</Text>
+              </View>
+            )
+          )}
+          <MapView
+            style={{ flex: 1, borderRadius: 0 }}
+            provider={Platform.OS === 'android' ? PROVIDER_DEFAULT : undefined}
+            region={region}
+            mapType="standard"
+            showsUserLocation={true}
+            showsMyLocationButton={true}
+            onPress={handleMapPress}
+          >
+            {selectedLocation && (
+              <Marker
+                coordinate={{ latitude: selectedLocation.lat, longitude: selectedLocation.lon }}
+                title={selectedLocation.name}
+              />
+            )}
+          </MapView>
+          <View style={{ padding: 18 }}>
+            <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 10 }}>Your saved locations</Text>
+            <FlatList
+              data={savedLocations}
+              keyExtractor={(item, idx) => {
+                return String(item.id ?? idx);
+              }}
+              renderItem={({ item }) => (
+                <View style={{ flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#E2E8F0' }}>
+                  <Pressable onPress={() => handleSelectLocation(item)} style={{ flex: 1, padding: 12 }}>
+                    <Text style={{ fontSize: 15, color: '#0F172A' }}>{item.name}</Text>
+                    <Text style={{ fontSize: 13, color: '#64748B' }}>{item.address}</Text>
+                  </Pressable>
+                  <Pressable onPress={() => handleDeleteLocation(item.id)} style={{ padding: 8 }}>
+                    <Ionicons name="trash" size={20} color="#E11D48" />
+                  </Pressable>
+                </View>
+              )}
+              style={{ maxHeight: 140, backgroundColor: '#F1F5F9', borderRadius: 12 }}
+            />
+            <Pressable onPress={handleOpenSaveLocationModal} style={{ marginTop: 16, backgroundColor: '#10B981', borderRadius: 12, padding: 14, alignItems: 'center' }}>
+              <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 15 }}>Save selected location</Text>
+            </Pressable>
+      {/* Modal para editar y guardar nombre/dirección personalizada */}
+      <Modal visible={showSaveLocationModal} animationType="slide" transparent={true} onRequestClose={() => setShowSaveLocationModal(false)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.18)', justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ width: '88%', backgroundColor: '#fff', borderRadius: 18, padding: 22, shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 12, elevation: 6 }}>
+            <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 12 }}>Save location</Text>
+            <Text style={{ fontSize: 14, color: '#64748B', marginBottom: 8 }}>Add a name and edit the address if needed.</Text>
+            <Text style={{ fontSize: 13, fontWeight: '600', marginBottom: 4 }}>Name (e.g. Casa, Novia, Trabajo)</Text>
+            <TextInput
+              value={locationNameInput}
+              onChangeText={setLocationNameInput}
+              placeholder="Location name"
+              style={{ borderWidth: 1, borderColor: '#E6EDF0', borderRadius: 10, padding: 10, marginBottom: 12, fontSize: 15, color: '#0F172A' }}
+            />
+            <Text style={{ fontSize: 13, fontWeight: '600', marginBottom: 4 }}>Address</Text>
+            <TextInput
+              value={locationAddressInput}
+              onChangeText={setLocationAddressInput}
+              placeholder="Address"
+              style={{ borderWidth: 1, borderColor: '#E6EDF0', borderRadius: 10, padding: 10, marginBottom: 18, fontSize: 15, color: '#0F172A' }}
+              multiline
+              numberOfLines={2}
+            />
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 12 }}>
+              <Pressable onPress={() => setShowSaveLocationModal(false)} style={{ paddingVertical: 10, paddingHorizontal: 18, borderRadius: 10, backgroundColor: '#F1F5F9' }}>
+                <Text style={{ color: '#64748B', fontWeight: '600', fontSize: 15 }}>Cancel</Text>
+              </Pressable>
+              <Pressable onPress={handleSaveLocationModal} style={{ paddingVertical: 10, paddingHorizontal: 18, borderRadius: 10, backgroundColor: '#10B981' }}>
+                <Text style={{ color: '#fff', fontWeight: '700', fontSize: 15 }}>Save</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+            <Pressable onPress={() => { if (selectedLocation) handleSelectLocation(selectedLocation); }} style={{ marginTop: 12, backgroundColor: '#14617B', borderRadius: 12, padding: 14, alignItems: 'center' }}>
+              <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 15 }}>Use this location for delivery</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
 
       {/* Cuándo lo quieres */}
       <View style={styles.card}>
@@ -476,7 +658,7 @@ type Vehicle = {
 function DispatcherCard({ title, subtitle, icon, selected, onPress }: { title: string; subtitle: string; icon: any; selected: boolean; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} style={[styles.dispatcherCard, selected && styles.dispatcherCardActive]}>
-      <Ionicons name={icon} size={18} color={selected ? Colors.light.tint : Colors.light.muted} />
+      <Ionicons name={icon} size={18} color={selected ? '#14617B' : '#64748B'} />
       <View style={{ marginLeft: 8 }}>
         <Text style={styles.dispatcherTitle}>{title}</Text>
         <Text style={styles.dispatcherSub}>{subtitle}</Text>
@@ -485,6 +667,49 @@ function DispatcherCard({ title, subtitle, icon, selected, onPress }: { title: s
   );
 }
 
-
+const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: '#F8FAFC', padding: 16 },
+  title: { fontSize: 18, fontWeight: '700', color: '#0F172A' },
+  subtitle: { fontSize: 12, color: '#64748B', marginTop: 2 },
+  overline: { marginTop: 12, fontSize: 12, color: '#64748B' },
+  grid3: { flexDirection: 'row', gap: 12, marginTop: 8 },
+  grid2: { flexDirection: 'row', gap: 12, marginTop: 8 },
+  fuelCard: { flex: 1, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E6EDF0', borderRadius: 16, padding: 12, alignItems: 'center', justifyContent: 'center' },
+  fuelCardActive: { borderColor: '#14617B', backgroundColor: 'rgba(20,97,123,0.05)' },
+  fuelLabel: { marginTop: 4, fontSize: 12, color: '#64748B' },
+  fuelPrice: { marginTop: 2, fontSize: 14, fontWeight: '700', color: '#0F172A' },
+  input: { marginTop: 8, borderWidth: 1, borderColor: '#E6EDF0', borderRadius: 14, paddingHorizontal: 12, height: 44, backgroundColor: '#FFFFFF', color: '#0F172A' },
+  quickRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 },
+  pill: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, borderWidth: 1, borderColor: '#E6EDF0', backgroundColor: '#FFFFFF' },
+  pillActive: { backgroundColor: '#14617B', borderColor: '#14617B' },
+  pillText: { fontSize: 12, color: '#0F172A' },
+  pillTextActive: { color: '#FFFFFF', fontWeight: '700' },
+  card: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 12, marginTop: 12, borderWidth: 1, borderColor: '#E6EDF0' },
+  cardTitle: { fontSize: 14, fontWeight: '600', color: '#0F172A' },
+  cardSub: { marginTop: 4, fontSize: 12, color: '#64748B' },
+  link: { marginTop: 6, color: '#14617B', fontSize: 12, fontWeight: '600' },
+  iconBadge: { height: 28, width: 28, borderRadius: 8, backgroundColor: '#ECFDF5', alignItems: 'center', justifyContent: 'center' },
+  totalCard: { marginTop: 12, borderRadius: 12, padding: 12 },
+  totalOverline: { fontSize: 12, color: '#065F46' },
+  totalValue: { fontSize: 22, fontWeight: '700', color: '#065F46', marginTop: 2 },
+  totalIcon: { height: 40, width: 40, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.7)', alignItems: 'center', justifyContent: 'center' },
+  cta: { marginTop: 16, backgroundColor: '#10B981', borderRadius: 16, height: 48, alignItems: 'center', justifyContent: 'center' },
+  ctaText: { color: '#F7FBFE', fontSize: 16, fontWeight: '600' },
+  rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 },
+  muted: { color: '#64748B' },
+  value: { color: '#0F172A' },
+  applyButton: { height: 36, borderRadius: 10, paddingHorizontal: 8, minWidth: 60, backgroundColor: '#14617B', alignItems: 'center', justifyContent: 'center' },
+  applyButtonText: { color: '#FFFFFF', fontWeight: '700', fontSize: 12 },
+  vehiclePill: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#E6EDF0', backgroundColor: '#FFFFFF', borderRadius: 16, padding: 10, marginRight: 10 },
+  vehiclePillActive: { borderColor: '#14617B', backgroundColor: 'rgba(20,97,123,0.05)' },
+  vehicleThumb: { width: 36, height: 36, borderRadius: 10, backgroundColor: '#EEE' },
+  vehicleTitle: { fontSize: 13, fontWeight: '700', color: '#0F172A' },
+  vehicleSub: { fontSize: 11, color: '#64748B' },
+  addVehicleBox: { width: 56, height: 56, borderRadius: 14, borderWidth: 1, borderColor: '#E6EDF0', backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
+  dispatcherCard: { flex: 1, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#E6EDF0', borderRadius: 16, padding: 12, backgroundColor: '#FFFFFF' },
+  dispatcherCardActive: { borderColor: '#14617B', backgroundColor: 'rgba(20,97,123,0.05)' },
+  dispatcherTitle: { fontWeight: '700', color: '#0F172A' },
+  dispatcherSub: { fontSize: 12, color: '#64748B' },
+});
 
 function round2(n: number) { return Math.round(n * 100) / 100; }

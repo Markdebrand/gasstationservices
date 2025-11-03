@@ -1,16 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, Pressable, Button, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TextInput, Pressable, Button, Platform, Modal } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Feather from '@expo/vector-icons/Feather';
-import { BlurView } from 'expo-blur';
-// TypeScript: alias to any for JSX usage when types are missing in this workspace
-const Blur: any = (BlurView as unknown) as any;
 import Header from '../components/Header';
-import LocationsMap from '../components/locations/LocationsMap';
-import styles from '../../src/styles/locationsStyles';
-import MapView, { PROVIDER_DEFAULT } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import styles from '@/src/styles/locationsMapStyles';
 
 const stations = [
   { name: 'HSO Station Centro', addr: 'Av. Principal 123, Centro', dist: 1.2, rate: 4.8, hours: '24/7', open: true },
@@ -38,9 +34,8 @@ export default function LocationsScreen() {
     latitudeDelta: 0.05,
     longitudeDelta: 0.05,
   });
+  const [marker, setMarker] = useState<MarkerType | null>(null);
   const [showMap, setShowMap] = useState(false);
-
-  // showMap controls the display of the separate LocationsMap component
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -53,6 +48,7 @@ export default function LocationsScreen() {
     setSearch(text);
     setQuery(text);
     if (!text) {
+      setMarker(null);
       setRegion({
         latitude: 4.60971,
         longitude: -74.08175,
@@ -71,6 +67,7 @@ export default function LocationsScreen() {
         latitudeDelta: 0.05,
         longitudeDelta: 0.05,
       });
+      setMarker(null);
       return;
     }
     // Si no hay estaciones, buscar en OSM
@@ -87,12 +84,16 @@ export default function LocationsScreen() {
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         });
-        // modal will show marker when opened
+        setMarker({
+          latitude: parseFloat(loc.lat),
+          longitude: parseFloat(loc.lon),
+          title: loc.display_name,
+        });
       } else {
-        // nothing
+        setMarker(null);
       }
     } catch {
-      // ignore
+      setMarker(null);
     }
   };
 
@@ -100,6 +101,7 @@ export default function LocationsScreen() {
   const handleModalSearch = async (text: string) => {
     setSearch(text);
     if (!text) {
+      setMarker(null);
       setRegion({
         latitude: 4.60971,
         longitude: -74.08175,
@@ -121,16 +123,18 @@ export default function LocationsScreen() {
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         });
-        // marker will be handled by modal component
+        setMarker({
+          latitude: parseFloat(loc.lat),
+          longitude: parseFloat(loc.lon),
+          title: loc.display_name,
+        });
       } else {
-        // nothing
+        setMarker(null);
       }
     } catch {
-      // ignore
+      setMarker(null);
     }
   };
-
-  // Location logic moved to LocationsMap component
 
   return (
     <KeyboardAwareScrollView style={styles.root} contentContainerStyle={{ paddingBottom: contentPadBottom }} enableOnAndroid extraScrollHeight={10} keyboardShouldPersistTaps="handled">
@@ -149,21 +153,6 @@ export default function LocationsScreen() {
           />
         </View>
         <View style={styles.mapBox}>
-          {/* Minimal non-interactive map preview behind the icon */}
-          <MapView
-            style={styles.mapPreview}
-            provider={Platform.OS === 'android' ? PROVIDER_DEFAULT : undefined}
-            region={region}
-            mapType="standard"
-            toolbarEnabled={false}
-            pointerEvents="none"
-            showsUserLocation={false}
-            zoomEnabled={false}
-            scrollEnabled={false}
-            pitchEnabled={false}
-            rotateEnabled={false}
-          />
-          <Blur intensity={80} tint="light" style={styles.mapPreviewOverlay} pointerEvents="none" />
           <View style={{ alignItems: 'center', justifyContent: 'center' }}>
             <Pressable onPress={() => setShowMap(true)} style={{ alignItems: 'center' }}>
               <Feather name="map-pin" size={28} color="#0F172A" />
@@ -171,16 +160,43 @@ export default function LocationsScreen() {
             </Pressable>
           </View>
         </View>
-        <LocationsMap
-          visible={showMap}
-          onClose={() => setShowMap(false)}
-          initialRegion={region}
-          search={search}
-          setSearch={setSearch}
-          handleModalSearch={handleModalSearch}
-          onSave={(m) => { /* TODO: persist m */ }}
-          onUse={(m) => { if (m) setRegion({ latitude: m.latitude, longitude: m.longitude, latitudeDelta: 0.01, longitudeDelta: 0.01 }); }}
-        />
+        <Modal visible={showMap} animationType="slide" transparent={false} onRequestClose={() => setShowMap(false)}>
+          <View style={{ flex: 1, backgroundColor: '#fff', justifyContent: 'flex-start', alignItems: 'stretch' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', padding: 18 }}>
+              <Pressable onPress={() => setShowMap(false)} style={{ padding: 6 }}>
+                <Ionicons name="close" size={32} color="#64748B" />
+              </Pressable>
+            </View>
+            <Text style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 12, marginLeft: 24 }}>Mapa de ubicaciones</Text>
+            <View style={{ flexDirection: 'row', paddingHorizontal: 24, paddingBottom: 12 }}>
+              <TextInput
+                style={{ flex: 1, borderWidth: 1, borderColor: '#ccc', borderRadius: 10, padding: 12, fontSize: 16 }}
+                placeholder="Buscar localización..."
+                value={search}
+                onChangeText={setSearch}
+                placeholderTextColor="#94A3B8"
+              />
+              <Pressable onPress={() => handleModalSearch(search)} style={{ marginLeft: 12, backgroundColor: '#10B981', borderRadius: 10, paddingHorizontal: 16, justifyContent: 'center', height: 48 }}>
+                <Ionicons name="search" size={24} color="#fff" />
+              </Pressable>
+            </View>
+            <MapView
+              style={{ flex: 1, borderRadius: 0 }}
+              provider={Platform.OS === 'android' ? PROVIDER_DEFAULT : undefined}
+              region={region}
+              mapType="standard"
+              showsUserLocation={true}
+              showsMyLocationButton={true}
+            >
+              {marker && (
+                <Marker
+                  coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
+                  title={marker.title}
+                />
+              )}
+            </MapView>
+          </View>
+        </Modal>
         {/* Lista de estaciones locales */}
         <Text style={styles.countText}>{stations.length} nearby stations</Text>
         <View style={{ marginTop: 8 }}>

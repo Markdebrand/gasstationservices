@@ -2,30 +2,28 @@ import React from 'react';
 import { ScrollView, View, Text, StyleSheet, Image, Pressable, Alert } from 'react-native';
 import Header from './../../components/Header';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { listVehicles as apiListVehicles, deleteVehicle as apiDeleteVehicle, type Vehicle as ApiVehicle } from '../services/vehicles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 
-type Vehicle = {
-  id: string;
-  photos?: string[];
-  plate: string;
-  brand?: string;
-  model?: string;
-  year?: string;
-  color?: string;
-  vin?: string;
-};
+type Vehicle = ApiVehicle & { id: number };
 
 export default function VehiclesScreen() {
   const router = useRouter();
   const [vehicles, setVehicles] = React.useState<Vehicle[]>([]);
 
   const load = React.useCallback(async () => {
-    const key = 'user:vehicles';
-    const existing = await AsyncStorage.getItem(key);
-    const list: Vehicle[] = existing ? JSON.parse(existing) : [];
-    setVehicles(list);
+    try {
+      const list = await apiListVehicles();
+      setVehicles(list as any);
+      await AsyncStorage.setItem('user:vehicles', JSON.stringify(list));
+    } catch {
+      const key = 'user:vehicles';
+      const existing = await AsyncStorage.getItem(key);
+      const list: Vehicle[] = existing ? JSON.parse(existing) : [];
+      setVehicles(list);
+    }
   }, []);
 
   useFocusEffect(
@@ -35,16 +33,19 @@ export default function VehiclesScreen() {
     }, [load])
   );
 
-  const remove = async (id: string) => {
+  const remove = async (id: number) => {
     Alert.alert('Remove vehicle', 'Are you sure you want to delete this vehicle?', [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Delete', style: 'destructive', onPress: async () => {
+        try {
+          await apiDeleteVehicle(id);
+        } catch {}
         const key = 'user:vehicles';
         const existing = await AsyncStorage.getItem(key);
         const list: Vehicle[] = existing ? JSON.parse(existing) : [];
-        const next = list.filter(v => v.id !== id);
+        const next = list.filter(v => (v as any).id !== id);
         await AsyncStorage.setItem(key, JSON.stringify(next));
-        setVehicles(next);
+        setVehicles(prev => prev.filter(v => (v as any).id !== id));
       }}
     ]);
   };
@@ -64,7 +65,7 @@ export default function VehiclesScreen() {
         </View>
       ) : (
         vehicles.map(v => (
-          <Pressable key={v.id} style={styles.card} onPress={() => router.push({ pathname: '/vehicles/[id]', params: { id: v.id } })}>
+          <Pressable key={(v as any).id} style={styles.card} onPress={() => router.push({ pathname: '/vehicles/[id]', params: { id: String((v as any).id) } })}>
             <View style={{ flexDirection: 'row', gap: 12 }}>
               {v.photos && v.photos.length > 0 ? (
                 <View>
@@ -84,8 +85,8 @@ export default function VehiclesScreen() {
                 {!!v.color && <Text style={styles.meta}>Color: {v.color}</Text>}
                 {!!v.vin && <Text style={styles.meta}>VIN: {v.vin}</Text>}
               </View>
-              <Pressable onPress={() => remove(v.id)}>
-                <Ionicons name="trash-outline" size={20} color="#b91c1c" />
+              <Pressable onPress={() => remove((v as any).id)}>
+                <Ionicons name="trash-outline" size={20} color="#EF4444" />
               </Pressable>
             </View>
           </Pressable>

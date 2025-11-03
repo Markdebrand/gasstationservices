@@ -46,7 +46,7 @@ export default function HomeScreen() {
       <Header />
 
       {pending && (
-        <View style={[styles.card, { backgroundColor: '#FFF1F2', borderColor: '#F5D6D6' }] }>
+        <View style={[styles.card, { backgroundColor: '#F0FBF6', borderColor: '#CBE9DC' }] }>
           <Text style={styles.cardTitle}>Pending payment</Text>
           <Text style={styles.cardMeta}>
             {pending.summary || 'Order'} • Total ${pending.total}
