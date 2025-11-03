@@ -14,6 +14,9 @@ app = FastAPI(title="HSO Fuel Delivery - MVP", version="0.1.0", root_path=settin
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # CORS: permitir cualquier origen (para apps y web)
+allowed_origins = getattr(settings, 'allowed_origins', getattr(settings, 'ALLOWED_ORIGINS', ['*']))
+if isinstance(allowed_origins, str):
+    allowed_origins = [o.strip() for o in allowed_origins.split(',') if o.strip()]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
