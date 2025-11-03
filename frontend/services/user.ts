@@ -16,23 +16,3 @@ export async function fetchUserProfile() {
   console.log('user/me data', data);
   return data;
 }
-
-export async function updateUserHSOPoints(userId: number, hso_points: number) {
-  const token = await getToken();
-  const res = await authFetch(
-    `${API_BASE_URL}/api/users/${userId}/hso_points`,
-    {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify({ hso_points }),
-    }
-  );
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error('Failed to update HSO Points: ' + text);
-  }
-  return res.json();
-}
